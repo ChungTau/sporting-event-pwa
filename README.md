@@ -42,6 +42,35 @@ feature無問題就會merge去develop
 > `git branch feature/navigation-bar` //示範\
 > `git branch feature/header` //示範
 
+
+## Feature Life-cycle
+### # *命名規則*
+  - 由feature作為prefix
+  - 然後以功能所在的page作為infix
+  - 最後以功能名稱作為postfix
+  - Example:
+    - /feature/main/plan/mapview
+    - /feature/main/header
+    - /feature/signin/authentication
+   
+
+### # *提取develop branch的最新版本, 並在develop branch中創建feature branch*
+```sh
+  git checkout develop
+  git pull
+  git checkout -b feature/main/header
+```
+### # *合併更新*
+定期從develop branch更新
+```sh
+  git checkout feature/main/header
+  git merge develop
+```
+
+### # *完成feature後合併*
+當完成好你現有的feature後, 可以找Edward,
+等待他進行merge branches
+
 ## Installation
 
 ```sh

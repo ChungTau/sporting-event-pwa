@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Logo from "./Logo";
 import PageNavigator from "./PageNavigator";
 import ActionBar from "./ActionBar";
+import { COLOR_PRIMARY_RGB } from "../../../constants/palatte";
 
 const MotionHeader = motion(chakra.header);
 
@@ -21,10 +22,11 @@ const Header = () => {
             animate="visible"
             exit="exit"
             transition={{ type: 'linear', duration: 0.6 }}
-            bg={'rgba(94, 78, 61,0.8)'}
+            bg={`rgba(${COLOR_PRIMARY_RGB},0.8)`}
             px={6}
             m={2}
             borderRadius={16}
+            color={'white'}
         >
             <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
             <Logo />

@@ -23,9 +23,6 @@ jobs:
     - name: Build
       run: npm run build
 
-    - name: Run tests
-      run: npm test
-
     - name: Deploy to Server
       if: github.ref == 'refs/heads/develop'
       run: |

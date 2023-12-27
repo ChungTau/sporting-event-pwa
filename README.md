@@ -21,7 +21,7 @@ feature無問題就會merge去develop
 
 ##### 將File (or folder) 加入版本控制
 >`git add <file>`\
->`git add .` //可以加入全部\
+>`git add .` //可以加入全部
 
 ##### 提交剛才add的更動, 並說明
 >`git commit -m "說明內容"`
@@ -35,7 +35,7 @@ feature無問題就會merge去develop
 >`git pull origin develop` //示範
 
 ##### 建立Branch
-> `git branch <name>`\
+> `git branch <name>`
 
 ##### 建立Sub-branch
 > `git branch <branch>/<sub-branch>`\

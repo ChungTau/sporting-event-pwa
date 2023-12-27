@@ -6,27 +6,30 @@ on:
   pull_request:
     branches: [ develop ]
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js
+
+    - name: Set up Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '14'
+        node-version: '18'
+
     - name: Install dependencies
       run: npm install
+
     - name: Build
       run: npm run build
+
     - name: Run tests
       run: npm test
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.0
-      with:
-        branch: gh-pages # The branch the action should deploy to.
-        folder: build # The folder the action should deploy.
+
+    - name: Deploy to Server
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'mkdir -p /sporting-event-pwa/frontend'
+        tar -czf build.tar.gz build/
+        scp -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/frontend
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa/frontend && rm /sporting-event-pwa/frontend/build.tar.gz'

@@ -13,6 +13,7 @@ import SignInPage from '../pages/signIn';
 import { FaPen, FaUser } from 'react-icons/fa';
 import { BsCalendarEventFill } from 'react-icons/bs';
 import { MdPhotoAlbum } from 'react-icons/md';
+import AddEventPage from '../pages/main/outlets/addEvent';
 
 export interface RouteConfig {
     icon?: any;
@@ -31,6 +32,7 @@ export interface OutletConfig {
 export const mainOutlet: OutletConfig = {
     HOME: { name: 'Home', path: '/home', component: HomePage, isProtected: false },
     PLAN: { name: 'Plan', path: '/plan', component: PlanPage, isProtected: true },
+    ADD_EVENT: { name: 'Add Event', path: '/add-event', component: AddEventPage, isProtected: true },
 };
 
 export const userOutlet: OutletConfig = {

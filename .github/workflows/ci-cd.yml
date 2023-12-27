@@ -26,7 +26,10 @@ jobs:
     - name: Deploy to Server
       if: github.ref == 'refs/heads/develop'
       run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'mkdir -p /sporting-event-pwa/frontend'
+        echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
+        chmod 600 deploy_key.pem
+        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'mkdir -p /sporting-event-pwa/frontend'
         tar -czf build.tar.gz build/
-        scp -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/frontend
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_DEPLOY_KEY }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa/frontend && rm /sporting-event-pwa/frontend/build.tar.gz'
+        scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/frontend
+        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa/frontend && rm /sporting-event-pwa/frontend/build.tar.gz'
+        rm deploy_key.pem

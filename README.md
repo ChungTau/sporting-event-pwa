@@ -11,7 +11,7 @@ feature無問題就會merge去develop
 
 ## DEV Website Preview Tutorial
 * Connect to the HKUST SSL VPN
-* Enter `http://vml1wk156.cse.ust.hk/home` in your browser
+* Enter [http://vml1wk156.cse.ust.hk/home](http://vml1wk156.cse.ust.hk/home) in your browser
 
 ## Common Git Command Tutorial
 

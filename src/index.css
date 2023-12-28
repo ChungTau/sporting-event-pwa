@@ -15,7 +15,7 @@ code {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 
 /* Track */
@@ -37,4 +37,18 @@ code {
 html {
   background-image: url('./assets/images/bgImage.svg');
   background-color: #ececf1;
+}
+
+.page-title{
+  font-size: x-large;
+  font-weight: 600;
+
+  @media (max-width:960px){
+    font-size: larger;
+    font-weight: 600;
+  };
+  @media (max-width:600px){
+    font-size: large;
+    font-weight: 500;
+  }
 }

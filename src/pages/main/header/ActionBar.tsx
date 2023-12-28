@@ -47,13 +47,16 @@ const ActionBar = () => {
                     <Menu>
                         <MenuButton
                             as={IconButton}
+                            color={'white'}
+                            _active={{bgColor:'blackAlpha.500'}}
+                            _hover={{bgColor:'blackAlpha.200'}}
                             aria-label='Options'
-                            icon={< IoMenu />}
+                            icon={< IoMenu/>}
                             variant='outline'/>
                         <MenuList
                             mt={2}
                             bg={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
-                            backdropFilter={'blur(1px)'}>
+                            backdropFilter={'blur(4px)'}>
                             {Object
                                 .entries(userOutlet)
                                 .map(([key, route]) => (

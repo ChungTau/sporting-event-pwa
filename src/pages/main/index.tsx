@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Wrapper } from "../../components/Wrapper";
 import Header from "./header";
+import MapProvider from "../../providers/MapProvider";
 
 function MainPage(){
 
@@ -21,9 +22,11 @@ function MainPage(){
             exit="exit"
             transition={{ type: 'linear', delay: 0.2, }}
           >
+           <MapProvider>
            <Wrapper>
            <Outlet />
            </Wrapper>
+           </MapProvider>
           </motion.div>
         </div>
       );

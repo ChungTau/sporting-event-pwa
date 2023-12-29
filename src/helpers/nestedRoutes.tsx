@@ -2,6 +2,7 @@ import {ReactNode} from "react";
 import {Navigate, Route} from "react-router-dom";
 import {RouteConfig} from "../constants/routes";
 import ProtectedRoute from "../components/ProtectedRoute";
+import React from "react";
 
 export const nestedRoutes = (nestedRouteItems : RouteConfig[]) : ReactNode => {
     return nestedRouteItems.map((nestedRouteItem) => {
@@ -23,7 +24,7 @@ export const nestedRoutes = (nestedRouteItems : RouteConfig[]) : ReactNode => {
             );
         }
 
-        const Component = nestedRouteItem.component;
+        const Component = nestedRouteItem.lazyComponent ? React.lazy(nestedRouteItem.lazyComponent) : nestedRouteItem.component;
         return (
             <Route
                 key={nestedRouteItem.name}

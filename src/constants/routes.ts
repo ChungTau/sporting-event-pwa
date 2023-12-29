@@ -1,13 +1,7 @@
-import { ComponentType } from 'react';
+import {ComponentType } from 'react';
 import { To } from 'react-router-dom';
 import MainPage from '../pages/main';
 import ErrorPage from '../pages/error';
-import HomePage from '../pages/main/outlets/home';
-import PlanPage from '../pages/main/outlets/plan';
-import MyProfilePage from '../pages/main/outlets/myProfile';
-import MyEventPage from '../pages/main/outlets/myEvent';
-import MyPlanPage from '../pages/main/outlets/myPlan';
-import MyJourneyPage from '../pages/main/outlets/myJourney';
 import SignUpPage from '../pages/signUp';
 import SignInPage from '../pages/signIn';
 import { FaPen, FaUser } from 'react-icons/fa';
@@ -16,13 +10,13 @@ import { GoHomeFill } from "react-icons/go";
 import { MdPhotoAlbum } from 'react-icons/md';
 import { FaRoute } from "react-icons/fa";
 import { IoCreate } from "react-icons/io5";
-import AddEventPage from '../pages/main/outlets/addEvent';
 
 export interface RouteConfig {
     icon?: any;
     name: string;
     path?: string;
     component?: ComponentType<any> | null;
+    lazyComponent?: () => Promise<{ default: ComponentType<any> }>;
     to?: To;
     outlet?: OutletConfig;
     isProtected?: boolean;
@@ -33,16 +27,16 @@ export interface OutletConfig {
 }
 
 export const mainOutlet: OutletConfig = {
-    HOME: { name: 'Home', icon:GoHomeFill, path: '/home', component: HomePage, isProtected: false },
-    PLAN: { name: 'Plan', icon:FaRoute, path: '/plan', component: PlanPage, isProtected: true },
-    ADD_EVENT: { name: 'Add Event', icon: IoCreate, path: '/add-event', component: AddEventPage, isProtected: true },
+    HOME: { name: 'Home', icon:GoHomeFill, path: '/home', lazyComponent: () => import('../pages/main/outlets/home'),  isProtected: false },
+    PLAN: { name: 'Plan', icon:FaRoute, path: '/plan', lazyComponent: () => import('../pages/main/outlets/plan'), isProtected: true },
+    ADD_EVENT: { name: 'Add Event', icon: IoCreate, path: '/add-event', lazyComponent: () => import('../pages/main/outlets/addEvent'), isProtected: true },
 };
 
 export const userOutlet: OutletConfig = {
-    USER_PROFILE: { name: 'My Profile', icon: FaUser, path: '/user/profile', component: MyProfilePage, isProtected: true },
-    USER_EVENT: { name: 'My Event', icon: BsCalendarEventFill, path: '/user/event', component: MyEventPage, isProtected: true },
-    USER_PLAN: { name: 'My Plan', icon: FaPen, path: '/user/plan', component: MyPlanPage, isProtected: true },
-    USER_JOURNEY: { name: 'My Journey', icon: MdPhotoAlbum, path: '/user/journey', component: MyJourneyPage, isProtected: true },
+    USER_PROFILE: { name: 'My Profile', icon: FaUser, path: '/user/profile', lazyComponent: () => import('../pages/main/outlets/myProfile'),  isProtected: true },
+    USER_EVENT: { name: 'My Event', icon: BsCalendarEventFill, path: '/user/event',lazyComponent: () => import('../pages/main/outlets/myEvent'),  isProtected: true },
+    USER_PLAN: { name: 'My Plan', icon: FaPen, path: '/user/plan', lazyComponent: () => import('../pages/main/outlets/myPlan'),  isProtected: true },
+    USER_JOURNEY: { name: 'My Journey', icon: MdPhotoAlbum, path: '/user/journey', lazyComponent: () => import('../pages/main/outlets/myJourney'),  isProtected: true },
 };
 
 export const routes = Object.freeze({

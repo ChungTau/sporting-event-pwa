@@ -12,6 +12,18 @@ function SignInPage() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const handleSignIn = () => {
+        dispatch(setLoggedIn(true));
+        const redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath) {
+            navigate(redirectPath);
+            sessionStorage.removeItem('redirectPath');
+        } else {
+            navigate(routes.MAIN.path);
+        }
+    };
+
     return (
         <motion.div
             variants={fadeVariants}
@@ -28,10 +40,7 @@ function SignInPage() {
                     _hover={{
                     bgColor: COLOR_SECONDARY_LIGHT
                 }}
-                    onClick={() => {
-                    dispatch(setLoggedIn(true));
-                    navigate(routes.MAIN.path);
-                }}>{routes.SIGNIN.name}</Button>
+                    onClick={handleSignIn}>{routes.SIGNIN.name}</Button>
             </Center>
         </motion.div>
     );

@@ -29,6 +29,9 @@ const store = configureStore({
     gpx: gpxReducer,
     authenticated: authenticatedReducer,
   },
+  preloadedState: {
+    gpx: loadFromLocalStorage(),
+  },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
 });
 

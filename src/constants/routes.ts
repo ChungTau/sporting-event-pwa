@@ -12,7 +12,10 @@ import SignUpPage from '../pages/signUp';
 import SignInPage from '../pages/signIn';
 import { FaPen, FaUser } from 'react-icons/fa';
 import { BsCalendarEventFill } from 'react-icons/bs';
+import { GoHomeFill } from "react-icons/go";
 import { MdPhotoAlbum } from 'react-icons/md';
+import { FaRoute } from "react-icons/fa";
+import { IoCreate } from "react-icons/io5";
 import AddEventPage from '../pages/main/outlets/addEvent';
 
 export interface RouteConfig {
@@ -30,9 +33,9 @@ export interface OutletConfig {
 }
 
 export const mainOutlet: OutletConfig = {
-    HOME: { name: 'Home', path: '/home', component: HomePage, isProtected: false },
-    PLAN: { name: 'Plan', path: '/plan', component: PlanPage, isProtected: true },
-    ADD_EVENT: { name: 'Add Event', path: '/add-event', component: AddEventPage, isProtected: true },
+    HOME: { name: 'Home', icon:GoHomeFill, path: '/home', component: HomePage, isProtected: false },
+    PLAN: { name: 'Plan', icon:FaRoute, path: '/plan', component: PlanPage, isProtected: true },
+    ADD_EVENT: { name: 'Add Event', icon: IoCreate, path: '/add-event', component: AddEventPage, isProtected: true },
 };
 
 export const userOutlet: OutletConfig = {

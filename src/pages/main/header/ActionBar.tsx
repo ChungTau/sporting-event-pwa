@@ -55,7 +55,7 @@ const createMenuItem = (route:RouteConfig, handleNavigation:HandleNavigationFunc
 
 const MobileMenu: React.FC<MenuProps> = ({ handleNavigation }) => (
     <>
-        <MenuGroup {...menuGroupStyle} title="Pages">
+        <MenuGroup {...menuGroupStyle} title="Page">
             {Object.entries(mainOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
         </MenuGroup>
         <MenuDivider my={4} />

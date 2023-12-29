@@ -5,7 +5,10 @@ import {
     IconButton,
     MenuButton,
     MenuItem,
-    MenuList
+    MenuList,
+    useBreakpointValue,
+    MenuGroup,
+    MenuDivider
 } from "@chakra-ui/react";
 
 import {IoMenu} from "react-icons/io5";
@@ -15,20 +18,62 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../store";
 import {setLoggedIn} from "../../../store/authSlice";
 import Row from "../../../components/Row";
-import {routes, userOutlet} from "../../../constants/routes";
+import {RouteConfig, mainOutlet, routes, userOutlet} from "../../../constants/routes";
 import {COLOR_PRIMARY_RGB, COLOR_SECONDARY, COLOR_SECONDARY_LIGHT} from "../../../constants/palatte";
+
+type HandleNavigationFunction = (path: string) => void;
+
+interface MenuProps {
+    handleNavigation: HandleNavigationFunction;
+}
 
 const menuItemStyle = {
     bg: 'transparent',
     _hover: {
         bg: `rgba(${COLOR_PRIMARY_RGB}, 0.3)`,
         color: 'white'
-    }
+    },
+    color: 'white',
+    fontSize: '14px'
 };
+
+const menuGroupStyle = {
+    marginX: '0.8rem',
+    fontWeight: 600,
+    color: 'gray.100',
+};
+
+const createMenuItem = (route:RouteConfig, handleNavigation:HandleNavigationFunction) => (
+    <MenuItem
+        {...menuItemStyle}
+        icon={route.icon ? <route.icon /> : undefined}
+        onClick={() => handleNavigation(route.path || '#')}
+        key={route.name}>
+        {route.name}
+    </MenuItem>
+);
+
+const MobileMenu: React.FC<MenuProps> = ({ handleNavigation }) => (
+    <>
+        <MenuGroup {...menuGroupStyle} title="Pages">
+            {Object.entries(mainOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
+        </MenuGroup>
+        <MenuDivider my={4} />
+        <MenuGroup {...menuGroupStyle} title="User">
+            {Object.entries(userOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
+        </MenuGroup>
+    </>
+);
+
+const DesktopMenu: React.FC<MenuProps> = ({ handleNavigation }) => {
+    return(<>{Object.entries(userOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}</>);
+};
+
 
 const ActionBar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const isMobile = useBreakpointValue({base: true, md: false});
     const isLoggedIn = useSelector((state : RootState) => state.authenticated.isLoggedIn);
 
     const handleNavigation = (path : string) => {
@@ -48,28 +93,25 @@ const ActionBar = () => {
                         <MenuButton
                             as={IconButton}
                             color={'white'}
-                            _active={{bgColor:'blackAlpha.500'}}
-                            _hover={{bgColor:'blackAlpha.200'}}
+                            _active={{
+                            bgColor: 'blackAlpha.400'
+                        }}
+                            _hover={{
+                            bgColor: 'blackAlpha.200'
+                        }}
                             aria-label='Options'
-                            icon={< IoMenu/>}
+                            icon={< IoMenu />}
                             variant='outline'/>
                         <MenuList
                             mt={2}
+                            px={4}
                             bg={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
                             backdropFilter={'blur(4px)'}>
-                            {Object
-                                .entries(userOutlet)
-                                .map(([key, route]) => (
-                                    <MenuItem
-                                        {...menuItemStyle}
-                                        icon={route.icon
-                                        ? <route.icon/>
-                                        : undefined}
-                                        onClick={() => handleNavigation(route.path || '#')}
-                                        key={key}>
-                                        {route.name}
-                                    </MenuItem>
-                                ))}
+                            {isMobile ? (
+                            <MobileMenu handleNavigation={handleNavigation} />
+                        ) : (
+                            <DesktopMenu handleNavigation={handleNavigation} />
+                        )}
                             <MenuItem {...menuItemStyle} icon={< IoLogOut />} onClick={handleLogout}>
                                 Logout
                             </MenuItem>

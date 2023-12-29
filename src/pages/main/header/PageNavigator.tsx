@@ -1,4 +1,4 @@
-import {HStack, Link as ChakraLink, Text} from "@chakra-ui/react";
+import {HStack, Link as ChakraLink, Text, useBreakpointValue} from "@chakra-ui/react";
 import {Link as RouterLink} from 'react-router-dom';
 import {mainOutlet} from "../../../constants/routes";
 import {useSelector} from "react-redux";
@@ -8,10 +8,11 @@ import {APP_NAME} from "../../../config/app";
 const PageNavigator = () => {
     const isLoggedIn = useSelector((state : RootState) => state.authenticated.isLoggedIn);
     const pages = Object.values(mainOutlet);
+    const isMobile = useBreakpointValue({ base: true, md: false });
     return ( 
         <> 
             <HStack as="nav" spacing="5">
-                {isLoggedIn
+                {!isMobile&&isLoggedIn
                     ? pages.map((route) => {
                         if (!route.isProtected || isLoggedIn) {
                             return (

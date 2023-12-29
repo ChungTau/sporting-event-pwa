@@ -1,10 +1,11 @@
-import Center from "../../../../components/Center";
+import Column from "../../../../components/Column";
+import { PlanMapView } from "./PlanMapView";
 
 function PlanPage(){
     return(
-        <div>
-            <Center>Plan Page</Center>
-        </div>
+        <Column gap={5}>
+            <PlanMapView/>
+        </Column>
     );
 };
 

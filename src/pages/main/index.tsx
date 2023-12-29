@@ -20,7 +20,7 @@ function MainPage(){
             initial="initial"
             animate="enter"
             exit="exit"
-            transition={{ type: 'linear', delay: 0.2, }}
+            transition={{ type: 'linear', delay: 0.3, duration: 0.4 }}
           >
            <MapProvider>
            <Wrapper>

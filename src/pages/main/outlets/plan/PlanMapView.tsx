@@ -100,13 +100,13 @@ export const PlanMapView : React.FC = () => {
             //addLayersToMap(mapRef,"#ff30a2", data?.routes);
         }
     }, [data
-            ?.routes]);
+            ?.routes, mapRef]);
 
     const handleResize = useCallback(() => {
         resizeMap(data
             ?.routes, mapRef);
     }, [data
-            ?.routes]);
+            ?.routes, mapRef]);
 
     useEffect(() => {
         if (data

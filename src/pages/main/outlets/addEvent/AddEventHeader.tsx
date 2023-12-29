@@ -16,7 +16,7 @@ export const AddEventHeader = ({ onSubmit }: AddEventHeaderProps) => {
                 _hover={{ bgColor: `rgba(${COLOR_PRIMARY_RGB},0.5)` }}
                 onClick={onSubmit}
             >
-                Confirm
+                Save
             </Button>
         </Row>
     );

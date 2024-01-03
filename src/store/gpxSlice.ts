@@ -40,11 +40,17 @@ const gpxSlice = createSlice({
       state.isLoading = false;
       saveToLocalStorage(state.data); 
     },
-    
+    clearGPXData: (state) => {
+      state.data = undefined;
+      state.route = undefined;
+      state.isLoading = false;
+      state.error = undefined;
+      saveToLocalStorage(state.data);
+    },
   }
 });
 
-export const { setGPXData } = gpxSlice.actions;
+export const { setGPXData, clearGPXData } = gpxSlice.actions;
 
 
 export default gpxSlice.reducer;

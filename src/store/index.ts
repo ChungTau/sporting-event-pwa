@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authenticatedReducer from './authSlice';
 import gpxReducer, { GPXState } from './gpxSlice';
+import checkpointsReducer from './checkpointsSlice';
 import { GpxData } from '../models/GpxData';
 
 const loadFromLocalStorage = (): GPXState => {
@@ -28,6 +29,7 @@ const store = configureStore({
   reducer: {
     gpx: gpxReducer,
     authenticated: authenticatedReducer,
+    checkpoints: checkpointsReducer,
   },
   preloadedState: {
     gpx: loadFromLocalStorage(),

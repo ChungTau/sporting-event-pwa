@@ -18,14 +18,14 @@ interface LocationSelectorProps {
   }
   
   export const LocationSelector: React.FC<LocationSelectorProps> = ({ onPointDetailsUpdate }) => {
-    const mapRef = useMap();
+    const map = useMap();
     const markerRef = useRef < mapboxgl.Marker | null > (null);
     const [showDetailBox,
         setShowDetailBox] = useState(false);
     const [pointDetails,
         setPointDetails] = useState<PointDetails>({lng: 0, lat: 0, address: '', name: ''});
     useEffect(() => {
-        const mapInstance = mapRef.current
+        const mapInstance = map.mapRef.current
             ?.getMapInstance();
 
         if (mapInstance) {
@@ -84,7 +84,7 @@ interface LocationSelectorProps {
                     .remove();
             }
         };
-    }, [mapRef, onPointDetailsUpdate]);
+    }, [map.mapRef, onPointDetailsUpdate]);
 
     return (
         <MapContainer
@@ -94,7 +94,7 @@ interface LocationSelectorProps {
             overflow: 'hidden',
         }}>
             <BaseMap
-                ref={mapRef}
+                ref={map.mapRef}
                 center={hongKongCoordinates}
                 zoom={17}
                 style={{

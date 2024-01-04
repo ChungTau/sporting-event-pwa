@@ -58,7 +58,7 @@ const MobileMenu: React.FC<MenuProps> = ({ handleNavigation }) => (
         <MenuGroup {...menuGroupStyle} title="Page">
             {Object.entries(mainOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
         </MenuGroup>
-        <MenuDivider my={4} />
+        <MenuDivider my={4} borderBottomColor={'white'} />
         <MenuGroup {...menuGroupStyle} title="User">
             {Object.entries(userOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
         </MenuGroup>
@@ -93,18 +93,24 @@ const ActionBar = () => {
                         <MenuButton
                             as={IconButton}
                             color={'white'}
+                            
                             _active={{
-                            bgColor: 'blackAlpha.400'
-                        }}
+                                bgColor: 'blackAlpha.400'
+                            }}
                             _hover={{
-                            bgColor: 'blackAlpha.200'
-                        }}
+                                bgColor: 'blackAlpha.200'
+                            }}
                             aria-label='Options'
+                            bgColor={'blackAlpha.400'}
+                            
                             icon={< IoMenu />}
-                            variant='outline'/>
+                            variant={'primary'}
+                            />
                         <MenuList
                             mt={2}
                             px={4}
+                            zIndex={11}
+                            borderColor={'transparent'}
                             bg={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
                             backdropFilter={'blur(4px)'}>
                             {isMobile ? (

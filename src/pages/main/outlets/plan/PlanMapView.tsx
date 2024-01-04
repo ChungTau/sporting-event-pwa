@@ -9,10 +9,9 @@ import {
 import styled from "@emotion/styled";
 // @ts-ignore
 import togeojson from 'togeojson';
-import {hongKongCoordinates} from "../../../../constants/map";
 import {useMap} from "../../../../contexts/MapContext";
 import {useDropzone} from "react-dropzone";
-import {Suspense, useCallback, useEffect, useState} from "react";
+import {Suspense, useState} from "react";
 import Column from "../../../../components/Column";
 
 import React from "react";
@@ -20,21 +19,21 @@ import FallbackSpinner from "../../../../components/FallbackSpinner";
 import {processGeoJSON} from "../../../../helpers/processGeoJSON";
 import {GpxData} from "../../../../models/GpxData";
 import {useDispatch, useSelector} from "react-redux";
-import {clearGPXData, setGPXData} from "../../../../store/gpxSlice";
+import {setGPXData} from "../../../../store/gpxSlice";
 import {RootState} from "../../../../store";
-import {addLayersToMap, removeAllRoutes, resizeMap} from "../../../../helpers/map";
+import {removeAllRoutes} from "../../../../helpers/map";
 import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import Row from "../../../../components/Row";
 import InfoItem from "./InfoItem";
 import UploadArea from "./UploadArea";
-
-const BaseMap = React.lazy(() => import ('../../../../components/BaseMap'));
+import MapPanel from "./MapPanel";
+import PlanMap from "./PlanMap";
 const MapContainer = styled(Box)({width: '100%', height: '650px'});
 
 export const PlanMapView : React.FC = () => {
     const [fileSelected,
         setFileSelected] = useState(false);
-    const mapRef = useMap();
+    const map = useMap();
     const dispatch = useDispatch();
     const {data} = useSelector((state : RootState) => state.gpx);
     const isMobile = useBreakpointValue({base: true, md: false});
@@ -55,7 +54,8 @@ export const PlanMapView : React.FC = () => {
                     routes: convertedGeoJSON.features[0]
                 };
                 setFileSelected(true);
-                removeAllRoutes(mapRef);
+                removeAllRoutes(map.mapRef);
+                map.clearMarkers();
                 dispatch(setGPXData(gpxData));
             };
 
@@ -89,62 +89,14 @@ export const PlanMapView : React.FC = () => {
         maxSize: 5000000
     });
 
-    useEffect(() => {
-    return () => {
-      // Cleanup function to clear GPX data when component is unmounted
-      dispatch(clearGPXData());
-    };
-  }, [dispatch]);
-
-    useEffect(() => {
-
-        if (mapRef.current) {
-
-            const mapInstance = mapRef
-                .current
-                .getMapInstance();
-            if (mapInstance._fullyLoaded) {
-                addLayersToMap(mapRef, "#ff30a2", data
-                    ?.routes);
-            }
-            //addLayersToMap(mapRef,"#ff30a2", data?.routes);
-        }
-    }, [
-        data
-            ?.routes,
-        mapRef
-    ]);
-
-    const handleResize = useCallback(() => {
-        resizeMap(data
-            ?.routes, mapRef);
-    }, [
-        data
-            ?.routes,
-        mapRef
-    ]);
-
-    useEffect(() => {
-        if (data
-            ?.routes) {
-            handleResize();
-        }
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [
-        data
-            ?.routes,
-        handleResize
-    ]);
-
     return (
         <MapContainer
             style={{
             position: 'relative',
             w: '100%',
-            minH:'470px',
+            minH: '470px',
             height: 'fit-content',
-            maxH:'520px',
+            maxH: '520px',
             overflow: 'hidden'
         }}>
             <Stack>
@@ -153,20 +105,10 @@ export const PlanMapView : React.FC = () => {
                         width={'100%'}
                         gap={0}
                         minH={'470px'}
-                        
                         bgColor={'transparent'}
                         w={'100%'}
                         borderRadius={12}>
-                        <BaseMap
-                            ref={mapRef}
-                            center={hongKongCoordinates}
-                            zoom={17}
-                            style={{
-                            position: 'relative',
-                            width: '100%',
-                            height: '400px',
-                            borderRadius: '12px 12px 0px 0px'
-                        }}/>
+                        <PlanMap data={data}/> {fileSelected && <MapPanel/>}
                         <Flex
                             direction={isMobile
                             ? "column"
@@ -224,7 +166,8 @@ export const PlanMapView : React.FC = () => {
                                 : "auto"}>
                                 <InfoItem
                                     label="Distance"
-                                    value={`${data?.info.distance.toFixed(2) ?? '---'} KM`}
+                                    value={`${data
+                                    ?.info.distance.toFixed(2) ?? '---'} KM`}
                                     isMobile={isMobile}/>
                                 <InfoItem
                                     label="Ele. Gain"
@@ -238,7 +181,12 @@ export const PlanMapView : React.FC = () => {
                         </Flex>
                     </Column>
                 </Suspense>
-                <UploadArea getInputProps={getInputProps} getRootProps={getRootProps} isDragActive={isDragActive} fileSelected={fileSelected}/>
+                <UploadArea
+                    getInputProps={getInputProps}
+                    getRootProps={getRootProps}
+                    isDragActive={isDragActive}
+                    fileSelected={fileSelected}/>
+
             </Stack>
         </MapContainer>
     );

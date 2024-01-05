@@ -53,7 +53,9 @@ const PlanMap = ({data} : PlanMapProps) => {
         if (map.mapRef.current) {
             const mapInstance = map.mapRef.current.getMapInstance();
             if (mapInstance._fullyLoaded) {
-                addLayersToMap(map.mapRef, '#887d73', data?.routes);
+                mapInstance.on('style.load',()=>{
+                  addLayersToMap(map.mapRef, '#887d73', data?.routes);
+                });
             }
         }
     }, [data?.routes, map.mapRef]);
@@ -257,7 +259,7 @@ const PlanMap = ({data} : PlanMapProps) => {
             style = {{
                 position: 'relative',
                 width: '100%',
-                height: '400px',
+                height: '430px',
                 borderRadius: '12px 12px 0px 0px'
             }}
         />

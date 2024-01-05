@@ -28,6 +28,8 @@ import InfoItem from "./InfoItem";
 import UploadArea from "./UploadArea";
 import MapPanel from "./MapPanel";
 import PlanMap from "./PlanMap";
+import AnimationProvider from "../../../../providers/AnimationProvider";
+
 const MapContainer = styled(Box)({width: '100%', height: '650px'});
 
 export const PlanMapView : React.FC = () => {
@@ -94,17 +96,17 @@ export const PlanMapView : React.FC = () => {
             style={{
             position: 'relative',
             w: '100%',
-            minH: '470px',
+            minH: '500px',
             height: 'fit-content',
             maxH: '520px',
             overflow: 'hidden'
-        }}>
+        }}><AnimationProvider>
             <Stack>
                 <Suspense fallback={< FallbackSpinner />}>
                     <Column
                         width={'100%'}
                         gap={0}
-                        minH={'470px'}
+                        minH={'500px'}
                         bgColor={'transparent'}
                         w={'100%'}
                         borderRadius={12}>
@@ -188,6 +190,7 @@ export const PlanMapView : React.FC = () => {
                     fileSelected={fileSelected}/>
 
             </Stack>
+            </AnimationProvider>
         </MapContainer>
     );
 }

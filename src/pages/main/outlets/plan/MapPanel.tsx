@@ -106,11 +106,19 @@ const MapPanel = () => {
 
     const handleMapFullscreenToggle = () => {
         const mapContainer = map.mapRef.current.getMapInstance().getContainer();
-        
+    
         if (!document.fullscreenElement) {
-            mapContainer.requestFullscreen();
+            if (mapContainer.requestFullscreen) {
+                mapContainer.requestFullscreen();
+            } else if (mapContainer.webkitRequestFullscreen) { // Safari
+                mapContainer.webkitRequestFullscreen();
+            } else if (mapContainer.msRequestFullscreen) { // IE11
+                mapContainer.msRequestFullscreen();
+            }
         } else {
-            document.exitFullscreen();
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } 
         }
     };
 

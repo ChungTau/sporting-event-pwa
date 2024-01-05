@@ -2,7 +2,6 @@ import {
     Button,
     FormControl,
     FormLabel,
-    Icon,
     Input,
     Modal,
     ModalBody,
@@ -11,23 +10,18 @@ import {
     ModalFooter,
     ModalHeader,
     ModalOverlay,
-    Textarea
 } from "@chakra-ui/react";
 import {useEffect, useState} from "react";
 import {
     GroupBase,
-    OptionBase,
     Select,
   } from "chakra-react-select";
 
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 import Column from "../../../../components/Column";
-import { FaBowlFood } from "react-icons/fa6";
-import { MdLocalDrink } from "react-icons/md";
-import { PiFirstAidKitFill } from "react-icons/pi";
-import { FaToiletPaper } from "react-icons/fa";
 import { MarkerData } from "../../../../contexts/MapContext";
+import { ServiceOption, serviceOptions } from "../../../../constants/servicesOption";
 
 interface CheckpointModalProps {
     isOpen : boolean;
@@ -36,27 +30,13 @@ interface CheckpointModalProps {
     checkpointData : MarkerData;
 }
 
-export interface ServiceOption extends OptionBase {
-    label: React.ReactNode;
-    value: string;
-}
-
-export const options: ServiceOption[] = [
-    { value: "food", label: <Icon as={FaBowlFood} w={6} h={6} /> },
-    { value: "drink", label: <Icon as={MdLocalDrink} w={6} h={6} /> },
-    { value: "aid", label: <Icon as={PiFirstAidKitFill} w={6} h={6} /> },
-    { value: "wc", label: <Icon as={FaToiletPaper} w={6} h={6} /> },
-];
-
 const CheckpointModal : React.FC < CheckpointModalProps > = ({isOpen, onClose, onSubmit, checkpointData}) => {
     const [name, setName] = useState(checkpointData?.name ?? ''); // Use checkpointData for initial values
     const [placeholder, setPlaceholder] = useState('');
-    const [description, setDescription] = useState(checkpointData?.description || '');
     const [selectedServices, setSelectedServices] = useState<string[]>(checkpointData?.services || []);
     const handleSubmit = () => {
         onSubmit({
             name,
-            description,
             services: selectedServices,
             distance: checkpointData.distance??0,
             elevationGain: checkpointData.elevationGain??0,
@@ -76,7 +56,6 @@ const CheckpointModal : React.FC < CheckpointModalProps > = ({isOpen, onClose, o
     const resetForm = () => {
         setName('');
         setPlaceholder('');
-        setDescription('');
         setSelectedServices([]);
     };
 
@@ -90,12 +69,8 @@ const CheckpointModal : React.FC < CheckpointModalProps > = ({isOpen, onClose, o
                         address: data.features[0]?.place_name || 'Unknown location',
                         name: data.features[0]?.text || 'Unknown location'
                     };
-                    
-                        setName(checkpointData.name);
-                        setPlaceholder(result.name);
-                    
-    
-                    // Set selected services when opening the modal
+                    setName(checkpointData.name);
+                    setPlaceholder(result.name);
                     setSelectedServices(checkpointData.services || []);
                 }
             } catch (error) {
@@ -126,20 +101,13 @@ const CheckpointModal : React.FC < CheckpointModalProps > = ({isOpen, onClose, o
                     <FormLabel>Services</FormLabel>
                     <Select<ServiceOption, true, GroupBase<ServiceOption>>
                         name="services"
-                        value={options.filter((opt) => selectedServices.includes(opt.value))}
+                        value={serviceOptions.filter((opt) => selectedServices.includes(opt.value))}
                         onChange={(e) => setSelectedServices(Array.isArray(e) ? e.map((item) => item.value) : [])}
-                        options={options}
+                        options={serviceOptions}
                         isMulti
                         useBasicStyles
                     />
                 </FormControl>
-                    <FormControl>
-                        <FormLabel>Description</FormLabel>
-                        <Textarea
-                            maxHeight={'200px'}
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}/>
-                    </FormControl>
                     </Column>
                 </ModalBody>
 

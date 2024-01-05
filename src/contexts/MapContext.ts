@@ -6,7 +6,6 @@ import { Position } from '@turf/turf';
 export interface MarkerData {
   id: string;
   name: string;
-  description: string;
   services: string[];
   distance: number;
   elevationGain: number;

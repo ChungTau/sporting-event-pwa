@@ -21,31 +21,10 @@ import {useState} from "react";
 import {IoChevronUpOutline, IoChevronDownOutline} from "react-icons/io5";
 import Column from "../../../../components/Column";
 import Row from "../../../../components/Row";
-import {FaBowlFood} from "react-icons/fa6";
-import {MdLocalDrink} from "react-icons/md";
-import {PiFirstAidKitFill} from "react-icons/pi";
-import {FaToiletPaper} from "react-icons/fa";
 import {FaTrash} from "react-icons/fa";
 import CheckpointModal from "./CheckpointModal";
 import {MarkerData, useMap} from "../../../../contexts/MapContext";
-
-const getServiceIcons = (services : string[]) => {
-    const iconMap : {
-        [key : string] : JSX.Element;
-    } = {
-        food: <FaBowlFood/>,
-        drink: <MdLocalDrink/>,
-        aid: <PiFirstAidKitFill/>,
-        wc: <FaToiletPaper/>, // Add your WC icon component
-        // Add more mappings as needed
-    };
-
-    return services.map((service, index) => (
-        <Box key={index} display="inline-block" mr={2}>
-            {iconMap[service]}
-        </Box>
-    ));
-};
+import { getServiceIcons } from "../../../../constants/servicesOption";
 
 const CheckpointTable = () => {
     const {data} = useSelector((state : RootState) => state.gpx);
@@ -246,7 +225,7 @@ const CheckpointTable = () => {
                                 </Row>
                                 <Row justifyContent={'space-between'} p={2} w={'100%'}>
                                     <Text fontSize="small" fontWeight={600}>{'Services: '}</Text>
-                                    <Row>
+                                    <Row alignItems={'center'}>
                                         {getServiceIcons(checkpoint.services)}
                                     </Row>
                                 </Row>

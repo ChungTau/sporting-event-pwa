@@ -23,6 +23,7 @@ import createCustomMarker from './PlanMarker';
 import {Position} from '@turf/turf';
 import {useToast} from '@chakra-ui/react';
 import CheckpointModal from './CheckpointModal';
+import MapPanel from './MapPanel';
 
 const BaseMap = React.lazy(() => import ('../../../../components/BaseMap'));
 
@@ -64,7 +65,7 @@ const PlanMap = ({data} : PlanMapProps) => {
         if (data && data.routes && data.routes.geometry.coordinates.length > 0) {
             const startCoord = data.routes.geometry.coordinates[0];
             const endCoord = data.routes.geometry.coordinates[data.routes.geometry.coordinates.length - 1];
-
+            
             const startPoint = {
                 id: uuidv4(),
                 name: 'Start Point',
@@ -200,6 +201,7 @@ const PlanMap = ({data} : PlanMapProps) => {
     }, [data?.routes,initializeCheckpoints]);
 
     const handleResize = useCallback(() => {
+        console.log(map.mapRef.current.getMapInstance());
         resizeMap(data?.routes, map.mapRef);
     }, [data?.routes,map.mapRef]);
 
@@ -262,7 +264,9 @@ const PlanMap = ({data} : PlanMapProps) => {
                 height: '430px',
                 borderRadius: '12px 12px 0px 0px'
             }}
-        />
+        >
+            {data?.routes && <MapPanel/>}
+        </BaseMap>
         <CheckpointModal
             isOpen={isModalOpen}
             onClose={handleModalClose}

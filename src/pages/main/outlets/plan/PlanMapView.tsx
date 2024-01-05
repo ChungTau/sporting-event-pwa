@@ -26,7 +26,6 @@ import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import Row from "../../../../components/Row";
 import InfoItem from "./InfoItem";
 import UploadArea from "./UploadArea";
-import MapPanel from "./MapPanel";
 import PlanMap from "./PlanMap";
 import AnimationProvider from "../../../../providers/AnimationProvider";
 
@@ -110,7 +109,7 @@ export const PlanMapView : React.FC = () => {
                         bgColor={'transparent'}
                         w={'100%'}
                         borderRadius={12}>
-                        <PlanMap data={data}/> {fileSelected && <MapPanel/>}
+                        <PlanMap data={data}/> 
                         <Flex
                             direction={isMobile
                             ? "column"

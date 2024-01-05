@@ -10,10 +10,12 @@ export interface AnimationState {
     speed: number;
     zoomLevel: number;
     isPlaying: boolean;
+    isRecording: boolean;
     isCompleted: boolean;
     info: Info;
     start: () => void;
     reset: () => void;
+    record: ()=> void;
 }
 
 export const defaultState: AnimationState = {
@@ -21,13 +23,15 @@ export const defaultState: AnimationState = {
     speed: 0,
     zoomLevel: 0,
     isPlaying: false,
+    isRecording: false,
     isCompleted: true,
     info: {
         elevationGain: 0,
         distance: 0
     } as Info,
     start: () => { },
-    reset: () => { }
+    reset: () => { },
+    record: ()=> {}
 };
 
 export interface AnimationContextProps extends AnimationState {

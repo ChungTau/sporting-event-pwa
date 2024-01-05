@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, forwardRef, useImperativeHandle} from 'react';
+import React, {useRef, useEffect, forwardRef, useImperativeHandle, ReactNode} from 'react';
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 import { terrainRate } from '../constants/map';
@@ -10,19 +10,20 @@ interface MapProps {
     style?: React.CSSProperties | undefined
     center?: [number, number];
     zoom?: number;
+    children?: ReactNode; 
 }
 
 export interface MapRef {
     getMapInstance : () => mapboxgl.Map | undefined;
 }
 
-const BaseMap = forwardRef < MapRef,
-    MapProps > (({
+const BaseMap = forwardRef <MapRef,MapProps> (({
         style,
         center = [
             0, 0
         ],
-        zoom = 12
+        zoom = 12,
+        children
     }, ref) => {
         const mapContainerRef = useRef < HTMLDivElement | null > (null);
         const mapInstance = useRef < mapboxgl.Map > ();
@@ -71,7 +72,7 @@ const BaseMap = forwardRef < MapRef,
             getMapInstance: () => mapInstance.current
         }));
 
-        return <div ref={mapContainerRef} style={style}/>;
+        return <div ref={mapContainerRef} style={style}>{children}</div>;
     });
 
 export default BaseMap;

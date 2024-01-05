@@ -12,7 +12,8 @@ import {IoStop, IoMenu} from "react-icons/io5";
 import Row from "../../../../components/Row";
 import DraggablePinButton from "./DraggablePinButton";
 import {BsFillPlayFill, BsFillPauseFill} from "react-icons/bs";
-import {MdSpeed, MdZoomInMap} from "react-icons/md";
+import { PiRecordFill } from "react-icons/pi";
+import {MdFullscreen, MdSpeed, MdZoomInMap} from "react-icons/md";
 import {TbAngle} from "react-icons/tb";
 import {ReactComponent as DawnIcon} from "../../../../assets/icons/dawn.svg";
 import {ReactComponent as DayIcon} from "../../../../assets/icons/day.svg";
@@ -60,7 +61,6 @@ const MapPanel = () => {
         setSelectedPreset] = useState('day');
     const map = useMap();
     const animationRef = useAnimation();
-    
     useEffect(() => {
       if (
         map.mapRef &&
@@ -96,8 +96,22 @@ const MapPanel = () => {
         animationRef.start();
     };
 
+    const handleRecord = () => {
+      animationRef.record();
+  };
+
     const handleReset = () => {
         animationRef.reset();
+    };
+
+    const handleMapFullscreenToggle = () => {
+        const mapContainer = map.mapRef.current.getMapInstance().getContainer();
+        
+        if (!document.fullscreenElement) {
+            mapContainer.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
     };
 
     return (
@@ -185,14 +199,20 @@ const MapPanel = () => {
                         cursor: "not-allowed"
                     }}/>}
             <DraggablePinButton/>
-
+            
+            <IconButton
+                {...iconButtonStyles}
+                icon={<MdFullscreen />}
+                aria-label="fullscreen"
+                onClick={handleMapFullscreenToggle}
+            />
             <IconButton onClick={handlePlayPause} aria-label={animationRef.isPlaying
                     ? "pause"
                     : "play"} {...iconButtonStyles} icon={animationRef.isPlaying
                     ? <BsFillPauseFill color="#ffffff"/>
                     : <BsFillPlayFill color="#ffffff"/>}/>
             <IconButton onClick={handleReset} aria-label="stop" {...iconButtonStyles } icon={< IoStop />}/>
-
+            <IconButton onClick={handleRecord} aria-label="record" {...iconButtonStyles } bgColor={animationRef.isRecording?"#f5425a":"rgba(0,0,0,0.6)"} _hover={{bgColor:animationRef.isRecording?"rgba(245, 66, 90,0.8)":"rgba(0,0,0,0.6)"}} icon={< PiRecordFill />}/>
         </Row>
     );
 };

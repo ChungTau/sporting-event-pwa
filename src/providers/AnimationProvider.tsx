@@ -7,6 +7,10 @@ import { useMap } from "../contexts/MapContext";
 import { addLineLayer, resizeMap } from "../helpers/map";
 import { calculateAnimationPhase, computeElevationChange, executeFlyTo } from "../helpers/mapAnim";
 import { lerp } from "../helpers/lerp";
+//@ts-ignore
+import Whammy from 'react-whammy'
+//@ts-ignore
+import mapboxgl from 'mapbox-gl';
 
 export const useAnimation = () => {
     const context = useContext(AnimationContext);
@@ -41,12 +45,112 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
     const bearingRef = useRef(0);
     const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
     const [progressLine, setProgressLine] = useState<Position[][]>([]);
+    const [recording, setRecording] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
     const map = useMap();
 
     useEffect(() => {
         isPlayingRef.current = isPlaying; // Sync ref with state to use inside the callback
     }, [isPlaying]);
 
+    useEffect(() => {
+        if (recording) {
+            // Initialize video encoder
+            const canvas = document.createElement('canvas');
+            
+            const initVideoEncoder = async () => {
+                const mapInstance = map.mapRef.current.getMapInstance();
+                const gl = mapInstance.painter.context.gl;
+                const originalCanvas = gl.canvas;
+                
+                canvas.height = gl.drawingBufferHeight;
+                //canvas.width = gl.drawingBufferHeight * (9/16);
+                canvas.width = gl.drawingBufferWidth;
+                // Get the 2D context of the cloned canvas
+                const ctx = canvas.getContext('2d');
+                const fps = 24;
+                const encoder = new Whammy.Video(fps);
+                //const offsetX = (canvas.width - gl.drawingBufferWidth) / 2;
+                if (!ctx) {
+                    console.error('Off-screen Canvas 2D context is null.');
+                    return () => {
+                        mapInstance.off('render', frame);
+                        mapboxgl.restoreNow();
+                    };
+                }
+
+                const frame = () => {
+                    // Ensure offScreenCtx is not null before using it
+                    if (ctx) {
+                        //ctx.drawImage(originalCanvas, offsetX, 0, gl.drawingBufferWidth, canvas.height);
+                        ctx.drawImage(originalCanvas, 0, 0, canvas.width, canvas.height);
+                        encoder.add(ctx);
+                    }
+                };
+                mapInstance.on('render', frame);
+    
+                return () => {
+                    mapInstance.off('render', frame);
+                    mapboxgl.restoreNow();
+                };
+            };
+    
+            // Start video recording
+            const startRecording = async () => {
+                const cleanupEncoder = await initVideoEncoder();
+                chunksRef.current = [];
+                const canvasStream = canvas.captureStream();
+                mediaRecorderRef.current = new MediaRecorder(canvasStream, {
+                    mimeType: 'video/webm; codecs=vp9',
+                });
+    
+                // Handle data available event
+                mediaRecorderRef.current.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        chunksRef.current.push(event.data);
+                    }
+                };
+    
+                // Handle recording stopped event
+                mediaRecorderRef.current.onstop = () => {
+                    // Combine recorded chunks into a single Blob
+                    const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+    
+                    // Create a download link for the user
+                    const anchor = document.createElement('a');
+                    anchor.href = URL.createObjectURL(blob);
+                    anchor.download = 'map_animation.webm';
+                    anchor.click();
+    
+                    // Reset recording state
+                    setRecording(false);
+                    chunksRef.current = [];
+    
+                    // Clean up resources
+                    cleanupEncoder();
+                };
+    
+                // Start recording
+                mediaRecorderRef.current.start();
+            };
+    
+            // Stop video recording
+            const stopRecording = () => {
+                if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                    mediaRecorderRef.current.stop();
+                }
+            };
+    
+            // Start recording when animation starts
+            if (isPlaying) {
+                startRecording();
+            } else {
+                // Stop recording when animation stops
+                stopRecording();
+            }
+        }
+    }, [isPlaying, map, recording]);
     
     useEffect(() => {
         if (data?.routes) {
@@ -154,7 +258,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         }
         setCurrentDistance(0);
         setCumulativeElevationGain(0);
-        setIsPlaying(false);
+       
         lastPositionRef.current = null;
         isPlayingRef.current = false;
         startTime.current = 0;
@@ -177,6 +281,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             setCurrentPosition([]);
             setProgressLine([]);
         }
+        
 
         const mapInstance = map.mapRef.current
             ?.getMapInstance();
@@ -200,6 +305,9 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         }
         fadeInRouteLayers();
         handleResize();
+        setTimeout(()=>{
+            setIsPlaying(false);
+        },4000);
     }, [data?.routes, handleResize, fadeInRouteLayers, map.mapRef]);
 
     const animateFlyAlongRoute = useCallback((time : number) => {
@@ -328,7 +436,15 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         });
     }, [ fadeOutRouteLayers, flyToRoute]);
 
-    
+    const recordAnimation = useCallback(() => {
+        if(recording){
+            setRecording(!recording);
+            resetAnimation();
+        }else{
+            setRecording(!recording);
+            startAnimation();
+        }
+    }, [startAnimation, resetAnimation, recording]);
 
     
 
@@ -373,6 +489,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         setSpeed,
         setZoomLevel,
         isPlaying,
+        isRecording: recording,
         isCompleted: elapsedTime.current === 0,
         info: {
             elevationGain: cumulativeElevationGain,
@@ -380,6 +497,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         },
         start: startAnimation,
         reset: resetAnimation,
+        record: recordAnimation
     };
 
     return (

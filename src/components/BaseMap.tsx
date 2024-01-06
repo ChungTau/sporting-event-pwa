@@ -47,7 +47,6 @@ const BaseMap = forwardRef <MapRef,MapProps> (({
                                     'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
                                     'tileSize': 512
                                 });
-                                mapInstance.current.addControl(new mapboxgl.FullscreenControl());
                         }
                         mapInstance
                             .current

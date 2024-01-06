@@ -54,6 +54,7 @@ const PlanMap = ({data} : PlanMapProps) => {
         if (map.mapRef.current) {
             const mapInstance = map.mapRef.current.getMapInstance();
             if (mapInstance._fullyLoaded) {
+                
                 mapInstance.on('style.load',()=>{
                   addLayersToMap(map.mapRef, '#887d73', data?.routes);
                 });
@@ -63,43 +64,53 @@ const PlanMap = ({data} : PlanMapProps) => {
 
     const initializeCheckpoints = useCallback(() => {
         if (data && data.routes && data.routes.geometry.coordinates.length > 0) {
-            const startCoord = data.routes.geometry.coordinates[0];
-            const endCoord = data.routes.geometry.coordinates[data.routes.geometry.coordinates.length - 1];
-            
-            const startPoint = {
-                id: uuidv4(),
-                name: 'Start Point',
-                description: '',
-                services: [],
-                distance: 0,
-                distanceInter: 0,
-                elevationGain: 0,
-                elevation: startCoord[2],
-                position: [startCoord[0], startCoord[1]]as Position
-            } as MarkerData;
-
-            const endPoint = {
-                id: uuidv4(),
-                name: 'End Point',
-                description: '',
-                services: [],
-                distance: data.info.distance,
-                distanceInter: data.info.distance,
-                elevationGain: data.info.climb,
-                elevation: endCoord[2],
-                position: [endCoord[0], endCoord[1]]as Position
-            } as MarkerData;
-
-            const startMarker = createCustomMarker().setLngLat([startCoord[0], startCoord[1]]);
-            const endMarker = createCustomMarker().setLngLat([endCoord[0], endCoord[1]]);
-            startMarker.data = startPoint;
-            endMarker.data = endPoint;
-
-            map.addMarker(startMarker);
-            map.addMarker(endMarker);
+            const coordinates = data.routes.geometry.coordinates;
+    
+            // Handle LineString
+            if (data.routes.geometry.type === "LineString") {
+                const startCoord = coordinates[0];
+                const endCoord = coordinates[coordinates.length - 1];
+                
+                const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0);
+                const endPoint = createMarkerData(endCoord as Position, 'End Point', data.info.distance);
+    
+                addMarkerToMap(startPoint);
+                addMarkerToMap(endPoint);
+            }
+    
+            // Handle MultiLineString
+            else if (data.routes.geometry.type === "MultiLineString") {
+                const startCoord = coordinates[0][0];
+                const endCoord = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1];
+                
+                const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0);
+                const endPoint = createMarkerData(endCoord as Position, 'End Point', data.info.distance);
+    
+                addMarkerToMap(startPoint);
+                addMarkerToMap(endPoint);
+            }
         }
         // eslint-disable-next-line
     }, [data, map.mapRef]);
+    
+    const createMarkerData = (coord: Position, name: string, distance: number): MarkerData => {
+        return {
+            id: uuidv4(),
+            name: name,
+            services: [],
+            distance: distance,
+            distanceInter: distance,
+            elevationGain: 0,
+            elevation: coord[2],
+            position: [coord[0], coord[1]] as Position
+        };
+    };
+    
+    const addMarkerToMap = (markerData: MarkerData) => {
+        const marker = createCustomMarker().setLngLat(markerData.position);
+        marker.data = markerData;
+        map.addMarker(marker);
+    };
 
     const placePinNearRoute = useCallback((lngLat : Position) => {
         if (!data?.routes.geometry.coordinates) return;
@@ -108,11 +119,11 @@ const PlanMap = ({data} : PlanMapProps) => {
         if (!mRef) {
             return;
         }
-        const nearest = findNearestPointOnRoute(lngLat, data.routes.geometry.coordinates);
+        const nearest = findNearestPointOnRoute(lngLat, data.routes);
         if (nearest) {
             const newMarker = createCustomMarker().setLngLat(nearest).addTo(mRef).on('dragend', () => {
                     const draggedLngLat = newMarker.getLngLat();
-                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, data.routes.geometry.coordinates);
+                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, data.routes);
                     if (nearestPoint) {
                         newMarker.setLngLat(nearestPoint);
 
@@ -201,7 +212,6 @@ const PlanMap = ({data} : PlanMapProps) => {
     }, [data?.routes,initializeCheckpoints]);
 
     const handleResize = useCallback(() => {
-        console.log(map.mapRef.current.getMapInstance());
         resizeMap(data?.routes, map.mapRef);
     }, [data?.routes,map.mapRef]);
 
@@ -211,7 +221,7 @@ const PlanMap = ({data} : PlanMapProps) => {
         }
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [data?.routes,map,handleResize ]);
+    }, [data?.routes, map.mapRef, handleResize ]);
 
     useEffect(() => {
         return () => {

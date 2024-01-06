@@ -323,9 +323,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             const animationPhase = calculateAnimationPhase(distanceOfCurrentRoute, time, elapsedTime, startTime, start, speed);
             if (animationPhase > 1) {
                 const newIndex = routeIndex + 1;
-                if (data
-                    ?.routes
-                        ?.geometry.type === "MultiLineString" && newIndex < data.routes.geometry.coordinates.length) {
+                if (data?.routes?.geometry.type === "MultiLineString" && newIndex < data.routes.geometry.coordinates.length) {
                     if (animationFrameId.current) {
                         window.cancelAnimationFrame(animationFrameId.current);
                         animationFrameId.current = null; // reset the animation frame id

@@ -1,4 +1,4 @@
-import { Feature, LineString, MultiLineString, Position, Properties, bbox, lineString, nearestPointOnLine, point, pointOnLine } from "@turf/turf";
+import { Feature, LineString, MultiLineString, Position, Properties, bbox, lineString, multiLineString, nearestPointOnLine, point, pointOnLine } from "@turf/turf";
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 import { MAP_PADDING } from "../constants/map";
@@ -133,17 +133,23 @@ function getRouteCoordinates(routeFeature: RouteFeature): Position[] {
       routeFeature.geometry.coordinates.flat(1);
 }
 
-export function findNearestPointOnRoute(markerLngLat: any, routeCoordinates: RouteCoordinates): Position | null {
+export function findNearestPointOnRoute(markerLngLat: any, route: Feature<MultiLineString, Properties> | Feature<LineString, Properties>): Position | null {
     const pt = point([markerLngLat.lng, markerLngLat.lat]);
     let nearest;
 
-    if (routeCoordinates.length > 0) {
-        const line = lineString(routeCoordinates as Position[]);
+    if (route.geometry.type === 'LineString') {
+        const line = lineString(route.geometry.coordinates as Position[]);
         nearest = nearestPointOnLine(line, pt);
+    }
+    // Check if it's a MultiLineString
+    else if (route.geometry.type === 'MultiLineString') {
+        const multiLine = multiLineString(route.geometry.coordinates as Position[][]);
+        nearest = nearestPointOnLine(multiLine, pt);
     }
 
     return nearest ? nearest.geometry.coordinates : null;
-};
+}
+
 
 export function calculateDistanceAlongRoute(pt: Position, routeFeature: RouteFeature): number {
     const line = lineString(getRouteCoordinates(routeFeature));

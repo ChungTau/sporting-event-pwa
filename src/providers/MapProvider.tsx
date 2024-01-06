@@ -95,9 +95,25 @@ export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
   };
 
   const clearMarkers = () => {
-    setMarkers([]);
+    setMarkers((prevMarkers) => {
+      // Keep the first and last markers
+      const firstMarker = prevMarkers.length > 0 ? [prevMarkers[0]] : [];
+      const lastMarker = prevMarkers.length > 1 ? [prevMarkers[prevMarkers.length - 1]] : [];
+  
+      // Remove markers from the map
+      prevMarkers.forEach((marker) => {
+        // Check if the marker is not the first or last one
+        if (!firstMarker.includes(marker) && !lastMarker.includes(marker)) {
+          marker.remove();
+        }
+      });
+  
+      // Update the state to an array containing the first and last markers
+      return [...firstMarker, ...lastMarker];
+    });
   };
-
+  
+  
   const contextValue: MapContextProps = {
     mapRef,
     markers,

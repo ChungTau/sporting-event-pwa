@@ -330,10 +330,8 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 }
             }
             lastPositionRef.current = alongPath;
-            const bearing = routeIndex !== 0
-                ? bearingRef.current
-                : (0 + animationPhase * 300.0);
-            bearingRef.current = bearing;
+            const bearing = gpx.gpxState.data?.routes.geometry.type === "LineString" ? (0 + (animationPhase * 240)): routeIndex !== 0? bearingRef.current+(animationPhase/gpx.gpxState.data?.routes.geometry.coordinates.length!)*240: (0 + (animationPhase/gpx.gpxState.data?.routes.geometry.coordinates.length!)*240);
+
             if (map.mapRef.current) {
                 const currentView = map.mapRef
                     .current
@@ -361,7 +359,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 map.mapRef
                     .current
                     .getMapInstance()
-                    ?.easeTo({center: interpolatedView, pitch: pitch, bearing: bearingRef.current, zoom: zoomLevel2, duration: 0});
+                    ?.easeTo({center: interpolatedView, pitch: pitch, bearing: bearing, zoom: zoomLevel2, duration: 0});
                 animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
             }
         }

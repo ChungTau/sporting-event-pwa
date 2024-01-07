@@ -84,7 +84,7 @@ const MapPanel = () => {
             }
         }
 
-    }, [selectedPreset, mapStyle]);
+    }, [selectedPreset, mapStyle, map.mapRef]);
 
     const renderPresetButtons = () => (['dawn', 'day', 'dusk', 'night'].map(preset => (<PresetIconButton
         key={preset}

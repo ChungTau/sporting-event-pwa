@@ -1,7 +1,5 @@
 import { ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AnimationContext, AnimationContextProps} from "../contexts/AnimationContext";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 import { Feature, LineString, Position, Properties, Units, along, distance, lineString, point, length } from "@turf/turf";
 import { useMap } from "../contexts/MapContext";
 import { addLineLayer, resizeMap } from "../helpers/map";
@@ -11,6 +9,7 @@ import { lerp } from "../helpers/lerp";
 import Whammy from 'react-whammy'
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
+import { useGPX } from "../contexts/GPXContext";
 
 export const useAnimation = () => {
     const context = useContext(AnimationContext);
@@ -27,7 +26,7 @@ type AnimationProviderProps = {
 };
 
 const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
-    const { data } = useSelector((state: RootState) => state.gpx);
+    const gpx = useGPX();
     const [pitch, setPitch] = useState<number>(40);
     const [speed, setSpeed] = useState<number>(1);
     const [zoomLevel, setZoomLevel] = useState<number>(16.2);
@@ -37,7 +36,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
     const startTime = useRef<number>(0);
     const elapsedTime = useRef<number>(0);
     const lastPositionRef = useRef<Position | null>(null);
-    const isPlayingRef = useRef<boolean>(false);
+    const isPlayingRef = useRef<boolean>(isPlaying);
     const [currentRouteIndex, setCurrentRouteIndex] = useState<number>(0);
     const [cumulativeElevationGain, setCumulativeElevationGain] = useState(0);
     const [currentDistance, setCurrentDistance] = useState(0);
@@ -153,64 +152,31 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
     }, [isPlaying, map, recording]);
     
     useEffect(() => {
-        if (data?.routes) {
-            if (data.routes.geometry.type === "LineString") {
-                setCurrentPosition(data.routes.geometry.coordinates[0]);
-                setProgressLine([data.routes.geometry.coordinates.slice(0, 2)]);
-            } else if (data.routes.geometry.type === "MultiLineString") {
-                setCurrentPosition(data.routes.geometry.coordinates[0][0]);
-                setProgressLine([data.routes.geometry.coordinates[0].slice(0, 2)]);
+        if (gpx.gpxState.data?.routes) {
+            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
+                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0]);
+                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates.slice(0, 2)]);
+            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0][0]);
+                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates[0].slice(0, 2)]);
             }
         }
-    }, [data?.routes]);
+    }, [gpx.gpxState.data?.routes]);
     
-    useEffect(() => {
-        if (currentPosition && map.mapRef.current && map.mapRef.current.getMapInstance() && map.mapRef.current.getMapInstance()._fullyLoaded) {
-            setProgressLine((lines: Position[][]) => {
-                if (!lines[currentRouteIndex]) {
-                    return [...lines, [currentPosition]];
-                }
-                const updatedLines = [...lines];
-                updatedLines[currentRouteIndex] = [...updatedLines[currentRouteIndex], currentPosition];
-                return updatedLines;
-            });
-        }
-    }, [currentPosition, currentRouteIndex, map.mapRef]);
-    
-    useEffect(() => {
-        if (progressLine.length > 0 && data?.routes) {
-            const mapInstance = map.mapRef.current.getMapInstance();
-            const color = "#f74d63";
-            if (mapInstance && mapInstance.style !== undefined && mapInstance.style._loaded) {
-                if (data.routes.geometry.type === "LineString" && progressLine[0].length >= 2) {
-                    const progressRoute = lineString(progressLine[0]);
-                    addLineLayer('lineA', map.mapRef, color, progressRoute);
-                } else if (data.routes.geometry.type === "MultiLineString") {
-                    progressLine.forEach((lineSegment, index) => {
-                        if (lineSegment.length >= 2) {
-                            const progressRoute = lineString(lineSegment);
-                            const layerId = `line${index}`;
-                            addLineLayer(layerId, map.mapRef, color, progressRoute);
-                        }
-                    });
-                }
-            }
-        }
-    }, [progressLine, data?.routes, map.mapRef]);
 
     const fadeOutRouteLayers = useCallback(() => {
-        if (map.mapRef.current && data?.routes) {
+        if (map.mapRef.current && gpx.gpxState.data?.routes) {
             const mapInstance = map.mapRef.current.getMapInstance();
 
-            if (data?.routes
+            if (gpx.gpxState.data?.routes
                 ?.geometry.type === "LineString") {
                 const layerId = `routeLayer`;
                 if (mapInstance.getLayer(layerId)) {
                     mapInstance.setPaintProperty(layerId, 'line-opacity', 0);
                 }
-            } else if (data?.routes
+            } else if (gpx.gpxState.data?.routes
                 ?.geometry.type === "MultiLineString") {
-                    data?.routes
+                    gpx.gpxState.data?.routes
                     .geometry
                     .coordinates
                       .forEach((route, index) => {
@@ -221,20 +187,20 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                     });
             }
         }
-    },[data?.routes, map.mapRef]);
+    },[gpx.gpxState.data?.routes, map.mapRef]);
     const fadeInRouteLayers = useCallback(() => {
-        if (map.mapRef.current && data?.routes) {
+        if (map.mapRef.current && gpx.gpxState.data?.routes) {
             const mapInstance = map.mapRef.current.getMapInstance();
 
-            if (data?.routes
+            if (gpx.gpxState.data?.routes
                 ?.geometry.type === "LineString") {
                 const layerId = `routeLayer`;
                 if (mapInstance.getLayer(layerId)) {
                     mapInstance.setPaintProperty(layerId, 'line-opacity', 1);
                 }
-            } else if (data?.routes
+            } else if (gpx.gpxState.data?.routes
                 ?.geometry.type === "MultiLineString") {
-                    data?.routes
+                    gpx.gpxState.data?.routes
                     .geometry
                     .coordinates
                     .forEach((route, index) => {
@@ -245,11 +211,11 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                     });
             }
         }
-    },[data?.routes, map?.mapRef]);
+    },[gpx.gpxState.data?.routes, map?.mapRef]);
 
     const handleResize = useCallback(() => {
-        resizeMap(data?.routes, map.mapRef);
-    }, [data?.routes, map.mapRef]);
+        resizeMap(gpx.gpxState.data?.routes, map.mapRef);
+    }, [gpx.gpxState.data?.routes, map.mapRef]);
 
     const resetAnimation = useCallback((resetRouteIndex = true) => {
         if (animationFrameId.current) {
@@ -258,7 +224,6 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         }
         setCurrentDistance(0);
         setCumulativeElevationGain(0);
-       
         lastPositionRef.current = null;
         isPlayingRef.current = false;
         startTime.current = 0;
@@ -269,31 +234,33 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         if (resetRouteIndex) {
             setCurrentRouteIndex(0);
         }
-        if (data?.routes) {
-            if (data?.routes.geometry.type === "LineString") {
-                setCurrentPosition(data?.routes.geometry.coordinates[0]);
-                setProgressLine([data?.routes.geometry.coordinates.slice(0, 2)]);
-            } else if (data.routes.geometry.type === "MultiLineString") {
-                setCurrentPosition(data?.routes.geometry.coordinates[0][0]);
-                setProgressLine([data?.routes.geometry.coordinates[0].slice(0, 2)]);
+        if (resetRouteIndex) {
+            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
+                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0]);
+                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates.slice(0, 2)]);
+            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0][0]);
+                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates[0].slice(0, 2)]);
             }
-        } else {
-            setCurrentPosition([]);
-            setProgressLine([]);
+            fadeInRouteLayers();
+            handleResize();
+            setTimeout(()=>{
+                setIsPlaying(false);
+            },4000);
         }
         
 
         const mapInstance = map.mapRef.current
             ?.getMapInstance();
-        if (data?.routes && mapInstance) {
-            if (data.routes.geometry.type === "LineString") {
+        if (gpx.gpxState.data?.routes && mapInstance) {
+            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
                 if(mapInstance.getLayer('lineA')){
                     
                     mapInstance.removeLayer('lineA');
                     mapInstance.removeSource('lineA');
                 }
-            } else if (data.routes.geometry.type === "MultiLineString") {
-                for(let i=0; i<data.routes.geometry.coordinates.length ;i++){
+            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                for(let i=0; i<gpx.gpxState.data?.routes.geometry.coordinates.length ;i++){
                     if(mapInstance.getLayer(`line${i}`)){
                         mapInstance.removeLayer(`line${i}`);
                         mapInstance.removeSource(`line${i}`);
@@ -303,27 +270,24 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             //mapInstance.setPaintProperty('lineA', 'line-opacity', 0);
             //mapInstance.removeLayer('line0');
         }
-        fadeInRouteLayers();
-        handleResize();
-        setTimeout(()=>{
-            setIsPlaying(false);
-        },4000);
-    }, [data?.routes, handleResize, fadeInRouteLayers, map.mapRef]);
+        
+    }, [gpx.gpxState.data?.routes, handleResize, fadeInRouteLayers, map.mapRef]);
 
     const animateFlyAlongRoute = useCallback((time : number) => {
+       
         if (!isPlayingRef.current) {
             elapsedTime.current += time - startTime.current;
             return;
         }
         if (!startTime.current) 
             startTime.current = time;
-        
+
         const handleAnimation = (route : Feature < LineString, Properties >, routeIndex : number = 0) => {
             const distanceOfCurrentRoute = length(route);
             const animationPhase = calculateAnimationPhase(distanceOfCurrentRoute, time, elapsedTime, startTime, start, speed);
             if (animationPhase > 1) {
                 const newIndex = routeIndex + 1;
-                if (data?.routes?.geometry.type === "MultiLineString" && newIndex < data.routes.geometry.coordinates.length) {
+                if (gpx.gpxState.data?.routes?.geometry.type === "MultiLineString" && newIndex < gpx.gpxState.data?.routes.geometry.coordinates.length) {
                     if (animationFrameId.current) {
                         window.cancelAnimationFrame(animationFrameId.current);
                         animationFrameId.current = null; // reset the animation frame id
@@ -332,19 +296,19 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                     elapsedTime.current = 0;
                     startTime.current = 0; // Reset start time for the next segment
                     setCurrentRouteIndex(newIndex);
-                    setCurrentPosition(data
-                        ?.routes.geometry.coordinates[newIndex][0]as Position);
-                    lastPositionRef.current = data
-                        ?.routes.geometry.coordinates[newIndex][0];
+                    setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[newIndex][0] as Position);
+                    lastPositionRef.current = gpx.gpxState.data?.routes.geometry.coordinates[newIndex][0];
                     return;
                 } else {
                     resetAnimation();
-                    //fadeInRouteLayers();
+                    fadeInRouteLayers();
                     return;
                 }
             }
+    
             const alongPath = along(route, distanceOfCurrentRoute * animationPhase).geometry.coordinates;
             setCurrentPosition(alongPath);
+
             if (lastPositionRef.current) {
                 const lastPositionPoint = point(lastPositionRef.current);
                 const currentPositionPoint = point(alongPath);
@@ -354,15 +318,12 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 const distanceTravelled = distance(lastPositionPoint, currentPositionPoint, options);
                 setCurrentDistance(prevDistance => prevDistance + distanceTravelled);
 
-                if (data
-                    ?.info.climb !== 0) {
-                    const currentElevationChange = computeElevationChange(lastPositionRef.current, alongPath, data
-                        ?.routes
+                if (gpx.gpxState.data?.info.climb !== 0) {
+                    const currentElevationChange = computeElevationChange(lastPositionRef.current, alongPath, gpx.gpxState.data?.routes
                             ?.geometry.type === "LineString"
-                                ? data.routes.geometry.coordinates
-                                : data
-                                    ?.routes
-                                        ?.geometry.coordinates[routeIndex], data);
+                                ? gpx.gpxState.data?.routes.geometry.coordinates
+                                : gpx.gpxState.data?.routes
+                                        ?.geometry.coordinates[routeIndex], gpx.gpxState.data);
                     if (currentElevationChange > 0) {
                         setCumulativeElevationGain(prevElevation => prevElevation + currentElevationChange);
                     }
@@ -401,38 +362,47 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                     .current
                     .getMapInstance()
                     ?.easeTo({center: interpolatedView, pitch: pitch, bearing: bearingRef.current, zoom: zoomLevel2, duration: 0});
-
                 animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
             }
         }
-        if (data?.routes && currentPosition) {
-            if (data?.routes.geometry.type === "LineString") {
-                handleAnimation(data?.routes as Feature<LineString, Properties>);
-            } else if (data?.routes.geometry.type === "MultiLineString") {
-                handleAnimation(lineString(data?.routes.geometry.coordinates[currentRouteIndex]), currentRouteIndex);
+        if (gpx.gpxState.data?.routes && currentPosition) {
+            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
+                handleAnimation(gpx.gpxState.data?.routes as Feature<LineString, Properties>);
+            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                handleAnimation(lineString(gpx.gpxState.data?.routes.geometry.coordinates[currentRouteIndex]), currentRouteIndex);
             }
         }
         
-    }, [currentPosition, pitch, zoomLevel, speed, currentRouteIndex, data, map.mapRef, resetAnimation]);
+    }, [currentPosition, pitch, zoomLevel, speed, currentRouteIndex, fadeInRouteLayers, gpx.gpxState.data, map.mapRef, resetAnimation]);
 
-    const flyToRoute = useCallback(() => {
-        executeFlyTo(map.mapRef.current?.getMapInstance(), currentPosition!, 2000, pitch, bearingRef.current, startTime.current, zoomRef, zoomLevel);
-        setTimeout(() => {
-            animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
-        }, 2400);
-    }, [currentPosition, pitch, zoomLevel, animateFlyAlongRoute, map.mapRef]);
+    const flyToRoute = useCallback(
+        () => {
+        
+            executeFlyTo(map.mapRef.current?.getMapInstance(), currentPosition!, 2000, pitch, bearingRef.current, startTime.current, zoomRef, zoomLevel);
+            setTimeout(() => {
+                animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
+            }, 2400);
+        },[animateFlyAlongRoute, currentPosition, map.mapRef, pitch, zoomLevel]
+    );
 
-    const startAnimation = useCallback(() => {
-        setIsPlaying(prevState => {
-            const newValue = !prevState;
-            if (newValue) {
-                fadeOutRouteLayers();
-                startTime.current = 0;
-                flyToRoute();
-            }
-            return newValue;
-        });
-    }, [ fadeOutRouteLayers, flyToRoute]);
+    const startAnimation = useCallback(
+        () => {
+            setIsPlaying(prevState => !prevState);
+        },[]
+    );
+
+    useEffect(() => {
+        // This effect runs only once when the component mounts
+        if (isPlaying) {
+            // Start animation when isPlaying is true
+            fadeOutRouteLayers();
+            startTime.current = 0;
+            flyToRoute();
+        } else {
+            fadeInRouteLayers();
+        }
+        // eslint-disable-next-line
+    }, [isPlaying, fadeInRouteLayers, fadeOutRouteLayers]);
 
     const recordAnimation = useCallback(() => {
         if(recording){
@@ -444,8 +414,39 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         }
     }, [startAnimation, resetAnimation, recording]);
 
+/* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(() => {
+        if (currentPosition && map.isStyleLoaded && map.mapRef.current) {
+            setProgressLine((lines: Position[][]) => {
+                if (!lines[currentRouteIndex]) {
+                    return [...lines, [currentPosition]];
+                }
+                const updatedLines = [...lines];
+                updatedLines[currentRouteIndex] = [...updatedLines[currentRouteIndex], currentPosition];
+                return updatedLines;
+            });
     
+            const mapInstance = map.mapRef.current.getMapInstance();
+            const color = "#f74d63";
+            if (mapInstance && mapInstance.style !== undefined && mapInstance.style._loaded && isPlaying) {
+                if (gpx.gpxState.data?.routes.geometry.type === "LineString" && progressLine[0].length >= 2) {
+                    const progressRoute = lineString(progressLine[0]);
+                    addLineLayer('lineA', map.mapRef, color, progressRoute);
+                } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                    progressLine.forEach((lineSegment, index) => {
+                        if (lineSegment.length >= 2) {
+                            const progressRoute = lineString(lineSegment);
+                            const layerId = `line${index}`;
+                            addLineLayer(layerId, map.mapRef, color, progressRoute);
+                        }
+                    });
+                }
+            }
+        }
+    }, [currentPosition, currentRouteIndex, map.isStyleLoaded, gpx.gpxState.data?.routes.geometry.type, map.mapRef]);
+     /* eslint-enable react-hooks/exhaustive-deps */
 
+     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(()=>{
         if(currentRouteIndex){
             if (map.mapRef.current && currentPosition) {
@@ -473,11 +474,8 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
             },6400);
         }
-    }, [currentRouteIndex, zoomLevel, pitch, animateFlyAlongRoute, currentPosition, map.mapRef]);
-
-    
-
-    
+    }, [currentRouteIndex, pitch, map.mapRef, zoomLevel]);
+ /* eslint-enable react-hooks/exhaustive-deps */
 
     const providerValue: AnimationContextProps = {
         pitch,

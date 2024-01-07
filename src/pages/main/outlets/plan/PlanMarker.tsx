@@ -1,7 +1,7 @@
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 
-const createCustomMarker = () => {
+export const createCustomMarker = () => {
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttributeNS(null, "viewBox", "0 0 90 100");
@@ -82,4 +82,32 @@ const createCustomMarker = () => {
     });
 };
 
-export default createCustomMarker;
+
+
+export const createStartMarker = () =>{
+    const pinImage = document.createElement('img');
+    pinImage.src = './images/start.png'; // Replace with the path to your pin shape PNG image
+    pinImage.style.width = '40px'; // Adjust the width if needed
+    pinImage.style.height = '40px';
+    const markerEl = document.createElement('div');
+    markerEl.appendChild(pinImage);
+    return new mapboxgl.Marker({
+        element: markerEl,
+        draggable: false,
+        offset: [0, -20] // Adjust the offset if needed
+    });
+};
+
+export const createFinishMarker = () =>{
+    const pinImage = document.createElement('img');
+    pinImage.src = './images/finish.png'; // Replace with the path to your pin shape PNG image
+    pinImage.style.width = '40px'; // Adjust the width if needed
+    pinImage.style.height = '40px';
+    const markerEl = document.createElement('div');
+    markerEl.appendChild(pinImage);
+    return new mapboxgl.Marker({
+        element: markerEl,
+        draggable: false,
+        offset: [0, -20] // Adjust the offset if needed
+    });
+};

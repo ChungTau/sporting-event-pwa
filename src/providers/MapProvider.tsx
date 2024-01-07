@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 import MapContext, { MapContextProps, MarkerData } from '../contexts/MapContext';
@@ -10,6 +10,33 @@ interface MapProviderProps {
 export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
+  const [isStyleLoaded, setIsStyleLoaded] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+/* eslint-disable react-hooks/exhaustive-deps */
+useEffect(() => {
+  const handleStyleLoad = () => {
+    setIsStyleLoaded(true);
+    setIsLoading(false); // Set loading to false once the style is loaded
+  };
+
+  if (mapRef.current) {
+    const mapInstance = mapRef.current.getMapInstance();
+
+    // Check if the style is already loaded, set isStyleLoaded to true immediately
+    if (mapInstance.isStyleLoaded()) {
+      setIsStyleLoaded(true);
+      setIsLoading(false);
+    } else {
+      mapInstance.on('style.load', handleStyleLoad);
+    }
+
+    return () => {
+      mapInstance.off('style.load', handleStyleLoad);
+    };
+  }
+}, [mapRef.current]);
+/* eslint-enable react-hooks/exhaustive-deps */
 
   const getMarkerById = (markerId: string): mapboxgl.Marker | undefined => {
     return markers.find((marker) => marker.data?.id === markerId);
@@ -96,20 +123,12 @@ export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
 
   const clearMarkers = () => {
     setMarkers((prevMarkers) => {
-      // Keep the first and last markers
-      const firstMarker = prevMarkers.length > 0 ? [prevMarkers[0]] : [];
-      const lastMarker = prevMarkers.length > 1 ? [prevMarkers[prevMarkers.length - 1]] : [];
-  
-      // Remove markers from the map
+      
       prevMarkers.forEach((marker) => {
-        // Check if the marker is not the first or last one
-        if (!firstMarker.includes(marker) && !lastMarker.includes(marker)) {
+
           marker.remove();
-        }
       });
-  
-      // Update the state to an array containing the first and last markers
-      return [...firstMarker, ...lastMarker];
+      return [];
     });
   };
   
@@ -123,6 +142,8 @@ export const MapProvider: React.FC<MapProviderProps> = ({ children }) => {
     removeMarker,
     updateMarker,
     clearMarkers,
+    isStyleLoaded,
+    isLoading,
   };
 
   return <MapContext.Provider value={contextValue}>{children}</MapContext.Provider>;

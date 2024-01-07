@@ -1,5 +1,3 @@
-import {useSelector} from "react-redux";
-import {RootState} from "../../../../store";
 import {
     Text,
     useBreakpointValue,
@@ -25,9 +23,10 @@ import {FaTrash} from "react-icons/fa";
 import CheckpointModal from "./CheckpointModal";
 import {MarkerData, useMap} from "../../../../contexts/MapContext";
 import { getServiceIcons } from "../../../../constants/servicesOption";
+import { useGPX } from "../../../../contexts/GPXContext";
 
 const CheckpointTable = () => {
-    const {data} = useSelector((state : RootState) => state.gpx);
+    const gpx = useGPX();
     const map = useMap();
     const isMobile = useBreakpointValue({base: true, md: false});
     const checkpoints = map.markers;
@@ -310,7 +309,7 @@ const CheckpointTable = () => {
         </Box>
     );
 
-    return data
+    return gpx.gpxState.data
         ? tableContent
         : emptyContent
 };

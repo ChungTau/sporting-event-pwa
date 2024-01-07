@@ -73,17 +73,7 @@ const MapPanel = () => {
       }
     }, [mapStyle, map.mapRef]);
     
-    useEffect(() => {
-        if (mapStyle === "mapbox://styles/mapbox/standard-beta") {
-            try {
-                map
-                    .mapRef
-                    .current
-                    .getMapInstance()
-                    .setConfigProperty('basemap', 'lightPreset', selectedPreset);
-            } catch (error) {}
-        }
-    }, [selectedPreset, map.mapRef, mapStyle]);
+    
 
     const renderPresetButtons = () => (['dawn', 'day', 'dusk', 'night'].map(preset => (<PresetIconButton
         key={preset}
@@ -105,9 +95,10 @@ const MapPanel = () => {
     };
 
     const handleMapFullscreenToggle = () => {
-        const mapContainer = map.mapRef.current.getMapInstance().getContainer();
+        
     
         if (!document.fullscreenElement) {
+            const mapContainer = map.mapRef.current.getMapInstance().getContainer();
             if (mapContainer.requestFullscreen) {
                 mapContainer.requestFullscreen();
             } else if (mapContainer.webkitRequestFullscreen) { // Safari

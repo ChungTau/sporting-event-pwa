@@ -22,6 +22,8 @@ export interface MapContextProps {
   updateMarker: (updatedMarkerData: MarkerData) => void;
   clearMarkers: () => void;
   getMarkerById: (markerId: string) => mapboxgl.Marker | undefined ;
+  isStyleLoaded: boolean,
+    isLoading: boolean,
 }
 
 const MapContext = createContext<MapContextProps | null>(null);

@@ -18,9 +18,6 @@ import React from "react";
 import FallbackSpinner from "../../../../components/FallbackSpinner";
 import {processGeoJSON} from "../../../../helpers/processGeoJSON";
 import {GpxData} from "../../../../models/GpxData";
-import {useDispatch, useSelector} from "react-redux";
-import {setGPXData} from "../../../../store/gpxSlice";
-import {RootState} from "../../../../store";
 import {removeAllRoutes} from "../../../../helpers/map";
 import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import Row from "../../../../components/Row";
@@ -28,6 +25,7 @@ import InfoItem from "./InfoItem";
 import UploadArea from "./UploadArea";
 import PlanMap from "./PlanMap";
 import AnimationProvider from "../../../../providers/AnimationProvider";
+import { useGPX } from "../../../../contexts/GPXContext";
 
 const MapContainer = styled(Box)({width: '100%', height: '650px'});
 
@@ -35,8 +33,7 @@ export const PlanMapView : React.FC = () => {
     const [fileSelected,
         setFileSelected] = useState(false);
     const map = useMap();
-    const dispatch = useDispatch();
-    const {data} = useSelector((state : RootState) => state.gpx);
+    const gpx = useGPX();
     const isMobile = useBreakpointValue({base: true, md: false});
 
     const handleDrop = (acceptedFiles : File[]) => {
@@ -57,7 +54,8 @@ export const PlanMapView : React.FC = () => {
                 setFileSelected(true);
                 removeAllRoutes(map.mapRef);
                 map.clearMarkers();
-                dispatch(setGPXData(gpxData));
+                gpx.setGPXData(gpxData);
+                
             };
 
             reader.readAsText(acceptedFiles[0]);
@@ -65,6 +63,7 @@ export const PlanMapView : React.FC = () => {
             setFileSelected(false);
             console.warn("Rejected non-gpx files");
         }
+        
     };
 
     const extractMetadata = (xml : Document) => {
@@ -109,7 +108,7 @@ export const PlanMapView : React.FC = () => {
                         bgColor={'transparent'}
                         w={'100%'}
                         borderRadius={12}>
-                        <PlanMap data={data}/> 
+                        <PlanMap/> 
                         <Flex
                             direction={isMobile
                             ? "column"
@@ -144,12 +143,11 @@ export const PlanMapView : React.FC = () => {
                                     mr={!isMobile
                                     ? 4
                                     : 0}>
-                                    {data
-                                        ?.name ?? '---'}
+                                    {gpx.gpxState.data?.name ?? '---'}
                                 </Text>
                                 {!isMobile && (
                                     <Text w={"300px"} fontSize={"small"} color={"gray.100"}>
-                                        Author: {data
+                                        Author: {gpx.gpxState.data
                                             ?.author ?? "UNKNOWN"}
                                     </Text>
                                 )}
@@ -167,16 +165,15 @@ export const PlanMapView : React.FC = () => {
                                 : "auto"}>
                                 <InfoItem
                                     label="Distance"
-                                    value={`${data
-                                    ?.info.distance.toFixed(2) ?? '---'} KM`}
+                                    value={`${gpx.gpxState.data?.info.distance.toFixed(2) ?? '---'} KM`}
                                     isMobile={isMobile}/>
                                 <InfoItem
                                     label="Ele. Gain"
-                                    value={`${data?.info.climb.toFixed(0) ?? '---'} M`}
+                                    value={`${gpx.gpxState.data?.info.climb.toFixed(0) ?? '---'} M`}
                                     isMobile={isMobile}/>
                                 <InfoItem
                                     label="Ele. Loss"
-                                    value={`${data?.info.fall.toFixed(0) ?? '---'} M`}
+                                    value={`${gpx.gpxState.data?.info.fall.toFixed(0) ?? '---'} M`}
                                     isMobile={isMobile}/>
                             </Row>
                         </Flex>

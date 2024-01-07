@@ -6,21 +6,16 @@ export type RouteFeature = Feature<LineString> | Feature<MultiLineString>;
 export type RouteCoordinates = Position[] | Position[][];
 export const addLayersToMap = (mapRef: React.RefObject<mapboxgl.Map>, color:string, routes:Feature<MultiLineString, Properties> | Feature<LineString, Properties> | undefined) : void => {
     const addLayers = () => {
-        if (routes
-            ?.geometry.type === "LineString") {
+        if (routes?.geometry.type === "LineString") {
             const layerId = `routeLayer`;
             addLineLayer(layerId, mapRef, color, routes);
             //updateLayerOpacity(mapInstance, layerId);
-        } else if (routes
-            ?.geometry.type === "MultiLineString") {
-                routes
-                .geometry
-                .coordinates
-                .forEach((route, index) => {
-                    const layerId = `routeLayer${index}`;
-                    addLineLayer(layerId, mapRef, color, lineString(route));
-                    //updateLayerOpacity(mapInstance, layerId);
-                });
+        } else if (routes?.geometry.type === "MultiLineString") {
+            routes.geometry.coordinates.forEach((route, index) => {
+                const layerId = `routeLayer${index}`;
+                addLineLayer(layerId, mapRef, color, lineString(route));
+                //updateLayerOpacity(mapInstance, layerId);
+            });
         }
     };
     addLayers();
@@ -94,6 +89,7 @@ export const addLineLayer = (
     if (!mapInstance) return;
 
     mapInstance.getStyle().layers.forEach((layer: any) => {
+        console.log(layer);
         if (layer.id.startsWith('routeLayer')) {
             // Remove the layer
             mapInstance.removeLayer(layer.id);

@@ -8,31 +8,27 @@ import {
     calculateElevationGainToPoint,
     findNearestPointOnRoute,
     getElevationAtPoint,
-    removeAllRoutes,
     resizeMap
 } from '../../../../helpers/map';
 import {MarkerData, useMap} from '../../../../contexts/MapContext';
-import {GpxData} from '../../../../models/GpxData';
 import {hongKongCoordinates} from '../../../../constants/map';
 
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 //@ts-ignore
 import {v4 as uuidv4} from 'uuid';
-import createCustomMarker from './PlanMarker';
+import {createCustomMarker, createFinishMarker, createStartMarker} from './PlanMarker';
 import {Position} from '@turf/turf';
 import {useToast} from '@chakra-ui/react';
 import CheckpointModal from './CheckpointModal';
 import MapPanel from './MapPanel';
+import { useGPX } from '../../../../contexts/GPXContext';
 
 const BaseMap = React.lazy(() => import ('../../../../components/BaseMap'));
 
-interface PlanMapProps {
-    data?: GpxData | undefined;
-}
-
-const PlanMap = ({data} : PlanMapProps) => {
+const PlanMap = () => {
     const map = useMap();
+    const gpx = useGPX();
     const toast = useToast();
     const [tempMarker,
         setTempMarker] = useState < mapboxgl.Marker | null > (null);
@@ -50,87 +46,110 @@ const PlanMap = ({data} : PlanMapProps) => {
         position: null
     });
 
-    useEffect(() => {
-        if (map.mapRef.current) {
-            const mapInstance = map.mapRef.current.getMapInstance();
-            if (mapInstance._fullyLoaded) {
-                
-                mapInstance.on('style.load',()=>{
-                  addLayersToMap(map.mapRef, '#887d73', data?.routes);
-                });
-            }
-        }
-    }, [data?.routes, map.mapRef]);
+    const [isStyleLoaded, setIsStyleLoaded] = useState < boolean > (false);
 
-    const initializeCheckpoints = useCallback(() => {
-        if (data && data.routes && data.routes.geometry.coordinates.length > 0) {
-            const coordinates = data.routes.geometry.coordinates;
-    
-            // Handle LineString
-            if (data.routes.geometry.type === "LineString") {
-                const startCoord = coordinates[0];
-                const endCoord = coordinates[coordinates.length - 1];
-                
-                const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0);
-                const endPoint = createMarkerData(endCoord as Position, 'End Point', data.info.distance);
-    
-                addMarkerToMap(startPoint);
-                addMarkerToMap(endPoint);
-            }
-    
-            // Handle MultiLineString
-            else if (data.routes.geometry.type === "MultiLineString") {
-                const startCoord = coordinates[0][0];
-                const endCoord = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1];
-                
-                const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0);
-                const endPoint = createMarkerData(endCoord as Position, 'End Point', data.info.distance);
-    
-                addMarkerToMap(startPoint);
-                addMarkerToMap(endPoint);
+    useEffect(()=>{
+        if(map.mapRef.current){
+            const mapInstance = map.mapRef.current.getMapInstance();
+            if(mapInstance.isStyleLoaded()){
+                setIsStyleLoaded(true);
             }
         }
-        // eslint-disable-next-line
-    }, [data, map.mapRef]);
+    },[map.mapRef]);
+
+    const addLayersIfNeeded = useCallback(() => {
+        if (!map.mapRef.current || !gpx.gpxState.data?.routes ||isStyleLoaded) {
+            return;
+        }
+
+        map.mapRef.current.getMapInstance().once('style.load',()=>{
+            addLayersToMap(map.mapRef, '#887d73', gpx.gpxState.data?.routes);
+            return;
+        })
+        addLayersToMap(map.mapRef, '#887d73', gpx.gpxState.data?.routes);
+      }, [gpx.gpxState.data?.routes, map.mapRef, isStyleLoaded]);
+
+      useEffect(() => {
+
+        addLayersIfNeeded();
+      }, [addLayersIfNeeded, gpx.gpxState.data?.routes]);
+      
+      const addMarkerToMap = useCallback((markerData: MarkerData) => {
+        if (!map.mapRef.current || !map.mapRef.current.getMapInstance()) {
+            return;
+        }
     
-    const createMarkerData = (coord: Position, name: string, distance: number): MarkerData => {
-        return {
-            id: uuidv4(),
-            name: name,
-            services: [],
-            distance: distance,
-            distanceInter: distance,
-            elevationGain: 0,
-            elevation: coord[2],
-            position: [coord[0], coord[1]] as Position
-        };
-    };
-    
-    const addMarkerToMap = (markerData: MarkerData) => {
-        const marker = createCustomMarker().setLngLat(markerData.position);
+        const marker = markerData.name === 'Start Point' ? createStartMarker() : createFinishMarker();
+        marker.setLngLat(markerData.position).addTo(map.mapRef.current.getMapInstance());
         marker.data = markerData;
         map.addMarker(marker);
-    };
+    }, [map]);
+
+      const createMarkerData = (coord: Position, name: string, distance: number, elevationGain: number): MarkerData => {
+        return {
+          id: uuidv4(),
+          name: name,
+          services: [],
+          distance: distance,
+          distanceInter: distance,
+          elevationGain: elevationGain,
+          elevation: coord[2],
+          position: [coord[0], coord[1]] as Position,
+        };
+      };
+      
+/* eslint-disable react-hooks/exhaustive-deps */
+      const initializeCheckpoints = useCallback(() => {
+        if (!gpx.gpxState.data || !gpx.gpxState.data.routes || gpx.gpxState.data.routes.geometry.coordinates.length === 0 || !map.isStyleLoaded) {
+            return;
+        }
+    
+        const coordinates = gpx.gpxState.data.routes.geometry.coordinates;
+    
+        if (gpx.gpxState.data.routes.geometry.type === "LineString") {
+            const startCoord = coordinates[0];
+            const endCoord = coordinates[coordinates.length - 1];
+    
+            const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0, 0);
+            const endPoint = createMarkerData(endCoord as Position, 'End Point', gpx.gpxState.data.info.distance, gpx.gpxState.data.info.climb);
+    
+            addMarkerToMap(startPoint);
+            addMarkerToMap(endPoint);
+        }
+    
+        // Handle MultiLineString
+        else if (gpx.gpxState.data.routes.geometry.type === "MultiLineString") {
+            const startCoord = coordinates[0][0];
+            const endCoord = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1];
+    
+            const startPoint = createMarkerData(startCoord as Position, 'Start Point', 0, 0);
+            const endPoint = createMarkerData(endCoord as Position, 'End Point', gpx.gpxState.data.info.distance, gpx.gpxState.data.info.climb);
+            addMarkerToMap(startPoint);
+            addMarkerToMap(endPoint);
+        }
+    }, [gpx.gpxState.data, map.isStyleLoaded]);
+      /* eslint-enable react-hooks/exhaustive-deps */
+      
 
     const placePinNearRoute = useCallback((lngLat : Position) => {
-        if (!data?.routes.geometry.coordinates) return;
+        if (!gpx.gpxState.data?.routes.geometry.coordinates) return;
         const mRef = map.mapRef.current.getMapInstance();
 
         if (!mRef) {
             return;
         }
-        const nearest = findNearestPointOnRoute(lngLat, data.routes);
+        const nearest = findNearestPointOnRoute(lngLat, gpx.gpxState.data.routes);
         if (nearest) {
             const newMarker = createCustomMarker().setLngLat(nearest).addTo(mRef).on('dragend', () => {
                     const draggedLngLat = newMarker.getLngLat();
-                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, data.routes);
+                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, gpx.gpxState.data?.routes!);
                     if (nearestPoint) {
                         newMarker.setLngLat(nearestPoint);
 
                         // Update new marker's data
-                        const newDistance = calculateDistanceAlongRoute(nearestPoint, data?.routes as RouteFeature);
-                        const newElevationGain = calculateElevationGainToPoint(data?.routes as RouteFeature, nearestPoint as[number,number]);
-                        const newElevation = getElevationAtPoint(data?.routes as RouteFeature, nearestPoint);
+                        const newDistance = calculateDistanceAlongRoute(nearestPoint, gpx.gpxState.data?.routes as RouteFeature);
+                        const newElevationGain = calculateElevationGainToPoint(gpx.gpxState.data?.routes as RouteFeature, nearestPoint as[number,number]);
+                        const newElevation = getElevationAtPoint(gpx.gpxState.data?.routes as RouteFeature, nearestPoint);
                         const updatedMarkerData = {
                             ...newMarker.data,
                             distance: newDistance,
@@ -168,7 +187,7 @@ const PlanMap = ({data} : PlanMapProps) => {
         } else {
             toast({title: 'Error', description: 'Marker must be placed near the route', status: 'error', duration: 3000, isClosable: true});
         }
-    }, [data?.routes,map,toast]);
+    }, [gpx.gpxState.data?.routes,map,toast]);
 
     useEffect(() => {
         const mRef = map.mapRef.current.getMapInstance();
@@ -206,38 +225,30 @@ const PlanMap = ({data} : PlanMapProps) => {
             initializeCheckpoints();
         };
 
-        if (data?.routes) {
+        if (gpx.gpxState.data?.routes) {
             initializeAndSetCheckpoints();
         }
-    }, [data?.routes,initializeCheckpoints]);
+    }, [gpx.gpxState.data?.routes,initializeCheckpoints]);
 
     const handleResize = useCallback(() => {
-        resizeMap(data?.routes, map.mapRef);
-    }, [data?.routes,map.mapRef]);
+        resizeMap(gpx.gpxState.data?.routes, map.mapRef);
+    }, [gpx.gpxState.data?.routes,map.mapRef]);
 
     useEffect(() => {
-        if (data?.routes) {
+        if (gpx.gpxState.data?.routes) {
             handleResize();
         }
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [data?.routes, map.mapRef, handleResize ]);
-
-    useEffect(() => {
-        return () => {
-            removeAllRoutes(map.mapRef);
-            map.clearMarkers(); // Assuming you have a function like clearMarkers in your MapContext
-        };
-        // eslint-disable-next-line
-    }, [data?.routes,map.mapRef]);
+    }, [gpx.gpxState.data?.routes, map.mapRef, handleResize ]);
 
     const handleModalSubmit = (checkpointData : MarkerData) => {
         if (tempMarker) {
             const lngLat = tempMarker.getLngLat();
             checkpointData.id = uuidv4();
-            checkpointData.distance = calculateDistanceAlongRoute([lngLat.lng, lngLat.lat], data?.routes as RouteFeature);
-            checkpointData.elevationGain = calculateElevationGainToPoint(data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
-            checkpointData.elevation = getElevationAtPoint(data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
+            checkpointData.distance = calculateDistanceAlongRoute([lngLat.lng, lngLat.lat], gpx.gpxState.data?.routes as RouteFeature);
+            checkpointData.elevationGain = calculateElevationGainToPoint(gpx.gpxState.data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
+            checkpointData.elevation = getElevationAtPoint(gpx.gpxState.data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
 
             const newMarkerData = {
                 ...checkpointData,
@@ -262,6 +273,8 @@ const PlanMap = ({data} : PlanMapProps) => {
         setIsModalOpen(false);
     };
 
+    
+
     return (
       <>
         <BaseMap 
@@ -275,8 +288,9 @@ const PlanMap = ({data} : PlanMapProps) => {
                 borderRadius: '12px 12px 0px 0px'
             }}
         >
-            {data?.routes && <MapPanel/>}
+        {gpx.gpxState.data?.routes && <MapPanel />}
         </BaseMap>
+        
         <CheckpointModal
             isOpen={isModalOpen}
             onClose={handleModalClose}

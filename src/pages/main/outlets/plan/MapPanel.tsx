@@ -70,6 +70,7 @@ const MapPanel = () => {
         map.mapRef.current.getMapInstance().style._loaded
       ) {
         map.mapRef.current.getMapInstance().setStyle(mapStyle);
+        setSelectedPreset('day');
       }
     }, [mapStyle, map.mapRef]);
     
@@ -78,11 +79,12 @@ const MapPanel = () => {
             if (mapStyle === "mapbox://styles/mapbox/standard-beta") {
                 try {
                     (map.mapRef.current.getMapInstance() as any).setConfigProperty('basemap', 'lightPreset', selectedPreset);
-                } catch (error) {}
+                } catch (error) {
+                }
             }
         }
 
-    }, [selectedPreset]);
+    }, [selectedPreset, mapStyle]);
 
     const renderPresetButtons = () => (['dawn', 'day', 'dusk', 'night'].map(preset => (<PresetIconButton
         key={preset}

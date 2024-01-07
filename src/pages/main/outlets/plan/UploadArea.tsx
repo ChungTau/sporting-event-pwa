@@ -20,6 +20,7 @@ const UploadArea: React.FC<UploadAreaProps> = ({ getRootProps, getInputProps, is
         icon={<RiUploadCloud2Fill />}
         pos={"absolute"}
         top={0}
+        zIndex={21}
         right={0}
         backgroundColor={"rgba(0,0,0,0.6)"}
         color={"white"}

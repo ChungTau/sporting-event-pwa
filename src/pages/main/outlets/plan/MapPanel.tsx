@@ -73,7 +73,7 @@ const MapPanel = () => {
         setSelectedPreset('day');
       }
     }, [mapStyle, map.mapRef]);
-    
+    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
         if ((map.mapRef.current.getMapInstance() as any).isStyleLoaded()) {
             if (mapStyle === "mapbox://styles/mapbox/standard-beta") {
@@ -84,7 +84,8 @@ const MapPanel = () => {
             }
         }
 
-    }, [selectedPreset, mapStyle, map.mapRef]);
+    }, [selectedPreset, mapStyle]);
+     /* eslint-enable react-hooks/exhaustive-deps */
 
     const renderPresetButtons = () => (['dawn', 'day', 'dusk', 'night'].map(preset => (<PresetIconButton
         key={preset}

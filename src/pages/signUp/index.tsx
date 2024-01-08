@@ -52,6 +52,7 @@ function SignUpPage() {
 
   const NewBox = styled(Box)({
     padding: "10px",
+    marginTop:"20px",
     width: "95%",
     "@media (min-width: 600px)": {
       paddingTop: "7rem",

@@ -11,6 +11,6 @@ export const Wrapper = styled(Box)({
         padding: '1.2rem 2.0rem 1.2rem 2.0rem',
     },
     '@media (max-width:600px)':{
-        padding: '1.2rem 1.4rem 1.2rem 1.4rem',
+        padding: '1.2rem 0.8rem 1.2rem 0.8rem',
     }
 });

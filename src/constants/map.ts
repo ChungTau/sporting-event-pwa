@@ -2,7 +2,7 @@ export const hongKongCoordinates : [number, number] = [114.26301200300497,22.337
 
 export const MAP_PADDING = {
     top: 80,
-    bottom: 40,
+    bottom: 80,
     left: 40,
     right: 40
 };

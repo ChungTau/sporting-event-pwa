@@ -23,7 +23,7 @@ export const SignUpHeader = ({
           _hover={{ bgColor: `rgba(${COLOR_PRIMARY_RGB},0.6)` }}
           onClick={havingAccount}
         >
-          Signin
+          Sign in
         </Button>
         <Button
           color="white"

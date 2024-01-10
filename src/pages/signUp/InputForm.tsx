@@ -55,7 +55,7 @@ export interface InputFormRef {
     email: string;
     gender: string;
     DOB: string;
-    phoneNumber: number;
+    phoneNumber: string;
     emergencyPerson: string;
     emergencyContact: string;
   };
@@ -82,7 +82,7 @@ const InputForm = forwardRef<InputFormRef, {}>((props, ref) => {
       email: emailRef.current?.value || "",
       gender: genderRef.current?.value || "",
       DOB: DOBRef.current?.value || "",
-      phoneNumber: phoneNumberRef.current?.valueAsNumber || 0,
+      phoneNumber: phoneNumberRef.current?.value || "",
       emergencyPerson: emergencyPersonRef.current?.value || "",
       emergencyContact: emergencyContactRef.current?.value || "",
     }),

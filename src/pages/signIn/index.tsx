@@ -17,7 +17,7 @@ import {
   Box,
   Center,
 } from "@chakra-ui/react";
-import image from "../../assets/images/bgImage3.png";
+import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
 import ApiService from "../../service/apiservice";
@@ -30,11 +30,10 @@ function SignInPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState("");
 
   const NewBox = styled(Box)({
     padding: "10px",
-    marginTop:"20px",
+    marginTop: "20px",
     width: "95%",
     "@media (min-width: 600px)": {
       paddingTop: "10rem",
@@ -93,15 +92,13 @@ function SignInPage() {
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        //setModalContent("Account created successfully!");
         const data = {
           Username: formData.username,
           Password: formData.password,
         };
-        const file = ApiService.signIn(data);
+        ApiService.signIn(data);
         setIsValidationSuccessful(true);
         setValidationErrors([]);
-
         dispatch(setLoggedIn(true));
         const redirectPath = sessionStorage.getItem("redirectPath");
         if (redirectPath) {
@@ -118,7 +115,9 @@ function SignInPage() {
     }
   };
 
-  const handleForgotPassword = () => {};
+  const handleForgotPassword = () => {
+    navigate(routes.FORGOT_PASSWORD.path);
+  };
 
   return (
     <Box
@@ -130,6 +129,7 @@ function SignInPage() {
         height: "100vh",
         width: "100vw",
         overflowY: "scroll",
+        opacity: "0.9",
       }}
     >
       <Center>
@@ -148,13 +148,11 @@ function SignInPage() {
               <ModalOverlay />
               <ModalContent mx={4}>
                 <ModalHeader>
-                  {isValidationSuccessful
-                    ? "Event Validation Success"
-                    : "Event Validation Failure"}
+                  {!isValidationSuccessful && "Sign in Failure"}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody px={10} py={4}>
-                  {isValidationSuccessful ? modalContent : renderErrorList()}
+                  {!isValidationSuccessful && renderErrorList()}
                 </ModalBody>
               </ModalContent>
             </Modal>

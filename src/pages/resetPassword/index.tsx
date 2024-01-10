@@ -1,9 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import Column from "../../components/Column";
 import InputForm, { InputFormRef } from "./InputForm";
-import { SignUpFooter } from "./SignUpFooter";
-import { SignUpHeader } from "./SignUpHeader";
+import { ResetPasswordFooter } from "./resetPasswordFooter";
+import { ResetPasswordHeader } from "./resetPasswordHeader";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Modal,
   ModalBody,
@@ -20,7 +20,8 @@ import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
 import ApiService from "../../service/apiservice";
 
-function SignUpPage() {
+function ResetPasswordPage() {
+  const navigate = useNavigate();
   const [isValidationSuccessful, setIsValidationSuccessful] =
     useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -33,41 +34,27 @@ function SignUpPage() {
     marginTop: "20px",
     width: "95%",
     "@media (min-width: 600px)": {
-      paddingTop: "7rem",
-      width: "90%",
-    },
-
-    "@media (min-width: 1100px)": {
-      paddingTop: "7rem",
+      paddingTop: "10rem",
       width: "60%",
     },
 
+    "@media (min-width: 1100px)": {
+      paddingTop: "10rem",
+      width: "45%",
+    },
+
     "@media (min-width: 1600px)": {
-      paddingTop: "7rem",
-      width: "40%",
+      paddingTop: "10rem",
+      width: "30%",
     },
   });
 
   const validateFormData = (formData: {
-    username: string;
-    nickname: string;
     password: string;
     confirmPassword: string;
-    email: string;
-    gender: string;
-    DOB: string;
-    phoneNumber: string;
-    emergencyPerson: string;
-    emergencyContact: string;
   }) => {
     let validationErrors = [];
 
-    if (!formData.username) {
-      validationErrors.push("The field 'Username' is required.");
-    }
-    if (!formData.email) {
-      validationErrors.push("The field 'Email' is required.");
-    }
     if (!formData.password) {
       validationErrors.push("The field 'Password' is required.");
     }
@@ -94,44 +81,21 @@ function SignUpPage() {
     </ul>
   );
 
-  const navigate = useNavigate();
-
-  const handleHavingAccount = () => {
-    navigate(routes.SIGNIN.path);
-  };
-
   const handleBackToHome = () => {
     navigate(routes.MAIN.path);
   };
 
-  const handleSignUpSubmit = () => {
+  const handleResetPassword = () => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        const data = {
-          Username: formData.username,
-          Nickname: formData.nickname,
-          Password: formData.password,
-          Email: formData.email,
-          Gender: formData.gender,
-          DOB: formData.DOB,
-          PhoneNumber: formData.phoneNumber,
-          EmergencyPerson: formData.emergencyPerson,
-          EmergencyContact: formData.emergencyContact,
-        };
-        ApiService.signUp(data);
-        setModalContent("Sign up successfully!");
+        ApiService.resetPassword(formData.password);
         setIsValidationSuccessful(true);
+        setModalContent("Now you can login your account.");
         setValidationErrors([]);
-        const redirectPath = sessionStorage.getItem("redirectPath");
-        if (redirectPath) {
-          navigate(redirectPath);
-          sessionStorage.removeItem("redirectPath");
-        } else {
-          navigate(routes.SIGNIN.path);
-        }
+        navigate(routes.SIGNIN.path);
       } else {
         setValidationErrors(validation.messages);
         setIsValidationSuccessful(false);
@@ -146,26 +110,26 @@ function SignUpPage() {
         backgroundImage: `url(${image})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
+        backgroundPosition: "center",
         height: "100vh",
         width: "100vw",
-        opacity: "0.9",
         overflowY: "scroll",
+        opacity: "0.9",
       }}
     >
       <Center>
         <NewBox>
           <Column gap={9}>
-            <SignUpHeader
-              havingAccount={handleHavingAccount}
-              backToHome={handleBackToHome}
-            />
+            <ResetPasswordHeader backToHome={handleBackToHome} />
             <InputForm ref={inputFormRef} />
-            <SignUpFooter onSubmit={handleSignUpSubmit} />
+            <ResetPasswordFooter onResetPassword={handleResetPassword} />
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent mx={4}>
                 <ModalHeader>
-                  {!isValidationSuccessful && "Sign up Failure"}
+                  {isValidationSuccessful
+                    ? "Successfully reset password!"
+                    : "Reset password Failure"}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody px={10} py={4}>
@@ -180,4 +144,4 @@ function SignUpPage() {
   );
 }
 
-export default SignUpPage;
+export default ResetPasswordPage;

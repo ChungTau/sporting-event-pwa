@@ -1,12 +1,17 @@
-import Repository from './axiosConfig';
+import Repository from "./axiosConfig";
 
-const resource: string = '/';
+const resource: string = "/";
 export default {
-
-    signUp(obj: any): Promise<any> {
+  signUp(obj: any): Promise<any> {
     return Repository.post(`${resource}signup`, obj);
-    },
-    signIn(obj: any): Promise<any> {
-        return Repository.post(`${resource}signIn`, obj);
-  }
-}
+  },
+  signIn(obj: any): Promise<any> {
+    return Repository.post(`${resource}signIn`, obj);
+  },
+  forgotPassword(obj: any): Promise<any> {
+    return Repository.post(`${resource}forgotPassword`, obj);
+  },
+  resetPassword(obj: any): Promise<any> {
+    return Repository.post(`${resource}resetPassword`, obj);
+  },
+};

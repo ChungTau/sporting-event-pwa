@@ -3,7 +3,7 @@ import sequelize from './config/dbConfig';
 import userRoutes from './routes/userRoutes';
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = 8080;
 
 sequelize.authenticate()
   .then(() => console.log('Database connected...'))

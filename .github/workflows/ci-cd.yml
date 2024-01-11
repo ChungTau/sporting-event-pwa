@@ -63,5 +63,8 @@ jobs:
           rm deploy_key.pem
       - name: Start PM2 Process
         run: |
-          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'pm2 restart all'
+          echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
+          chmod 400 deploy_key.pem
+          ssh -v -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'pm2 restart all'
+
           

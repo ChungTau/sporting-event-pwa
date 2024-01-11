@@ -4,7 +4,8 @@ const sequelize = new Sequelize(process.env.DB_NAME!, process.env.DB_USER!, proc
   host: process.env.DB_HOST,
   dialect: 'mysql',
   models: [__dirname + '/../models'],
-  logging: console.log
+  logging: console.log,
+  port: 3306
 });
 
 export default sequelize;

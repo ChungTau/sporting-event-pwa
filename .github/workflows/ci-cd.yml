@@ -60,8 +60,8 @@ jobs:
           tar -czf backend-dist.tar.gz -C backend/dist .
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite'
-          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /sporting-event-pwa/backend && chmod -R 755 .'
-          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /sporting-event-pwa/backend && npm install'
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'sudo chmod -R 755 /sporting-event-pwa/backend'
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /sporting-event-pwa/backend && sudo npm install'
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /sporting-event-pwa/backend && pm2 start index.js --name "sporting-event-pwa"'
           rm deploy_key.pem
 

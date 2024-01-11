@@ -2,18 +2,20 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/backend ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, feature/backend ]
+
 jobs:
-  build-and-deploy:
+  build-and-deploy-frontend:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
 
@@ -24,7 +26,6 @@ jobs:
       run: npm run build
 
     - name: Deploy to Server
-      if: github.ref == 'refs/heads/develop'
       run: |
         echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
         chmod 600 deploy_key.pem
@@ -32,3 +33,29 @@ jobs:
         scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/frontend
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa/frontend --overwrite'
         rm deploy_key.pem
+
+  build-and-deploy-backend:
+    if: github.ref == 'refs/heads/feature/backend'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        run: npm install --prefix backend
+
+      - name: Build backend
+        run: npm run build --prefix backend
+
+      - name: Deploy backend to Server
+        run: |
+          echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          tar -czf backend-dist.tar.gz -C backend/dist .
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite'
+          rm deploy_key.pem

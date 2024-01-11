@@ -1,5 +1,5 @@
 // Map.js
-import React, {useEffect, useCallback, useState, useMemo} from 'react';
+import React, {useEffect, useCallback, useState, useMemo, Suspense} from 'react';
 
 import {
     RouteFeature,
@@ -23,6 +23,7 @@ import {useToast} from '@chakra-ui/react';
 import CheckpointModal from './CheckpointModal';
 import MapPanel from './MapPanel';
 import { useGPX } from '../../../../contexts/GPXContext';
+import FallbackSpinner from '../../../../components/FallbackSpinner';
 
 const BaseMap = React.lazy(() => import ('../../../../components/BaseMap'));
 
@@ -190,14 +191,14 @@ const PlanMap = () => {
     }, [currentRoute,map,toast]);
 
     useEffect(() => {
-        const mRef = map.mapRef.current.getMapInstance();
+        const mRef = map.mapRef.current;
 
         if (!mRef) return;
-
+        const mapInstance = mRef.getMapInstance();
         const handleDrop = (event : DragEvent) => {
             event.preventDefault();
-            const rect = mRef.getCanvas().getBoundingClientRect();
-            const coordinates = mRef.unproject([
+            const rect = mapInstance.getCanvas().getBoundingClientRect();
+            const coordinates = mapInstance.unproject([
                 event.clientX - rect.left,
                 event.clientY - rect.top
             ]);
@@ -205,7 +206,7 @@ const PlanMap = () => {
             placePinNearRoute(coordinates);
         };
 
-        const canvas = mRef.getCanvas();
+        const canvas = mapInstance.getCanvas();
 
         if (canvas) {
             canvas.addEventListener('drop', handleDrop);
@@ -277,20 +278,22 @@ const PlanMap = () => {
 
     return (
       <>
+      <Suspense fallback={< FallbackSpinner />}>
         <BaseMap 
-            ref = {map.mapRef}
-            center = {hongKongCoordinates }
-            zoom = {17}
-            style = {{
-                position: 'relative',
-                width: '100%',
-                height: '430px',
-                borderRadius: '12px 12px 0px 0px'
-            }}
-        >
-        {currentRoute && <MapPanel />}
-        </BaseMap>
-        
+                ref = {map.mapRef}
+                center = {hongKongCoordinates }
+                zoom = {17}
+                style = {{
+                    position: 'relative',
+                    width: '100%',
+                    height: '430px',
+                    borderRadius: '12px 12px 0px 0px'
+                }}
+            >
+            {currentRoute && <MapPanel />}
+            </BaseMap>
+      </Suspense>
+
         <CheckpointModal
             isOpen={isModalOpen}
             onClose={handleModalClose}

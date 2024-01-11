@@ -1,41 +1,87 @@
-import {Box, Button, Divider, Image, Text} from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Divider,
+    Flex,
+    IconButton,
+    Image,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
+    Text,
+    useBreakpointValue
+} from "@chakra-ui/react";
 import Column from "../../../../components/Column";
 import {COLOR_PRIMARY_RGB, COLOR_SECONDARY} from "../../../../constants/palatte";
 import Row from "../../../../components/Row";
-import { FaUser } from "react-icons/fa";
-import { FaEarthAmericas } from "react-icons/fa6";
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {Suspense, useEffect, useMemo, useRef, useState} from "react";
+import {AnimatePresence, motion} from "framer-motion";
+import CustomTabButton from "./CustomTabButton";
+import EventRouteInfo from "./EventRouteInfo";
+import {GPXProvider} from "../../../../providers/GPXProvider";
+import React from "react";
+import { MdDelete } from "react-icons/md";
+import { MdOutlineFavoriteBorder } from "react-icons/md";
+import { MdEditLocationAlt } from "react-icons/md";
+import { MdModeEdit } from "react-icons/md";
+import { IoMdShare } from "react-icons/io";
+import { IoMdMore } from "react-icons/io";
+import FallbackSpinner from "../../../../components/FallbackSpinner";
+const AboutTab = React.lazy(() => import ('./AboutTab'));
+const MapTab = React.lazy(() => import ('./MapTab'));
+const PartiTab = React.lazy(() => import ('./PartiTab'));
+const menuItemStyle = {
+    bg: 'transparent',
+    _hover: {
+        bg: `rgba(255,255,255,0.2)`,
+        color: 'gray.600'
+    },
+    color: 'gray.700',
+    fontSize: '14px'
+};
 
 function EventPage() {
-    const [activeTab, setActiveTab] = useState('about');
-    const [showFullText, setShowFullText] = useState(false);
+    const [activeTab,
+        setActiveTab] = useState('about');
+    const [underlinePosition,
+        setUnderlinePosition] = useState({left: 0, width: 0});
+
+    const isMobile = useBreakpointValue({base: true, sm: false});
+
     const aboutRef = useRef(null);
     const mapRef = useRef(null);
-    const [underlinePosition, setUnderlinePosition] = useState({ left: 0, width: 0 });
-    const description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."; // Your full description text
-    const displayText = showFullText ? description : `${description.substring(0, 280)}... `;
-    const tabVariants = {
-        initial: { opacity: 0, x: -100 },
-        animate: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: 100 },
-    };
+    const partiRef = useRef(null);
 
-    const updateUnderline = (ref:React.MutableRefObject<any>) => {
-        if (ref && ref.current) {
-            const { offsetLeft, offsetWidth } = ref.current;
-            setUnderlinePosition({ left: offsetLeft, width: offsetWidth });
+    const tabs = useMemo(() => [
+        {
+            title: 'About',
+            ref: aboutRef,
+            component: AboutTab
+        }, {
+            title: 'Map',
+            ref: mapRef,
+            component: MapTab
+        }, {
+            title: 'Parti',
+            ref: partiRef,
+            component: PartiTab
+        }
+    ], []);
+
+    const updateUnderline = (ref : React.MutableRefObject < any >) => {
+        if (ref.current) {
+            const {offsetLeft, offsetWidth} = ref.current;
+            setUnderlinePosition({left: offsetLeft, width: offsetWidth});
         }
     };
 
-    // Call updateUnderline when the component mounts or activeTab changes
     useEffect(() => {
-        if (activeTab === 'about') {
-            updateUnderline(aboutRef);
-        } else if (activeTab === 'map') {
-            updateUnderline(mapRef);
+        const activeTabInfo = tabs.find(tab => tab.title.toLowerCase() === activeTab);
+        if (activeTabInfo) {
+            updateUnderline(activeTabInfo.ref);
         }
-    }, [activeTab]);
+    }, [activeTab, tabs]);
 
     return (
         <Column gap={4}>
@@ -46,9 +92,55 @@ function EventPage() {
                     borderTopRadius="12px"
                     h="380px"
                     fit="cover"
-                    src="./images/temp_event_background.png"/> {/* Gradient Overlay */}
-                <Box position="absolute" top="0" left="0" right="0" bottom="0" background={`linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #7a6d61 75%, #7a6d61 100%)`} borderRadius="12px" // Match the border-radius of the image
-                />
+                    src="./images/temp_event_background.png"/>
+                <Box position="absolute" top="0" left="0" right="0" bottom="0" background={`linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #7a6d61 75%, #7a6d61 100%)`} borderRadius="12px"/>
+                <IconButton _active={{
+                        bgColor: `rgba(255,255,255,0.9)`
+                    }}
+                    _hover={{
+                        bgColor: `rgba(255,255,255,0.8)`
+                    }} backdropFilter={'blur(4px)'} color={'black'} aria-label="my-fav" bgColor={`rgba(255,255,255,1)`} icon={<MdOutlineFavoriteBorder/>} pos={'absolute'} top={'10px'} right={'60px'}/>
+                <Menu>
+                <MenuButton
+                    as={IconButton}
+                    color={'black'}
+                    pos={'absolute'}
+                    top={'10px'}
+                    right={'10px'}
+                    _active={{
+                        bgColor: `rgba(255,255,255,0.9)`
+                    }}
+                    _hover={{
+                        bgColor: `rgba(255,255,255,0.8)`
+                    }}
+                    aria-label='More'
+                    bgColor={`rgba(255,255,255,1)`}
+                    backdropFilter={'blur(4px)'}
+                    icon={< IoMdMore />}
+                    variant={'primary'}
+                    />
+                    <MenuList
+                            mt={2}
+                            minW={'140px'}
+                            zIndex={11}
+                            borderColor={'transparent'}
+                            bg={`rgba(255,255,255,0.7)`}
+                            backdropFilter={'blur(4px)'}>
+                           
+                            <MenuItem {...menuItemStyle} icon={< MdModeEdit />}>
+                                Edit info
+                            </MenuItem>
+                            <MenuItem {...menuItemStyle} icon={< MdEditLocationAlt />}>
+                                Edit route
+                            </MenuItem>
+                            <MenuItem {...menuItemStyle} icon={< IoMdShare />}>
+                                Share event
+                            </MenuItem>
+                            <MenuItem {...menuItemStyle} icon={< MdDelete />}>
+                                Delete event
+                            </MenuItem>
+                        </MenuList>
+                </Menu>
 
                 <Column
                     w={'100%'}
@@ -58,31 +150,75 @@ function EventPage() {
                     p={4}
                     zIndex={1}
                     gap={1}>
-                    <Text fontWeight={600}>FRIDAY, 1 DECEMBER 2023 AT 00:00</Text>
-                    <Text fontWeight={600} fontSize={'larger'}>HKUST Campus Run</Text>
-                    <Text>Leisure</Text>
+                    <Flex
+                        gap={isMobile
+                        ? 3
+                        : 0}
+                        flexDir={isMobile
+                        ? 'column'
+                        : 'row'}
+                        justifyContent={isMobile
+                        ? 'center'
+                        : 'space-between'}
+                        alignItems={isMobile
+                        ? 'flex-start'
+                        : 'end'}>
+                        <Column
+                            gap={0}
+                            order={isMobile
+                            ? 2
+                            : 1}>
+                            <Text fontWeight={600}>FRIDAY, 1 DECEMBER 2023 AT 00:00</Text>
+                            <Text fontWeight={600} fontSize={'larger'}>HKUST Campus Run</Text>
+                            <Text>Leisure</Text>
+                        </Column>
+                        <Flex
+                            flexDir={isMobile
+                            ? 'row'
+                            : 'column'}
+                            justifyContent={isMobile
+                            ? 'space-evenly'
+                            : 'unset'}
+                            gap={isMobile
+                            ? 8
+                            : 1}
+                            order={isMobile
+                            ? 1
+                            : 2}>
+                            <EventRouteInfo title="Distance" value={129} unit="KM"/>
+                            <EventRouteInfo title="Total Climb" value={6900} unit="M+"/>
+                        </Flex>
+                    </Flex>
+
                     <Divider my={2}/>
                     <Row justifyContent={'space-between'} alignItems={'baseline'}>
-                    <Row>
-                    <Button _hover={{bgColor:'transparent'}} color={activeTab==='about'?'rgb(216, 227, 215)':'gray.300'} ref={aboutRef} size="small" h="36px" w="80px" onClick={() => setActiveTab('about')} bgColor={'transparent'}>
-                    About
-                </Button>
-                <Button _hover={{bgColor:'transparent'}} color={activeTab==='map'?'rgb(216, 227, 215)':'gray.300'} ref={mapRef} size="small" h="36px" w="80px" onClick={() => setActiveTab('map')} bgColor={'transparent'}>
-                    Map
-                </Button>
-                <motion.div
-                    layoutId="underline"
-                    initial={false}
-                    animate={{ left: underlinePosition.left, width: underlinePosition.width }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                    style={{
-                        position: "absolute",
-                        bottom: 10,
-                        height: "2px",
-                        backgroundColor: COLOR_SECONDARY, // Adjust as needed
-                    }}
-                />
-                    </Row>
+                        <Row>
+                            {tabs.map(tab => (<CustomTabButton
+                                key={tab.title}
+                                ref={tab.ref}
+                                title={tab.title}
+                                isActive={activeTab === tab
+                                .title
+                                .toLowerCase()}
+                                onClick={() => setActiveTab(tab.title.toLowerCase())}/>))}
+                            <motion.div
+                                layoutId="underline"
+                                initial={false}
+                                animate={{
+                                left: underlinePosition.left,
+                                width: underlinePosition.width
+                            }}
+                                transition={{
+                                type: "spring",
+                                stiffness: 50
+                            }}
+                                style={{
+                                position: "absolute",
+                                bottom: 10,
+                                height: "2px",
+                                backgroundColor: COLOR_SECONDARY
+                            }}/>
+                        </Row>
                         <Button
                             color={'rgb(216, 227, 215)'}
                             _hover={{
@@ -102,88 +238,13 @@ function EventPage() {
 
             </Column>
             <AnimatePresence mode="wait">
-            {activeTab === 'about' && (
-                    <motion.div
-                        key="about"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={tabVariants}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <Column gap={4}>
-                        <Column
-                p={4}
-                gap={4}
-                maxW={'500px'}
-                bgColor={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
-                borderRadius="12px"
-                color={'white'}
-                position="relative">
-                <Text fontSize={'larger'} fontWeight={600}>Details</Text>
-                <Column>
-                <Row alignItems={'center'}>
-                    <FaUser color="#bcbcbc"/>
-                    <Text>
-                        Hosted by HKUST
-                    </Text>
-                </Row>
-                <Row alignItems={'center'}>
-                <FaEarthAmericas color="#bcbcbc"/>
-                    <Text>
-                        Public · Anyone on or off Sport Event PWA
-                    </Text>
-                </Row>
-                <Text>
-                    {displayText}
-                    {!showFullText && (
-                        <Text as="span" color={'blackAlpha.600'} fontWeight={500} cursor="pointer" onClick={() => setShowFullText(true)}>
-                            {"  See more"}
-                        </Text>
-                    )}
-                    {showFullText && (
-                        <Text as="span" color={'blackAlpha.600'} fontWeight={500} cursor="pointer" onClick={() => setShowFullText(false)}>
-                            {"  See less"}
-                        </Text>
-                    )}
-                </Text>
-                </Column>
-            </Column>
-            <Column
-                p={4}
-                gap={4}
-                maxW={'500px'}
-                bgColor={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
-                borderRadius="12px"
-                color={'white'}
-                position="relative">
-                <Text fontSize={'larger'} fontWeight={600}>Guest</Text>
-                
-            </Column>
-                        </Column>
-                    </motion.div>
-                )}
-
-                {activeTab === 'map' && (
-                    <motion.div
-                        key="map"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={tabVariants}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <Column
-                            p={4}
-                            bgColor={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
-                            borderRadius="12px"
-                            color="white">
-                            <Text>Join</Text>
-                        </Column>
-                    </motion.div>
-                )}
+                <GPXProvider>
+                    <Suspense fallback={< FallbackSpinner />}>
+                        {tabs.map(tab => (activeTab === tab.title.toLowerCase() && (<tab.component key={tab.title}/>)))}
+                    </Suspense>
+                </GPXProvider>
             </AnimatePresence>
-           
+
         </Column>
     );
 };

@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4.0.1
       with:
         node-version: '18'
 
@@ -38,10 +38,10 @@ jobs:
     if: github.ref == 'refs/heads/feature/backend'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4.0.1
         with:
           node-version: '18'
 
@@ -61,3 +61,7 @@ jobs:
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite'
           rm deploy_key.pem
+      - name: Start PM2 Process
+        run: |
+          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'pm2 restart all'
+          

@@ -45,9 +45,21 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install backend dependencies
-        working-directory: backend
+      # caching the dependency
+      - name: 'Cache Dependencies'
+        uses: 'actions/cache@v3'
+        id: cache-node-modules
+        with:
+          path: 'node_modules'
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        # only run npm i if cache not found
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
+
+      - name: Lint code
+        run: npm run lint
 
       - name: Build backend
         working-directory: backend 

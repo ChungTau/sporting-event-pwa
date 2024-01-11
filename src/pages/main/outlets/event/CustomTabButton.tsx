@@ -16,9 +16,11 @@ const CustomTabButton = forwardRef<HTMLButtonElement, CustomTabButtonProps>(
                 _hover={{ bgColor: 'transparent' }}
                 color={isActive ? 'rgb(216, 227, 215)' : 'gray.300'}
                 size="small"
+                px={2}
                 h="36px"
-                w="65px"
+                w="68px"
                 onClick={onClick}
+
                 bgColor={'transparent'}
             >
                 {title}

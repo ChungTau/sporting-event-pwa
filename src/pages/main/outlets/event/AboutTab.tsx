@@ -6,7 +6,7 @@ import Column from "../../../../components/Column";
 import Row from "../../../../components/Row";
 import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import {tabVariants} from "../../../../constants/animateVariant";
-import {Text} from "@chakra-ui/react";
+import {Avatar, Box, Button, Collapse, Spacer, Text, useBreakpointValue} from "@chakra-ui/react";
 import {useState} from "react";
 
 const description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem" +
@@ -24,6 +24,20 @@ const AboutTab = () => {
     const displayText = showFullText
         ? description
         : `${description.substring(0, 280)}... `;
+
+        const [showParticipants] = useState(true);
+        const isMobile = useBreakpointValue({base: true, sm: false});
+        // Sample data for participants
+        const avatarSize = isMobile ? 'md' : 'md';
+        const fontSize = isMobile ? 'sm' : 'md';
+        const buttonSize = isMobile ? 'sm' : 'md';
+    
+        // Sample data for participants
+        const participants = [
+            { name: 'John Doe', role: 'Speaker', bio: 'Expert in AI and Machine Learning.', avatarUrl: './images/avataaars.png' },
+            { name: 'Jane Smith', role: 'Attendee', bio: 'Passionate about digital marketing.', avatarUrl: './images/avataaars.png' },
+            // ... more participants
+        ];
     return (
         <motion.div
             key="about"
@@ -96,7 +110,21 @@ const AboutTab = () => {
                     color={'white'}
                     position="relative">
                     <Text fontSize={'larger'} fontWeight={600}>Guest</Text>
-
+                    <Collapse in={showParticipants}>
+                        {participants.map((participant, index) => (
+                            <Box key={index} p={2} m={1} bgColor="transparent" borderRadius="md">
+                                <Row alignItems={'end'}>
+                                    <Avatar size={avatarSize} src={participant.avatarUrl} />
+                                    <Box mx="1" overflow="hidden">
+                                        <Text isTruncated fontWeight="bold" fontSize={fontSize}>{participant.name}</Text>
+                                        <Text isTruncated fontSize={fontSize}>{participant.bio}</Text>
+                                    </Box>
+                                    <Spacer />
+                                    <Button size={buttonSize} colorScheme="blue">Follow</Button>
+                                </Row>
+                            </Box>
+                        ))}
+                    </Collapse>
                 </Column>
             </Column>
         </motion.div>

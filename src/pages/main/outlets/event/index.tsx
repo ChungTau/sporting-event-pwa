@@ -28,9 +28,10 @@ import { MdModeEdit } from "react-icons/md";
 import { IoMdShare } from "react-icons/io";
 import { IoMdMore } from "react-icons/io";
 import FallbackSpinner from "../../../../components/FallbackSpinner";
+
 const AboutTab = React.lazy(() => import ('./AboutTab'));
 const MapTab = React.lazy(() => import ('./MapTab'));
-const PartiTab = React.lazy(() => import ('./PartiTab'));
+const RecordingTab = React.lazy(() => import ('./RecordingTab'));
 const menuItemStyle = {
     bg: 'transparent',
     _hover: {
@@ -51,7 +52,7 @@ function EventPage() {
 
     const aboutRef = useRef(null);
     const mapRef = useRef(null);
-    const partiRef = useRef(null);
+    const recordingRef = useRef(null);
 
     const tabs = useMemo(() => [
         {
@@ -63,9 +64,9 @@ function EventPage() {
             ref: mapRef,
             component: MapTab
         }, {
-            title: 'Parti',
-            ref: partiRef,
-            component: PartiTab
+            title: 'Recording',
+            ref: recordingRef,
+            component: RecordingTab
         }
     ], []);
 
@@ -192,7 +193,7 @@ function EventPage() {
 
                     <Divider my={2}/>
                     <Row justifyContent={'space-between'} alignItems={'baseline'}>
-                        <Row>
+                        <Row mr={4}>
                             {tabs.map(tab => (<CustomTabButton
                                 key={tab.title}
                                 ref={tab.ref}

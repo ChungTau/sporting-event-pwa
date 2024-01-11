@@ -1,7 +1,10 @@
 import express from 'express';
 import sequelize from './config/dbConfig';
 import userRoutes from './routes/userRoutes';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+
+//For env File 
+dotenv.config();
 // Catch unhandled promise rejections
 process.on('unhandledRejection', error => {
   console.error('Unhandled Promise Rejection:', error);

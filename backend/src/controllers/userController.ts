@@ -5,6 +5,7 @@ export const createUser = async (req: Request, res: Response) => {
   try {
     const newUser = await User.create(req.body);
     res.json(newUser);
+    console.log(newUser);
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });

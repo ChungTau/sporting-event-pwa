@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-//import sequelize from './config/dbConfig';
-//import userRoutes from './routes/userRoutes';
+const dbConfig_1 = __importDefault(require("./config/dbConfig"));
+const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const dotenv_1 = __importDefault(require("dotenv"));
 //For env File 
 dotenv_1.default.config();
@@ -19,21 +19,16 @@ process.on('uncaughtException', error => {
 });
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-/*sequelize.authenticate()
-  .then(() => {
+dbConfig_1.default.authenticate()
+    .then(() => {
     console.log('Database connected...');
-
-    sequelize.sync();
-
-    app.use(express.json());
-    app.use('/api', userRoutes);
-
-    
-  })
-  .catch(err => {
+    dbConfig_1.default.sync();
+    app.use(express_1.default.json());
+    app.use('/api', userRoutes_1.default);
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+})
+    .catch(err => {
     console.error('Unable to connect to the database:', err);
-  });
-*/ 
+});

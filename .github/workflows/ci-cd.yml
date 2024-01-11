@@ -61,10 +61,8 @@ jobs:
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite'
           rm deploy_key.pem
-      - name: Start PM2 Process
+      - name: Start Node.js app with PM2
         run: |
-          echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
-          chmod 400 deploy_key.pem
-          ssh -v -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'pm2 restart all'
-
+          cd backend
+          pm2 start dist/index.js --name "sporting-event-pwa"
           

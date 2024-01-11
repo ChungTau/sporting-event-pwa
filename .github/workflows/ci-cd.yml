@@ -46,10 +46,12 @@ jobs:
           node-version: '18'
 
       - name: Install backend dependencies
-        run: npm install --prefix backend
+        working-directory: backend
+        run: npm install
 
       - name: Build backend
-        run: npm run build --prefix backend
+        working-directory: backend  # Change to the 'backend' directory
+        run: npm run build
 
       - name: Deploy backend to Server
         run: |

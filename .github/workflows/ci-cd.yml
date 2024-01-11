@@ -10,28 +10,29 @@ jobs:
   build-and-deploy-frontend:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '18'
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '18'
 
-      - name: Install frontend dependencies
-        run: npm install --prefix frontend
+    - name: Install dependencies
+      run: npm install
 
-      - name: Build frontend
-        run: npm run build --prefix frontend
+    - name: Build
+      run: npm run build
 
-      - name: Deploy frontend to Server
-        run: |
-          echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
-          chmod 600 deploy_key.pem
-          tar -czf build.tar.gz -C frontend/build .
-          scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa
-          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa --overwrite'
-          rm deploy_key.pem
+    - name: Deploy to Server
+      run: |
+        echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
+        chmod 600 deploy_key.pem
+        tar -czf build.tar.gz build/
+        scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/frontend
+        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/frontend/build.tar.gz -C /sporting-event-pwa/frontend --overwrite'
+        rm deploy_key.pem
 
   build-and-deploy-backend:
     if: github.ref == 'refs/heads/feature/backend'

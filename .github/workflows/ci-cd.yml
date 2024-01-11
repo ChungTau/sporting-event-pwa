@@ -45,12 +45,21 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install backend dependencies
-        working-directory: backend
+      # caching the dependency
+      - name: 'Cache Dependencies'
+        uses: 'actions/cache@v3'
+        id: cache-node-modules
+        with:
+          path: 'node_modules'
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        # only run npm i if cache not found
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Build backend
-        working-directory: backend  # Change to the 'backend' directory
+        working-directory: backend 
         run: npm run build
 
       - name: Deploy backend to Server
@@ -62,11 +71,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite'
           rm deploy_key.pem
 
-      - name: Install PM2
-        run: npm install -g pm2
-        
-      - name: Start Node.js app with PM2
-        run: |
-          cd backend
-          pm2 start dist/index.js --name "sporting-event-pwa"
-          
+

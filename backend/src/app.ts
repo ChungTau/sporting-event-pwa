@@ -25,6 +25,7 @@ sequelize.authenticate()
     sequelize.sync();
 
     app.use(express.json());
+
     app.use('/api', userRoutes);
 
     app.listen(PORT, () => {

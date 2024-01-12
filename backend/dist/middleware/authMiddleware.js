@@ -14,15 +14,13 @@ const authenticate = async (req, res, next) => {
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, dbConfig_1.JWT_SECRET);
-        // Assuming you have a 'User' model or type definition
-        const user = await User_1.default.findByPk(decoded.userId); // Fetch user data based on the decoded payload
+        const user = await User_1.default.findByPk(decoded.userId);
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
-        // Attach user data to the request object for further use
         req.user = user;
         next();
-        return; // Add this return statement
+        return;
     }
     catch (ex) {
         return res.status(400).json({ message: 'Invalid token.' });

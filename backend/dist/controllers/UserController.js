@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
 const User_1 = require("../models/User");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = require("jsonwebtoken");
@@ -13,13 +12,17 @@ class UserController {
     static async createUser(req, res) {
         try {
             const { username, email, password } = req.body;
+            if (!req.body.password) {
+                return res.status(400).json({ message: 'Password is required' });
+            }
             const hashedPassword = await bcrypt_1.default.hash(password, 10);
-            const user = await User_1.User.create({ username, email, hashedPassword });
-            res.status(201).json(user);
+            console.log(hashedPassword);
+            const user = await User_1.User.create({ username, email, password: hashedPassword });
+            return res.status(201).json(user); // Add 'return' here
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error creating user' });
+            return res.status(500).json({ message: 'Error creating user' });
         }
     }
     // Get all users
@@ -114,4 +117,4 @@ class UserController {
         }
     }
 }
-exports.UserController = UserController;
+exports.default = UserController;

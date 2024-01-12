@@ -87,12 +87,9 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           tar -czf backend-dist.tar.gz -C backend/dist . .env
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
-      
           tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite
           cd /sporting-event-pwa/backend
           npm install --production
-      
-            # Assuming PM2 is already installed on the server
           pm2 restart app
           '
       

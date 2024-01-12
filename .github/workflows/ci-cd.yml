@@ -85,7 +85,6 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
           source .env
           tar -czf backend-dist.tar.gz -C backend/dist . .env
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend

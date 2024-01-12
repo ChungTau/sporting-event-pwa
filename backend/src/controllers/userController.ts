@@ -9,15 +9,19 @@ class UserController {
   static async createUser(req: Request, res: Response) {
     try {
       const { username, email, password } = req.body;
+      if (!req.body.password) {
+        return res.status(400).json({ message: 'Password is required' });
+      }
       const hashedPassword = await bcrypt.hash(password, 10);
       console.log(hashedPassword);
       const user = await User.create({ username, email, hashedPassword });
-      res.status(201).json(user);
+      return res.status(201).json(user); // Add 'return' here
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error creating user' });
+      return res.status(500).json({ message: 'Error creating user' });
     }
   }
+  
 
   // Get all users
   static async getUsers(res: Response) {

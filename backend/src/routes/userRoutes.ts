@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/authMiddleware';
 import UserController from '../controllers/UserController';
 
-
 const router = Router();
 
 // Public route: Create a new user

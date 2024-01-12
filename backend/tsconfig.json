@@ -11,21 +11,16 @@
       "experimentalDecorators": true, // Enable experimental support for decorators
       "emitDecoratorMetadata": true, // Emit metadata for decorators
       "skipLibCheck": true, // Skip type checking of declaration files
-      "forceConsistentCasingInFileNames": false, // Ensure file names are case-consistent
+      "forceConsistentCasingInFileNames": true, // Ensure file names are case-consistent
       "resolveJsonModule": true, // Allow importing JSON modules
       "noImplicitReturns": true, // Enforce explicit return types on functions
       "noFallthroughCasesInSwitch": true, // Prevent fall-through in switch cases
       "noUnusedLocals": true, // Flag unused local variables
       "noUnusedParameters": true, // Flag unused function parameters
-      "types": ["node", "express", "./custom"],
-      "baseUrl": "./src",
-      "paths": {
-        "*": ["controllers/*"]
-      },
+      "types": ["node", "express", "./custom"]
     },
     "include": [
-      "src/**/*" // Include all files in the src directory
-, "custom.d.ts"    ],
+      "src/**/*"],
     "exclude": [
       "node_modules", // Exclude the node_modules directory
       "**/*.spec.ts" // Exclude test files (if any)

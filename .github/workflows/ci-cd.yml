@@ -81,7 +81,7 @@ jobs:
           tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite
           cd /sporting-event-pwa/backend
           npm install --production
-          pm2 restart app || pm2 start app
+          pm2 restart app || pm2 start ./app.js --name app
           '
       
           rm deploy_key.pem

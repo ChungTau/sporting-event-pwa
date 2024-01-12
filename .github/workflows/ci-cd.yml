@@ -74,12 +74,14 @@ jobs:
           # Send package.json and package-lock.json
           scp -o StrictHostKeyChecking=no -i deploy_key.pem backend/package.json backend/package-lock.json ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
 
-          # SSH into the server, install dependencies, and start the backend service
+          # SSH into the server, install dependencies, and start/restart the backend service
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
             tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite
             cd /sporting-event-pwa/backend
             npm install --production
-            # Restart the backend service here. This command depends on how you manage your Node.js application (e.g., pm2 restart app)
+
+            # Assuming PM2 is already installed on the server
+            pm2 restart app || pm2 start dist/app.js --name app
           '
 
           rm deploy_key.pem

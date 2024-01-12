@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/dbConfig';
 
-export class UserController {
+class UserController {
   // Create a new user
   static async createUser(req: Request, res: Response) {
     try {
@@ -115,3 +115,5 @@ export class UserController {
     }
   }
 }
+
+export default UserController;

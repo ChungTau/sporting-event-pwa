@@ -13,17 +13,15 @@ export const authenticate = async(req: Request, res: Response, next: NextFunctio
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
-    // Assuming you have a 'User' model or type definition
-    const user = await User.findByPk(decoded.userId); // Fetch user data based on the decoded payload
+    const user = await User.findByPk(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // Attach user data to the request object for further use
     req.user = user;
     next();
-    return; // Add this return statement
+    return;
   } catch (ex) {
     return res.status(400).json({ message: 'Invalid token.' });
   }

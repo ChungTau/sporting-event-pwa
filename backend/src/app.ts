@@ -2,6 +2,9 @@ import express, { Application } from 'express';
 import sequelize from './config/dbConfig';
 import userRoutes from './routes/userRoutes';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger';
 
 //For env File 
 dotenv.config();
@@ -23,9 +26,9 @@ sequelize.authenticate()
     console.log('Database connected...');
 
     sequelize.sync();
-
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use(express.json());
-
+    app.use(cors());
     app.use('/api', userRoutes);
 
     app.listen(PORT, () => {

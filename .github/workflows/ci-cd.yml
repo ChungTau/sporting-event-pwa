@@ -81,7 +81,7 @@ jobs:
             npm install --production
 
             # Assuming PM2 is already installed on the server
-            pm2 restart app || pm2 start dist/app.js --name app
+            pm2 restart app || pm2 start ./app.js --name app
           '
 
           rm deploy_key.pem

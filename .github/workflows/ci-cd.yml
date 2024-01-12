@@ -81,12 +81,12 @@ jobs:
       
           # SSH into the server, set environment variables, install dependencies, and start/restart the backend service
           ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
-export DB_HOST="${{ secrets.DB_HOST }}"
-export DB_USER="${{ secrets.DB_USER }}"
-export DB_PASS="${{ secrets.DB_PASS }}"
-export DB_NAME="${{ secrets.DB_NAME }}"
-tar -czf backend-dist.tar.gz -C backend/dist .
-scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
+          export DB_HOST="${{ secrets.DB_HOST }}"
+          export DB_USER="${{ secrets.DB_USER }}"
+          export DB_PASS="${{ secrets.DB_PASS }}"
+          export DB_NAME="${{ secrets.DB_NAME }}"
+          tar -czf backend-dist.tar.gz -C backend/dist .
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem backend-dist.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/backend
           tar -xzf /sporting-event-pwa/backend/backend-dist.tar.gz -C /sporting-event-pwa/backend --overwrite
           cd /sporting-event-pwa/backend
           npm install --production

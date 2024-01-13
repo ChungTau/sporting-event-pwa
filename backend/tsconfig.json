@@ -20,7 +20,11 @@
       "types": ["node", "express", "./custom"]
     },
     "include": [
-      "src/**/*"],
+      "src/**/*",
+      "dist/**/*",  // Include files from the dist directory
+      "migrations/**/*",  // Include migration files
+      "seeders/**/*" 
+    ],
     "exclude": [
       "node_modules", // Exclude the node_modules directory
       "**/*.spec.ts" // Exclude test files (if any)

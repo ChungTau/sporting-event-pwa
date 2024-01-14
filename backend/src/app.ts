@@ -20,7 +20,7 @@ process.on('uncaughtException', error => {
 
 const app: Application = express();
 const PORT = process.env.PORT || 3389;
-console.log(swaggerSpec);
+
 sequelize.authenticate()
   .then(() => {
     console.log('Database connected...');
@@ -34,6 +34,7 @@ sequelize.authenticate()
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(swaggerSpec);
     });
   })
   .catch(err => {

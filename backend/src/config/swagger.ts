@@ -10,9 +10,9 @@ const options = {
     },
   },
  
-  apis: ['../routes/userRoutes'],
+  apis: ['../routes/'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
-
+console.log(swaggerSpec);
 export default swaggerSpec;

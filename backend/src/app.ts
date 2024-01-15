@@ -19,7 +19,7 @@ process.on('uncaughtException', error => {
 });
 
 const app: Application = express();
-const PORT = process.env.PORT || 8080;
+const PORT: number =  8080;
 
 sequelize.authenticate()
   .then(() => {
@@ -32,7 +32,7 @@ sequelize.authenticate()
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use('/api', userRoutes);
 
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
       console.log(swaggerSpec);
     });

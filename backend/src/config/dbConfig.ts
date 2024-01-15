@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 const DB = {
   name: 'FYP',
   user: 'root',
-  pass: '1234',
+  pass: 'FYP_gib5',
   host: 'localhost',
 };
 

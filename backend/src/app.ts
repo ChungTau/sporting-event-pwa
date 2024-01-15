@@ -19,7 +19,7 @@ process.on('uncaughtException', error => {
 });
 
 const app: Application = express();
-const PORT = process.env.PORT || 3389;
+const PORT = process.env.PORT || 8080;
 
 sequelize.authenticate()
   .then(() => {

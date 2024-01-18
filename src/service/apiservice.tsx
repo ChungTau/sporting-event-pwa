@@ -1,7 +1,8 @@
 import Repository from "./axiosConfig";
 
 const resource: string = "/";
-export default {
+
+const api = {
   signUp(obj: any): Promise<any> {
     return Repository.post(`${resource}signup`, obj);
   },
@@ -15,3 +16,4 @@ export default {
     return Repository.post(`${resource}resetPassword`, obj);
   },
 };
+export default api;

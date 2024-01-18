@@ -1,5 +1,4 @@
 import Center from "../../../../components/Center";
-import styled from "@emotion/styled";
 import * as React from "react";
 import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
 import {
@@ -13,11 +12,10 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Button,
   IconButton,
   Box,
 } from "@chakra-ui/react";
-import Column from "../../../../components/Column";
+
 import { SearchIcon} from "@chakra-ui/icons";
 import { BsPause } from "react-icons/bs";
 
@@ -48,7 +46,7 @@ function SearchAndFilterEvent() {
       <Center>
         <Box w="10vw">
           <RangeSlider
-            aria-label={["min", "max"]}
+            
             defaultValue={[1, 100]}
             onChangeEnd={(val) => console.log(val)}
           >

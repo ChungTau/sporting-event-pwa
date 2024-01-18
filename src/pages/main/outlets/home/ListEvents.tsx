@@ -1,9 +1,7 @@
 import Center from "../../../../components/Center";
 import styled from "@emotion/styled";
-import SlideShow from "../../../main/outlets/home/SlideShow";
 import {
   Card,
-  CardHeader,
   Image,
   Text,
   Stack,

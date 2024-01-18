@@ -4,6 +4,9 @@ import MainPage from '../pages/main';
 import ErrorPage from '../pages/error';
 import SignUpPage from '../pages/signUp';
 import SignInPage from '../pages/signIn';
+// import GPSPage from '../pages/gps';
+import GPSPage from '../pages/gps';
+import MyForm from '../pages/signUp';
 import { FaPen, FaUser } from 'react-icons/fa';
 import { BsCalendarEventFill } from 'react-icons/bs';
 import { GoHomeFill } from "react-icons/go";
@@ -43,6 +46,8 @@ export const routes = Object.freeze({
     MAIN: {name: 'Main', path: '/', component: MainPage, outlet: { ...mainOutlet, ...userOutlet }, isProtected: false },
     SIGNUP: { name: 'Sign Up', path: '/sign-up', component: SignUpPage, isProtected: false },
     SIGNIN: { name: 'Sign In', path: '/sign-in', component: SignInPage, isProtected: false },
+    GPS: { name: 'GPS', path: '/gps', component: GPSPage, isProtected: false },
+    MYFORM: { name: 'MyForm', path: '/myform', component: MyForm, isProtected: false },
     ERROR: { name: 'Error', path: '/badpage', component: ErrorPage, isProtected: false },
     ERRORREDIRECT: { name: 'ErrorRedirect', path: '*', to: '/badpage', isProtected: false },
 });

@@ -2,6 +2,7 @@ import {motion} from "framer-motion";
 import Center from "../../components/Center";
 import {fadeVariants} from "../../constants/animateVariant";
 
+
 function SignUpPage() {
 
     return (
@@ -13,7 +14,7 @@ function SignUpPage() {
             transition={{
             duration: 0.5
         }}>
-            <Center>Sign Up Page</Center>
+            <Center>Sign Up Page2</Center>
         </motion.div>
     );
 };

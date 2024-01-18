@@ -20,7 +20,9 @@ import {
 import image from "../../assets/images/bgImage3.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import ApiService from "../../service/apiservice";
+import AuthServices from '../../services/authServices';
+import Credential from "../../models/Credential";
+//import ApiService from "../../service/apiservice";
 
 function SignInPage() {
   const dispatch = useDispatch();
@@ -30,7 +32,7 @@ function SignInPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState("");
+  const [modalContent] = useState("");
 
   const NewBox = styled(Box)({
     padding: "10px",
@@ -94,11 +96,11 @@ function SignInPage() {
 
       if (validation.isValid) {
         //setModalContent("Account created successfully!");
-        const data = {
-          Username: formData.username,
-          Password: formData.password,
+        const data:Credential = {
+          username: formData.username,
+          password: formData.password,
         };
-        const file = ApiService.signIn(data);
+        AuthServices.signIn(data, dispatch);
         setIsValidationSuccessful(true);
         setValidationErrors([]);
 

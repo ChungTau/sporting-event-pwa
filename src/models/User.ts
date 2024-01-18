@@ -1,10 +1,10 @@
-interface User {
+import { BaseModel } from "./BaseModel";
+
+interface User extends BaseModel{
     id: number;
     username: string;
     email: string;
     password: string;
-    createdAt?: Date;
-    updatedAt?: Date;
   }
   
   export default User;

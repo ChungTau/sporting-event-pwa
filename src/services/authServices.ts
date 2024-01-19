@@ -7,7 +7,7 @@ import Credential from '../models/Credential';
 const AuthServices = {
   signUp: async (user: User, dispatch: Dispatch) => {
     try {
-      const response = await api.post('/signup', user);
+      const response = await api.post('/signUp', user);
 
       const { token } = response.data;
 

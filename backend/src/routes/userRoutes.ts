@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/register:
+ * /api/signUp:
  *   post:
  *     summary: Create a new user.
  *     description: Create a new user with the provided username, email, and password.
@@ -31,7 +31,7 @@ const router = Router();
  *       500:
  *         description: Internal server error.
  */
-router.post('/register', UserController.createUser);
+router.post('/signUp', UserController.createUser);
 
 /**
  * @swagger
@@ -65,11 +65,11 @@ router.post('/register', UserController.createUser);
  *       500:
  *         description: Internal server error.
  */
-router.post('/login', UserController.loginUser);
+router.post('/signIn', UserController.loginUser);
 
 /**
  * @swagger
- * /api:
+ * /api/users:
  *   get:
  *     summary: Get all users.
  *     description: Get a list of all users.
@@ -85,11 +85,11 @@ router.post('/login', UserController.loginUser);
  *       500:
  *         description: Internal server error.
  */
-router.get('/', authenticate, UserController.getUsers);
+router.get('/users', authenticate, UserController.getUsers);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   get:
  *     summary: Get user by ID.
  *     description: Get a user's details by their ID.
@@ -113,11 +113,11 @@ router.get('/', authenticate, UserController.getUsers);
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id', authenticate, UserController.getUserById);
+router.get('/users/:id', authenticate, UserController.getUserById);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   put:
  *     summary: Update user by ID.
  *     description: Update a user's details by their ID.
@@ -143,11 +143,11 @@ router.get('/:id', authenticate, UserController.getUserById);
  *       500:
  *         description: Internal server error.
  */
-router.put('/:id', authenticate, UserController.updateUser);
+router.put('/users/:id', authenticate, UserController.updateUser);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   delete:
  *     summary: Delete user by ID.
  *     description: Delete a user by their ID.
@@ -167,6 +167,6 @@ router.put('/:id', authenticate, UserController.updateUser);
  *       500:
  *         description: Internal server error.
  */
-router.delete('/:id', authenticate, UserController.deleteUser);
+router.delete('/users/:id', authenticate, UserController.deleteUser);
 
 export default router;

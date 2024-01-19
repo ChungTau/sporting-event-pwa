@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-and-deploy-frontend:
-    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +34,6 @@ jobs:
         rm deploy_key.pem
 
   build-and-deploy-backend:
-    if: github.ref == 'refs/heads/feature/backend'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1

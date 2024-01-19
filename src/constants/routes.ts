@@ -50,5 +50,5 @@ export const routes = Object.freeze({
     FORGOT_PASSWORD:{name: 'Forgot Password', path: '/forgot-password', component: ForgotPassword, isProtected: false },
     RESET_PASSWORD:{name: 'Reset Password', path: '/reset-password', component: ResetPassword, isProtected: false },
     ERROR: { name: 'Error', path: '/badpage', component: ErrorPage, isProtected: false },
-    ERRORREDIRECT: { name: 'ErrorRedirect', path: '*', to: '/badpage', isProtected: false },
+    //ERRORREDIRECT: { name: 'ErrorRedirect', path: '*', to: '/badpage', isProtected: false },
 });

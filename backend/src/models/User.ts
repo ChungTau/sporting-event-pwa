@@ -6,8 +6,8 @@ import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'seque
 
 //詳細版
 @Table({
-    timestamps: true,
-    tableName: 'users'
+  timestamps: true,
+  tableName: 'users',
 })
 export class User extends Model {
   @PrimaryKey
@@ -30,15 +30,59 @@ export class User extends Model {
     allowNull: false,
   })
   email!: string;
+
   @Column({
     type: DataType.STRING,
-    unique: false,
     allowNull: false,
   })
   password!: string;
+
+  @Column({
+    type: DataType.STRING, 
+    allowNull: true, 
+  })
+  gender!: string;
+
+  @Column({
+    type: DataType.STRING, 
+    allowNull: true, 
+  })
+  dob!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true, 
+  })
+  phoneNumber!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true, 
+  })
+  emergencyPerson!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  emergencyContact!: string;
+
+  toJson() {
+    const { id, username, email, gender, dob, phoneNumber, emergencyPerson, emergencyContact } = this;
+    return {
+      id,
+      username,
+      email,
+      gender,
+      dob,
+      phoneNumber,
+      emergencyPerson,
+      emergencyContact,
+    };
+  }
 }
 
-export default User;
+
 
 //簡化Default版
 /**

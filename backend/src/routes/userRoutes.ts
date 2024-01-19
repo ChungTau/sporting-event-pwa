@@ -73,8 +73,13 @@ router.post('/signIn', UserController.loginUser);
  *   get:
  *     summary: Get all users.
  *     description: Get a list of all users.
- *     security:
- *       - BearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *     responses:
  *       200:
  *         description: List of users retrieved successfully.
@@ -95,9 +100,13 @@ router.get('/users', authenticate, UserController.getUsers);
  *   get:
  *     summary: Get user by ID.
  *     description: Get a user's details by their ID.
- *     security:
- *       - BearerAuth: []
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -125,9 +134,13 @@ router.get('/users/:id', authenticate, UserController.getUserById);
  *   put:
  *     summary: Update user by ID.
  *     description: Update a user's details by their ID.
- *     security:
- *       - BearerAuth: []
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -157,9 +170,13 @@ router.put('/users/:id', authenticate, UserController.updateUser);
  *   delete:
  *     summary: Delete user by ID.
  *     description: Delete a user by their ID.
- *     security:
- *       - BearerAuth: []
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true

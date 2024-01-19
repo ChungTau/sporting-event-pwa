@@ -22,7 +22,7 @@ import Row from "../../../../components/Row";
 import Column from "../../../../components/Column";
 import Moment from "moment";
 import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
-import Event from "../../../../models/Event";
+import EventData from "../../../../models/EventData";
 
 const Grid1 = styled(Grid)({
   "@media (min-width: 500px)": {
@@ -36,7 +36,7 @@ const Grid1 = styled(Grid)({
   },
 });
 interface EventCards {
-  eventCards: Event[];
+  eventCards: EventData[];
 }
 
 function ListEvents(cards: EventCards) {

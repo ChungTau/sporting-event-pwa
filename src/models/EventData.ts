@@ -2,7 +2,7 @@ import { PointDetails } from "../pages/main/outlets/addEvent/DetailsBox";
 import { BaseModel } from "./BaseModel";
 import GpxData from "./GpxData";
 
-interface Event extends BaseModel{
+interface EventData extends BaseModel{
     name: string;
     type: string;
     privacy: string;
@@ -16,4 +16,4 @@ interface Event extends BaseModel{
     route?: GpxData;
 }
 
-export default Event;
+export default EventData;

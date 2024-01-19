@@ -5,7 +5,7 @@ import SearchAndFilterEvent from "./SearchAndFilterEvent";
 import HomeFooter2 from "./HomeFooter2";
 import { Flex } from "@chakra-ui/react";
 import { useState } from "react";
-import Event from "../../../../models/Event";
+import EventData from "../../../../models/EventData";
 
 const eventCards = [
   {
@@ -114,7 +114,7 @@ const eventCards = [
 
 function HomePage() {
   const [filteredEventCards, setFilteredEventCards] =
-    useState<Event[]>(eventCards);
+    useState<EventData[]>(eventCards);
   const [value, setValue] = useState("");
   const [locationPosition, setLocationPosition] = useState({
     defaultLatitude: 0,

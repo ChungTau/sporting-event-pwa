@@ -25,7 +25,7 @@ class UserController {
       return res.status(201).json(user);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: 'Error creating user' });
+      return res.status(500).json({ message: 'Error creating user: '+error });
     }
   }
 
@@ -36,7 +36,7 @@ class UserController {
       res.json(users);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching users' });
+      res.status(500).json({ message: 'Error fetching users: '+error });
     }
   }
 

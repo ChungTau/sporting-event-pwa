@@ -9,7 +9,13 @@ const options = {
       description: 'API documentation for Sporting Event PWA',
     },
   },
- 
+  securityDefinitions: {
+    BearerAuth: {
+      type: 'apiKey',
+      name: 'Authorization',
+      in: 'header',
+    },
+  },
   apis: ['./routes/userRoutes.js'],
 };
 

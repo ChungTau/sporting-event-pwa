@@ -73,6 +73,8 @@ router.post('/signIn', UserController.loginUser);
  *   get:
  *     summary: Get all users.
  *     description: Get a list of all users.
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: List of users retrieved successfully.
@@ -93,6 +95,8 @@ router.get('/users', authenticate, UserController.getUsers);
  *   get:
  *     summary: Get user by ID.
  *     description: Get a user's details by their ID.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -121,6 +125,8 @@ router.get('/users/:id', authenticate, UserController.getUserById);
  *   put:
  *     summary: Update user by ID.
  *     description: Update a user's details by their ID.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -151,6 +157,8 @@ router.put('/users/:id', authenticate, UserController.updateUser);
  *   delete:
  *     summary: Delete user by ID.
  *     description: Delete a user by their ID.
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

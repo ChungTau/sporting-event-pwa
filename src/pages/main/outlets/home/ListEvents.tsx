@@ -1,8 +1,6 @@
 import styled from "@emotion/styled";
 import {
   Card,
-  CardHeader,
-  Image,
   Text,
   Stack,
   Heading,

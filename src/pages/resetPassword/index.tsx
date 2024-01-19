@@ -18,7 +18,7 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import ApiService from "../../service/apiservice";
+import AuthServices from '../../services/authServices';
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ function ResetPasswordPage() {
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        ApiService.resetPassword(formData.password);
+        AuthServices.resetPassword(formData.password);
         setIsValidationSuccessful(true);
         setModalContent("Now you can login your account.");
         setValidationErrors([]);

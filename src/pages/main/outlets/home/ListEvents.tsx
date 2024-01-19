@@ -21,8 +21,8 @@ import { MdCategory, MdOutlinePeopleAlt, MdLocationOn } from "react-icons/md";
 import Row from "../../../../components/Row";
 import Column from "../../../../components/Column";
 import Moment from "moment";
-import Event from "../../../../models/Event";
 import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
+import Event from "../../../../models/Event";
 
 const Grid1 = styled(Grid)({
   "@media (min-width: 500px)": {

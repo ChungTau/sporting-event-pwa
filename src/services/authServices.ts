@@ -49,9 +49,9 @@ const AuthServices = {
     }
   },
 
-  resetPassword: async (resetData: { token: string, password: string }) => {
+  resetPassword: async (password: string) => {
     try {
-      const response = await api.post('/resetPassword', resetData);
+      const response = await api.post('/resetPassword', password);
       return response.data;
     } catch (error) {
       console.error('Password reset failed:', error);

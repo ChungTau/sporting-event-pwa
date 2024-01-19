@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimationContext, AnimationContextProps} from "../contexts/AnimationContext";
 import { Feature, LineString, Position, Properties, Units, along, distance, lineString, point, length } from "@turf/turf";
 import { useMap } from "../contexts/MapContext";
@@ -48,6 +48,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
     const map = useMap();
+    const currentRoute = useMemo(() => gpx.gpxState.data?.routes, [gpx.gpxState.data?.routes]);
 
     useEffect(() => {
         isPlayingRef.current = isPlaying; // Sync ref with state to use inside the callback
@@ -152,70 +153,50 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
     }, [isPlaying, map, recording]);
     
     useEffect(() => {
-        if (gpx.gpxState.data?.routes) {
-            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
-                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0]);
-                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates.slice(0, 2)]);
-            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
-                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0][0]);
-                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates[0].slice(0, 2)]);
+        if (currentRoute) {
+            if (currentRoute.geometry.type === "LineString") {
+                setCurrentPosition(currentRoute.geometry.coordinates[0]);
+                setProgressLine([currentRoute.geometry.coordinates.slice(0, 2)]);
+            } else if (currentRoute.geometry.type === "MultiLineString") {
+                setCurrentPosition(currentRoute.geometry.coordinates[0][0]);
+                setProgressLine([currentRoute.geometry.coordinates[0].slice(0, 2)]);
             }
         }
-    }, [gpx.gpxState.data?.routes]);
+    }, [currentRoute]);
+    
+// ...
+
+const updateRouteLayersVisibility = useCallback((isVisible: boolean) => {
+    const opacity = isVisible ? 1 : 0;
+    const transitionDuration = 1000; // 1 second
+
+    if (map.mapRef.current && currentRoute) {
+        const mapInstance = map.mapRef.current.getMapInstance();
+
+        const setLayerOpacity = (layerId:string) => {
+            if (mapInstance.getLayer(layerId)) {
+                mapInstance.setPaintProperty(layerId, 'line-opacity', opacity);
+                mapInstance.setPaintProperty(layerId, 'line-opacity-transition', { duration: transitionDuration });
+            }
+        };
+
+        if (currentRoute.geometry.type === "LineString") {
+            setLayerOpacity('routeLayer');
+        } else if (currentRoute.geometry.type === "MultiLineString") {
+            currentRoute.geometry.coordinates.forEach((_, index) => {
+                setLayerOpacity(`routeLayer${index}`);
+            });
+        }
+    }
+}, [currentRoute, map.mapRef]);
+
+// ...
+
     
 
-    const fadeOutRouteLayers = useCallback(() => {
-        if (map.mapRef.current && gpx.gpxState.data?.routes) {
-            const mapInstance = map.mapRef.current.getMapInstance();
-
-            if (gpx.gpxState.data?.routes
-                ?.geometry.type === "LineString") {
-                const layerId = `routeLayer`;
-                if (mapInstance.getLayer(layerId)) {
-                    mapInstance.setPaintProperty(layerId, 'line-opacity', 0);
-                }
-            } else if (gpx.gpxState.data?.routes
-                ?.geometry.type === "MultiLineString") {
-                    gpx.gpxState.data?.routes
-                    .geometry
-                    .coordinates
-                      .forEach((route, index) => {
-                        const layerId = `routeLayer${index}`;
-                        if (mapInstance.getLayer(layerId)) {
-                            mapInstance.setPaintProperty(layerId, 'line-opacity', 0);
-                        }
-                    });
-            }
-        }
-    },[gpx.gpxState.data?.routes, map.mapRef]);
-    const fadeInRouteLayers = useCallback(() => {
-        if (map.mapRef.current && gpx.gpxState.data?.routes) {
-            const mapInstance = map.mapRef.current.getMapInstance();
-
-            if (gpx.gpxState.data?.routes
-                ?.geometry.type === "LineString") {
-                const layerId = `routeLayer`;
-                if (mapInstance.getLayer(layerId)) {
-                    mapInstance.setPaintProperty(layerId, 'line-opacity', 1);
-                }
-            } else if (gpx.gpxState.data?.routes
-                ?.geometry.type === "MultiLineString") {
-                    gpx.gpxState.data?.routes
-                    .geometry
-                    .coordinates
-                    .forEach((route, index) => {
-                        const layerId = `routeLayer${index}`;
-                        if (mapInstance.getLayer(layerId)) {
-                            mapInstance.setPaintProperty(layerId, 'line-opacity', 1);
-                        }
-                    });
-            }
-        }
-    },[gpx.gpxState.data?.routes, map?.mapRef]);
-
     const handleResize = useCallback(() => {
-        resizeMap(gpx.gpxState.data?.routes, map.mapRef);
-    }, [gpx.gpxState.data?.routes, map.mapRef]);
+        resizeMap(currentRoute, map.mapRef);
+    }, [currentRoute, map.mapRef]);
 
     const resetAnimation = useCallback((resetRouteIndex = true) => {
         if (animationFrameId.current) {
@@ -235,14 +216,14 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             setCurrentRouteIndex(0);
         }
         if (resetRouteIndex) {
-            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
-                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0]);
-                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates.slice(0, 2)]);
-            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
-                setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[0][0]);
-                setProgressLine([gpx.gpxState.data?.routes.geometry.coordinates[0].slice(0, 2)]);
+            if (currentRoute?.geometry.type === "LineString") {
+                setCurrentPosition(currentRoute.geometry.coordinates[0]);
+                setProgressLine([currentRoute.geometry.coordinates.slice(0, 2)]);
+            } else if (currentRoute?.geometry.type === "MultiLineString") {
+                setCurrentPosition(currentRoute.geometry.coordinates[0][0]);
+                setProgressLine([currentRoute.geometry.coordinates[0].slice(0, 2)]);
             }
-            fadeInRouteLayers();
+            updateRouteLayersVisibility(true);
             handleResize();
             setTimeout(()=>{
                 setIsPlaying(false);
@@ -252,15 +233,15 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
 
         const mapInstance = map.mapRef.current
             ?.getMapInstance();
-        if (gpx.gpxState.data?.routes && mapInstance) {
-            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
+        if (currentRoute && mapInstance) {
+            if (currentRoute.geometry.type === "LineString") {
                 if(mapInstance.getLayer('lineA')){
                     
                     mapInstance.removeLayer('lineA');
                     mapInstance.removeSource('lineA');
                 }
-            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
-                for(let i=0; i<gpx.gpxState.data?.routes.geometry.coordinates.length ;i++){
+            } else if (currentRoute.geometry.type === "MultiLineString") {
+                for(let i=0; i<currentRoute.geometry.coordinates.length ;i++){
                     if(mapInstance.getLayer(`line${i}`)){
                         mapInstance.removeLayer(`line${i}`);
                         mapInstance.removeSource(`line${i}`);
@@ -271,7 +252,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             //mapInstance.removeLayer('line0');
         }
         
-    }, [gpx.gpxState.data?.routes, handleResize, fadeInRouteLayers, map.mapRef]);
+    }, [currentRoute, handleResize, updateRouteLayersVisibility, map.mapRef]);
 
     const animateFlyAlongRoute = useCallback((time : number) => {
        
@@ -287,7 +268,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             const animationPhase = calculateAnimationPhase(distanceOfCurrentRoute, time, elapsedTime, startTime, start, speed);
             if (animationPhase > 1) {
                 const newIndex = routeIndex + 1;
-                if (gpx.gpxState.data?.routes?.geometry.type === "MultiLineString" && newIndex < gpx.gpxState.data?.routes.geometry.coordinates.length) {
+                if (currentRoute?.geometry.type === "MultiLineString" && newIndex < currentRoute.geometry.coordinates.length) {
                     if (animationFrameId.current) {
                         window.cancelAnimationFrame(animationFrameId.current);
                         animationFrameId.current = null; // reset the animation frame id
@@ -296,12 +277,12 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                     elapsedTime.current = 0;
                     startTime.current = 0; // Reset start time for the next segment
                     setCurrentRouteIndex(newIndex);
-                    setCurrentPosition(gpx.gpxState.data?.routes.geometry.coordinates[newIndex][0] as Position);
-                    lastPositionRef.current = gpx.gpxState.data?.routes.geometry.coordinates[newIndex][0];
+                    setCurrentPosition(currentRoute.geometry.coordinates[newIndex][0] as Position);
+                    lastPositionRef.current = currentRoute.geometry.coordinates[newIndex][0];
                     return;
                 } else {
                     resetAnimation();
-                    fadeInRouteLayers();
+                    updateRouteLayersVisibility(true);
                     return;
                 }
             }
@@ -319,10 +300,10 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 setCurrentDistance(prevDistance => prevDistance + distanceTravelled);
 
                 if (gpx.gpxState.data?.info.climb !== 0) {
-                    const currentElevationChange = computeElevationChange(lastPositionRef.current, alongPath, gpx.gpxState.data?.routes
+                    const currentElevationChange = computeElevationChange(lastPositionRef.current, alongPath, currentRoute
                             ?.geometry.type === "LineString"
-                                ? gpx.gpxState.data?.routes.geometry.coordinates
-                                : gpx.gpxState.data?.routes
+                                ? currentRoute.geometry.coordinates
+                                : currentRoute
                                         ?.geometry.coordinates[routeIndex], gpx.gpxState.data);
                     if (currentElevationChange > 0) {
                         setCumulativeElevationGain(prevElevation => prevElevation + currentElevationChange);
@@ -330,8 +311,8 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 }
             }
             lastPositionRef.current = alongPath;
-            const bearing = gpx.gpxState.data?.routes.geometry.type === "LineString" ? (0 + (animationPhase * 240)): routeIndex !== 0? bearingRef.current+(animationPhase/gpx.gpxState.data?.routes.geometry.coordinates.length!)*240: (0 + (animationPhase/gpx.gpxState.data?.routes.geometry.coordinates.length!)*240);
-
+            const bearing = map.mapRef.current.getMapInstance().getBearing()+0.12;
+            bearingRef.current = bearing;
             if (map.mapRef.current) {
                 const currentView = map.mapRef
                     .current
@@ -363,15 +344,15 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 animationFrameId.current = window.requestAnimationFrame(animateFlyAlongRoute);
             }
         }
-        if (gpx.gpxState.data?.routes && currentPosition) {
-            if (gpx.gpxState.data?.routes.geometry.type === "LineString") {
-                handleAnimation(gpx.gpxState.data?.routes as Feature<LineString, Properties>);
-            } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
-                handleAnimation(lineString(gpx.gpxState.data?.routes.geometry.coordinates[currentRouteIndex]), currentRouteIndex);
+        if (currentRoute && currentPosition) {
+            if (currentRoute.geometry.type === "LineString") {
+                handleAnimation(currentRoute as Feature<LineString, Properties>);
+            } else if (currentRoute.geometry.type === "MultiLineString") {
+                handleAnimation(lineString(currentRoute.geometry.coordinates[currentRouteIndex]), currentRouteIndex);
             }
         }
         
-    }, [currentPosition, pitch, zoomLevel, speed, currentRouteIndex, fadeInRouteLayers, gpx.gpxState.data, map.mapRef, resetAnimation]);
+    }, [currentPosition, pitch, zoomLevel, speed, currentRouteIndex, updateRouteLayersVisibility, gpx.gpxState.data, currentRoute, map.mapRef, resetAnimation]);
 
     const flyToRoute = useCallback(
         () => {
@@ -393,14 +374,16 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
         // This effect runs only once when the component mounts
         if (isPlaying) {
             // Start animation when isPlaying is true
-            fadeOutRouteLayers();
+            //fadeOutRouteLayers();
+            updateRouteLayersVisibility(false);
             startTime.current = 0;
             flyToRoute();
         } else {
-            fadeInRouteLayers();
+            updateRouteLayersVisibility(true);
+            //fadeInRouteLayers();
         }
         // eslint-disable-next-line
-    }, [isPlaying, fadeInRouteLayers, fadeOutRouteLayers]);
+    }, [isPlaying, updateRouteLayersVisibility]);
 
     const recordAnimation = useCallback(() => {
         if(recording){
@@ -427,10 +410,10 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
             const mapInstance = map.mapRef.current.getMapInstance();
             const color = "#f74d63";
             if (mapInstance && mapInstance.style !== undefined && mapInstance.style._loaded && isPlaying) {
-                if (gpx.gpxState.data?.routes.geometry.type === "LineString" && progressLine[0].length >= 2) {
+                if (currentRoute?.geometry.type === "LineString" && progressLine[0].length >= 2) {
                     const progressRoute = lineString(progressLine[0]);
                     addLineLayer('lineA', map.mapRef, color, progressRoute);
-                } else if (gpx.gpxState.data?.routes.geometry.type === "MultiLineString") {
+                } else if (currentRoute?.geometry.type === "MultiLineString") {
                     progressLine.forEach((lineSegment, index) => {
                         if (lineSegment.length >= 2) {
                             const progressRoute = lineString(lineSegment);
@@ -441,7 +424,7 @@ const AnimationProvider: React.FC<AnimationProviderProps> = ({ children }) => {
                 }
             }
         }
-    }, [currentPosition, currentRouteIndex, map.isStyleLoaded, gpx.gpxState.data?.routes.geometry.type, map.mapRef]);
+    }, [currentPosition, currentRouteIndex, map.isStyleLoaded, currentRoute?.geometry.type, map.mapRef]);
      /* eslint-enable react-hooks/exhaustive-deps */
 
      /* eslint-disable react-hooks/exhaustive-deps */

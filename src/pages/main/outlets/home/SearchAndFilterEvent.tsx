@@ -1,4 +1,6 @@
+import Center from "../../../../components/Center";
 import styled from "@emotion/styled";
+import * as React from "react";
 import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
 import {
   Select,
@@ -6,6 +8,7 @@ import {
   InputGroup,
   InputRightElement,
   Button,
+  IconButton,
   Box,
   Text,
   Flex,

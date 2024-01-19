@@ -5,12 +5,12 @@ import SearchAndFilterEvent from "./SearchAndFilterEvent";
 import HomeFooter2 from "./HomeFooter2";
 import { Flex } from "@chakra-ui/react";
 import { useState } from "react";
-import { Event } from "../../../../models/event";
+import Event from "../../../../models/Event";
 
 const eventCards = [
   {
     name: "name3",
-    eventType: "race",
+    type: "race",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-06-01"),
@@ -18,7 +18,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "description",
     remark: "remark",
-    geoData: {
+    venue: {
       lng: 89.5,
       lat: 44.5,
       address: "address",
@@ -27,7 +27,7 @@ const eventCards = [
   },
   {
     name: "name5",
-    eventType: "companion",
+    type: "companion",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-04-01"),
@@ -35,7 +35,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "",
     remark: "",
-    geoData: {
+    venue: {
       lng: 189.5,
       lat: 24.5,
       address: "address",
@@ -44,7 +44,7 @@ const eventCards = [
   },
   {
     name: "name1",
-    eventType: "challenge",
+    type: "challenge",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-02-15"),
@@ -52,7 +52,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "",
     remark: "",
-    geoData: {
+    venue: {
       lng: 22.5,
       lat: 84.5,
       address: "address",
@@ -61,7 +61,7 @@ const eventCards = [
   },
   {
     name: "name6",
-    eventType: "companion",
+    type: "companion",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-03-18"),
@@ -69,7 +69,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "",
     remark: "",
-    geoData: {
+    venue: {
       lng: 15.5,
       lat: 153.5,
       address: "address",
@@ -78,7 +78,7 @@ const eventCards = [
   },
   {
     name: "name2",
-    eventType: "race",
+    type: "race",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-02-09"),
@@ -86,7 +86,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "",
     remark: "",
-    geoData: {
+    venue: {
       lng: 23.5,
       lat: 69.5,
       address: "address",
@@ -95,7 +95,7 @@ const eventCards = [
   },
   {
     name: "name4",
-    eventType: "challenge",
+    type: "challenge",
     privacy: "privacy",
     maxOfParti: 10,
     startDateTime: new Date("2023-06-03"),
@@ -103,7 +103,7 @@ const eventCards = [
     backgroundImage: "image",
     description: "",
     remark: "",
-    geoData: {
+    venue: {
       lng: 125.5,
       lat: 12.5,
       address: "address",
@@ -184,8 +184,8 @@ function HomePage() {
 
   const getFinalTrial = () => {
     if (eventCards) {
-      const trailLatitude = eventCards.map((card) => card.geoData.lat);
-      const trailLongitude = eventCards.map((card) => card.geoData.lng);
+      const trailLatitude = eventCards.map((card) => card.venue.lat);
+      const trailLongitude = eventCards.map((card) => card.venue.lng);
 
       const distanceArray = trailLatitude.map((lat, idx) => {
         const lng = trailLongitude[idx];
@@ -207,7 +207,7 @@ function HomePage() {
   };
   function handleChangeEventType(event: any) {
     const Cards = eventCards.filter((cards) =>
-      cards.eventType.toLowerCase().includes(event.target.value.toLowerCase())
+      cards.type.toLowerCase().includes(event.target.value.toLowerCase())
     );
     console.log("type" + JSON.stringify(Cards));
     setFilteredEventCards([...Cards]);

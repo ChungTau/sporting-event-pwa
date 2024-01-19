@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
 import {
   Card,
+  CardHeader,
+  Image,
   Text,
   Stack,
   Heading,
@@ -20,7 +21,8 @@ import { MdCategory, MdOutlinePeopleAlt, MdLocationOn } from "react-icons/md";
 import Row from "../../../../components/Row";
 import Column from "../../../../components/Column";
 import Moment from "moment";
-import { Event } from "../../../../models/event";
+import Event from "../../../../models/Event";
+import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
 
 const Grid1 = styled(Grid)({
   "@media (min-width: 500px)": {
@@ -66,7 +68,7 @@ function ListEvents(cards: EventCards) {
                           <Center>
                             <ListIcon as={MdCategory} color="yellow.900" />
                           </Center>
-                          <Text>{card.eventType}</Text>
+                          <Text>{card.type}</Text>
                         </Row>
 
                         <Row>
@@ -83,7 +85,7 @@ function ListEvents(cards: EventCards) {
                           <Center>
                             <ListIcon as={MdLocationOn} color="yellow.900" />
                           </Center>
-                          <Text>{card.geoData.address}</Text>
+                          <Text>{card.venue.address}</Text>
                         </Row>
 
                         <Row>

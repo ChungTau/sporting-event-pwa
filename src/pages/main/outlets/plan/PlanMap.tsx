@@ -1,5 +1,5 @@
 // Map.js
-import React, {useEffect, useCallback, useState} from 'react';
+import React, {useEffect, useCallback, useState, useMemo, Suspense} from 'react';
 
 import {
     RouteFeature,
@@ -23,6 +23,7 @@ import {useToast} from '@chakra-ui/react';
 import CheckpointModal from './CheckpointModal';
 import MapPanel from './MapPanel';
 import { useGPX } from '../../../../contexts/GPXContext';
+import FallbackSpinner from '../../../../components/FallbackSpinner';
 
 const BaseMap = React.lazy(() => import ('../../../../components/BaseMap'));
 
@@ -45,6 +46,7 @@ const PlanMap = () => {
         distanceInter: 0,
         position: null
     });
+    const currentRoute = useMemo(() => gpx.gpxState.data?.routes, [gpx.gpxState.data?.routes]);
 
     const [isStyleLoaded, setIsStyleLoaded] = useState < boolean > (false);
 
@@ -58,21 +60,20 @@ const PlanMap = () => {
     },[map.mapRef]);
 
     const addLayersIfNeeded = useCallback(() => {
-        if (!map.mapRef.current || !gpx.gpxState.data?.routes ||isStyleLoaded) {
+        if (!map.mapRef.current || !currentRoute ||isStyleLoaded) {
             return;
         }
 
-        map.mapRef.current.getMapInstance().once('style.load',()=>{
-            addLayersToMap(map.mapRef, '#887d73', gpx.gpxState.data?.routes);
+        map.mapRef.current.getMapInstance().on('style.load',()=>{
+            addLayersToMap(map.mapRef, '#887d73', currentRoute);
             return;
         })
-        addLayersToMap(map.mapRef, '#887d73', gpx.gpxState.data?.routes);
-      }, [gpx.gpxState.data?.routes, map.mapRef, isStyleLoaded]);
+        addLayersToMap(map.mapRef, '#887d73', currentRoute);
+      }, [currentRoute, map.mapRef, isStyleLoaded]);
 
       useEffect(() => {
-
         addLayersIfNeeded();
-      }, [addLayersIfNeeded, gpx.gpxState.data?.routes]);
+      }, [addLayersIfNeeded, currentRoute]);
       
       const addMarkerToMap = useCallback((markerData: MarkerData) => {
         if (!map.mapRef.current || !map.mapRef.current.getMapInstance()) {
@@ -100,13 +101,13 @@ const PlanMap = () => {
       
 /* eslint-disable react-hooks/exhaustive-deps */
       const initializeCheckpoints = useCallback(() => {
-        if (!gpx.gpxState.data || !gpx.gpxState.data.routes || gpx.gpxState.data.routes.geometry.coordinates.length === 0 || !map.isStyleLoaded) {
+        if (!gpx.gpxState.data || !currentRoute || currentRoute.geometry.coordinates.length === 0 || !map.isStyleLoaded) {
             return;
         }
     
-        const coordinates = gpx.gpxState.data.routes.geometry.coordinates;
+        const coordinates = currentRoute.geometry.coordinates;
     
-        if (gpx.gpxState.data.routes.geometry.type === "LineString") {
+        if (currentRoute.geometry.type === "LineString") {
             const startCoord = coordinates[0];
             const endCoord = coordinates[coordinates.length - 1];
     
@@ -118,7 +119,7 @@ const PlanMap = () => {
         }
     
         // Handle MultiLineString
-        else if (gpx.gpxState.data.routes.geometry.type === "MultiLineString") {
+        else if (currentRoute.geometry.type === "MultiLineString") {
             const startCoord = coordinates[0][0];
             const endCoord = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1];
     
@@ -132,24 +133,24 @@ const PlanMap = () => {
       
 
     const placePinNearRoute = useCallback((lngLat : Position) => {
-        if (!gpx.gpxState.data?.routes.geometry.coordinates) return;
+        if (!currentRoute?.geometry.coordinates) return;
         const mRef = map.mapRef.current.getMapInstance();
 
         if (!mRef) {
             return;
         }
-        const nearest = findNearestPointOnRoute(lngLat, gpx.gpxState.data.routes);
+        const nearest = findNearestPointOnRoute(lngLat, currentRoute);
         if (nearest) {
             const newMarker = createCustomMarker().setLngLat(nearest).addTo(mRef).on('dragend', () => {
                     const draggedLngLat = newMarker.getLngLat();
-                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, gpx.gpxState.data?.routes!);
+                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, currentRoute!);
                     if (nearestPoint) {
                         newMarker.setLngLat(nearestPoint);
 
                         // Update new marker's data
-                        const newDistance = calculateDistanceAlongRoute(nearestPoint, gpx.gpxState.data?.routes as RouteFeature);
-                        const newElevationGain = calculateElevationGainToPoint(gpx.gpxState.data?.routes as RouteFeature, nearestPoint as[number,number]);
-                        const newElevation = getElevationAtPoint(gpx.gpxState.data?.routes as RouteFeature, nearestPoint);
+                        const newDistance = calculateDistanceAlongRoute(nearestPoint, currentRoute as RouteFeature);
+                        const newElevationGain = calculateElevationGainToPoint(currentRoute as RouteFeature, nearestPoint as[number,number]);
+                        const newElevation = getElevationAtPoint(currentRoute as RouteFeature, nearestPoint);
                         const updatedMarkerData = {
                             ...newMarker.data,
                             distance: newDistance,
@@ -187,17 +188,17 @@ const PlanMap = () => {
         } else {
             toast({title: 'Error', description: 'Marker must be placed near the route', status: 'error', duration: 3000, isClosable: true});
         }
-    }, [gpx.gpxState.data?.routes,map,toast]);
+    }, [currentRoute,map,toast]);
 
     useEffect(() => {
-        const mRef = map.mapRef.current.getMapInstance();
+        const mRef = map.mapRef.current;
 
         if (!mRef) return;
-
+        const mapInstance = mRef.getMapInstance();
         const handleDrop = (event : DragEvent) => {
             event.preventDefault();
-            const rect = mRef.getCanvas().getBoundingClientRect();
-            const coordinates = mRef.unproject([
+            const rect = mapInstance.getCanvas().getBoundingClientRect();
+            const coordinates = mapInstance.unproject([
                 event.clientX - rect.left,
                 event.clientY - rect.top
             ]);
@@ -205,7 +206,7 @@ const PlanMap = () => {
             placePinNearRoute(coordinates);
         };
 
-        const canvas = mRef.getCanvas();
+        const canvas = mapInstance.getCanvas();
 
         if (canvas) {
             canvas.addEventListener('drop', handleDrop);
@@ -225,30 +226,30 @@ const PlanMap = () => {
             initializeCheckpoints();
         };
 
-        if (gpx.gpxState.data?.routes) {
+        if (currentRoute) {
             initializeAndSetCheckpoints();
         }
-    }, [gpx.gpxState.data?.routes,initializeCheckpoints]);
+    }, [currentRoute,initializeCheckpoints]);
 
     const handleResize = useCallback(() => {
-        resizeMap(gpx.gpxState.data?.routes, map.mapRef);
-    }, [gpx.gpxState.data?.routes,map.mapRef]);
+        resizeMap(currentRoute, map.mapRef);
+    }, [currentRoute,map.mapRef]);
 
     useEffect(() => {
-        if (gpx.gpxState.data?.routes) {
+        if (currentRoute) {
             handleResize();
         }
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [gpx.gpxState.data?.routes, map.mapRef, handleResize ]);
+    }, [currentRoute, map.mapRef, handleResize ]);
 
     const handleModalSubmit = (checkpointData : MarkerData) => {
         if (tempMarker) {
             const lngLat = tempMarker.getLngLat();
             checkpointData.id = uuidv4();
-            checkpointData.distance = calculateDistanceAlongRoute([lngLat.lng, lngLat.lat], gpx.gpxState.data?.routes as RouteFeature);
-            checkpointData.elevationGain = calculateElevationGainToPoint(gpx.gpxState.data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
-            checkpointData.elevation = getElevationAtPoint(gpx.gpxState.data?.routes as RouteFeature, [lngLat.lng, lngLat.lat]);
+            checkpointData.distance = calculateDistanceAlongRoute([lngLat.lng, lngLat.lat], currentRoute as RouteFeature);
+            checkpointData.elevationGain = calculateElevationGainToPoint(currentRoute as RouteFeature, [lngLat.lng, lngLat.lat]);
+            checkpointData.elevation = getElevationAtPoint(currentRoute as RouteFeature, [lngLat.lng, lngLat.lat]);
 
             const newMarkerData = {
                 ...checkpointData,
@@ -277,20 +278,22 @@ const PlanMap = () => {
 
     return (
       <>
+      <Suspense fallback={< FallbackSpinner />}>
         <BaseMap 
-            ref = {map.mapRef}
-            center = {hongKongCoordinates }
-            zoom = {17}
-            style = {{
-                position: 'relative',
-                width: '100%',
-                height: '430px',
-                borderRadius: '12px 12px 0px 0px'
-            }}
-        >
-        {gpx.gpxState.data?.routes && <MapPanel />}
-        </BaseMap>
-        
+                ref = {map.mapRef}
+                center = {hongKongCoordinates }
+                zoom = {17}
+                style = {{
+                    position: 'relative',
+                    width: '100%',
+                    height: '430px',
+                    borderRadius: '12px 12px 0px 0px'
+                }}
+            >
+            {currentRoute && <MapPanel />}
+            </BaseMap>
+      </Suspense>
+
         <CheckpointModal
             isOpen={isModalOpen}
             onClose={handleModalClose}

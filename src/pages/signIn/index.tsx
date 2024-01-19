@@ -20,7 +20,9 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import ApiService from "../../service/apiservice";
+import AuthServices from '../../services/authServices';
+import Credential from "../../models/Credential";
+//import ApiService from "../../service/apiservice";
 
 function SignInPage() {
   const dispatch = useDispatch();
@@ -92,11 +94,12 @@ function SignInPage() {
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        const data = {
-          Username: formData.username,
-          Password: formData.password,
+        //setModalContent("Account created successfully!");
+        const data:Credential = {
+          username: formData.username,
+          password: formData.password,
         };
-        ApiService.signIn(data);
+        AuthServices.signIn(data, dispatch);
         setIsValidationSuccessful(true);
         setValidationErrors([]);
         dispatch(setLoggedIn(true));

@@ -18,15 +18,19 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import ApiService from "../../service/apiservice";
+import User from "../../models/User";
+import AuthServices from '../../services/authServices';
+import { useDispatch } from "react-redux";
+//import ApiService from "../../service/apiservice";
 
 function SignUpPage() {
+  const dispatch = useDispatch();
   const [isValidationSuccessful, setIsValidationSuccessful] =
     useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState("");
+  const [modalContent] = useState("");
 
   const NewBox = styled(Box)({
     padding: "10px",
@@ -110,19 +114,19 @@ function SignUpPage() {
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        const data = {
-          Username: formData.username,
-          Nickname: formData.nickname,
-          Password: formData.password,
-          Email: formData.email,
-          Gender: formData.gender,
-          DOB: formData.DOB,
-          PhoneNumber: formData.phoneNumber,
-          EmergencyPerson: formData.emergencyPerson,
-          EmergencyContact: formData.emergencyContact,
+        //setModalContent("Account created successfully!");
+        const data:User = {
+          username: formData.username,
+          nickname: formData.nickname,
+          password: formData.password,
+          email: formData.email,
+          gender: formData.gender,
+          dob: formData.DOB,
+          phoneNumber: formData.phoneNumber,
+          emergencyPerson: formData.emergencyPerson,
+          emergencyContact: formData.emergencyContact,
         };
-        ApiService.signUp(data);
-        setModalContent("Sign up successfully!");
+        AuthServices.signUp(data, dispatch);
         setIsValidationSuccessful(true);
         setValidationErrors([]);
         const redirectPath = sessionStorage.getItem("redirectPath");

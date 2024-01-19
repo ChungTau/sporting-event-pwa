@@ -3,7 +3,6 @@ import React, {useRef, useEffect, forwardRef, useImperativeHandle, ReactNode} fr
 import mapboxgl from 'mapbox-gl';
 import { terrainRate } from '../constants/map';
 
-// Mapbox token (replace with your own)
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN !;
 
 interface MapProps {
@@ -73,8 +72,7 @@ const BaseMap = React.memo(
           mapInstance.current?.remove();
         };
       }, [center, zoom]);
-  
-      // Expose methods using the ref
+
       useImperativeHandle(ref, () => ({
         getMapInstance: () => mapInstance.current,
       }));

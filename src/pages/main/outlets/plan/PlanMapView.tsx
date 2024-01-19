@@ -17,7 +17,7 @@ import Column from "../../../../components/Column";
 import React from "react";
 import FallbackSpinner from "../../../../components/FallbackSpinner";
 import {processGeoJSON} from "../../../../helpers/processGeoJSON";
-import {GpxData} from "../../../../models/GpxData";
+import GpxData from "../../../../models/GpxData";
 import {removeAllRoutes} from "../../../../helpers/map";
 import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import Row from "../../../../components/Row";
@@ -45,6 +45,7 @@ export const PlanMapView : React.FC = () => {
                 const xml = new DOMParser().parseFromString(fileContent, "text/xml");
                 const {name, author} = extractMetadata(xml);
                 const convertedGeoJSON = togeojson.gpx(xml);
+                console.log(xml);
                 const gpxData : GpxData = {
                     name,
                     author,

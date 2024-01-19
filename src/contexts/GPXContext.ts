@@ -7,7 +7,7 @@ import {
   } from 'react';
   import { Feature, LineString, Properties } from '@turf/helpers';
 
-  import { GpxData } from '../models/GpxData';
+  import  GpxData  from '../models/GpxData';
   
   export interface GPXState {
     data?: GpxData | undefined;

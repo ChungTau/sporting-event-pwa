@@ -35,7 +35,7 @@ router.post('/signUp', UserController.createUser);
 
 /**
  * @swagger
- * /api/login:
+ * /api/signIn:
  *   post:
  *     summary: Authenticate user and get JWT token.
  *     description: Authenticate a user with their email and password and return a JWT token.

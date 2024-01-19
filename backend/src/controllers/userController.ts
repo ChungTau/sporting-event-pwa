@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
+import  User  from '../models/User';
 import bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/dbConfig';

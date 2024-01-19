@@ -20,7 +20,7 @@ class UserController {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const user = await User.create({...req.body.toJSON(), password: hashedPassword});
+      const user = await User.create({...req.body, password: hashedPassword});
   
       return res.status(201).json(user);
     } catch (error) {

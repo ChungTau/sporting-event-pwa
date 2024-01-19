@@ -9,7 +9,7 @@ import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'seque
   timestamps: true,
   tableName: 'users',
 })
-export class User extends Model {
+class User extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({
@@ -82,6 +82,7 @@ export class User extends Model {
   }
 }
 
+export default User;
 
 
 //簡化Default版

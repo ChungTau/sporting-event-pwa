@@ -7,30 +7,28 @@ import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'seque
 //詳細版
 @Table({
     timestamps: true,
-    tableName: 'users'
+    tableName: 'events'
 })
-export class User extends Model {
+export class Event extends Model {
   @PrimaryKey
-  @AutoIncrement
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: false,
   })
-  id!: number; // Adding the id field
+  name!: string; // Adding the id field
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  username!: string;
+  eventType!: string;
 
   @Column({
     type: DataType.STRING,
-    unique: true,
     allowNull: false,
   })
-  email!: string;
-
+  privacy!: string;
+  
   @Column({
     type: DataType.STRING,
     unique: false,
@@ -39,28 +37,46 @@ export class User extends Model {
   password!: string;
 
   @Column({
-    type: DataType.DATE,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  createdAt!: Date;
-  
+  maxOfParti!: number;
+
   @Column({
     type: DataType.DATE,
     allowNull: false,
   })
-  updatedAt!: Date;
+  startDateTime!: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  endDateTime!: Date;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  backgroundImage!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  description!: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  remark!: string;
+
+  @Column({
+    type: DataType.JSON,
+    allowNull: false,
+  })
+  geoData!: JSON;
 }
 
-export default User;
-
-//簡化Default版
-/**
- * @Table
- * export class User extends Model {
- *  @Column
- *  name!: string;
- * 
- *  @Column
- *  email!: string;
- * }
- */
+export default Event;

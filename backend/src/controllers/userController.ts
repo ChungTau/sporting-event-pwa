@@ -8,13 +8,13 @@ class UserController {
   // Create a new user
   static async createUser(req: Request, res: Response) {
     try {
-      const { username, email, password } = req.body;
+      const { username, email, password, createdAt, updatedAt} = req.body;
       if (!req.body.password) {
         return res.status(400).json({ message: 'Password is required' });
       }
       const hashedPassword = await bcrypt.hash(password, 10);
       console.log(hashedPassword);
-      const user = await User.create({ username, email, password: hashedPassword  });
+      const user = await User.create({ username, email, password: hashedPassword, createdAt, updatedAt  });
       return res.status(201).json(user);
     } catch (error) {
       console.error(error);

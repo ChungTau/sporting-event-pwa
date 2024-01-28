@@ -8,8 +8,8 @@ const router = Router();
  * @swagger
  * /api/register:
  *   post:
- *     summary: Create a new user.
- *     description: Create a new user with the provided username, email, and password.
+ *     summary: Create a new event.
+ *     description: Create a new event with the provided name, email, and password.
  *     requestBody:
  *       required: true
  *       content:

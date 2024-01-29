@@ -116,6 +116,7 @@ function SignUpPage() {
       if (validation.isValid) {
         //setModalContent("Account created successfully!");
         const data:User = {
+          profilePic: new Blob(),
           username: formData.username,
           nickname: formData.nickname,
           password: formData.password,

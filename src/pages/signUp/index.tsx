@@ -18,10 +18,10 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
+
+import { useDispatch} from "react-redux";
+import AuthServices from "../../services/authServices";
 import User from "../../models/User";
-import AuthServices from '../../services/authServices';
-import { useDispatch } from "react-redux";
-//import ApiService from "../../service/apiservice";
 
 function SignUpPage() {
   const dispatch = useDispatch();
@@ -108,7 +108,7 @@ function SignUpPage() {
     navigate(routes.MAIN.path);
   };
 
-  const handleSignUpSubmit = () => {
+  const handleSignUpSubmit = async() => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
@@ -127,15 +127,19 @@ function SignUpPage() {
           emergencyPerson: formData.emergencyPerson,
           emergencyContact: formData.emergencyContact,
         };
-        AuthServices.signUp(data, dispatch);
-        setIsValidationSuccessful(true);
-        setValidationErrors([]);
-        const redirectPath = sessionStorage.getItem("redirectPath");
-        if (redirectPath) {
-          navigate(redirectPath);
-          sessionStorage.removeItem("redirectPath");
-        } else {
-          navigate(routes.SIGNIN.path);
+        const response = await AuthServices.signUp(data, dispatch);
+        if(response) {
+          console.log('SignUp Successful');
+          setIsValidationSuccessful(true);
+          const redirectPath = sessionStorage.getItem("redirectPath");
+          if (redirectPath) {
+            navigate(redirectPath);
+            sessionStorage.removeItem("redirectPath");
+          } else {
+            navigate(routes.SIGNIN.path);
+          }
+        }else{
+          console.log('SignUp Failure');
         }
       } else {
         setValidationErrors(validation.messages);

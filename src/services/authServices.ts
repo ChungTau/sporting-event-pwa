@@ -7,9 +7,9 @@ import Credential from '../models/Credential';
 const AuthServices = {
   signUp: async (user: User, dispatch: Dispatch) => {
     try {
-      await api.post('/signUp', user);
+      const response = await api.post('/signUp', user);
       //localStorage.setItem('token', token);
-      return true; // Sign-up was successful
+      return response.data.token ? true: false; // Sign-up was successful
     } catch (error) {
       console.error('Sign-up failed:', error);
       return false; // Sign-up failed

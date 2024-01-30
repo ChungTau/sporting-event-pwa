@@ -31,8 +31,8 @@ sequelize.authenticate()
     app.use(cors({
       origin: '*', // Set the origin to allow all origins
     }));
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.use('/api', userRoutes);
+    app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api/user', userRoutes);
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);

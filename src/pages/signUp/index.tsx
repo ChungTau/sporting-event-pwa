@@ -127,7 +127,7 @@ function SignUpPage() {
           emergencyPerson: formData.emergencyPerson,
           emergencyContact: formData.emergencyContact,
         };
-        const response = await AuthServices.signUp(data, dispatch);
+        const response = await AuthServices.signUp(data);
         if(response) {
           console.log('SignUp Successful');
           setIsValidationSuccessful(true);

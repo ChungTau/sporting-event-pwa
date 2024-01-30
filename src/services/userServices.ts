@@ -5,7 +5,7 @@ import { setUser, clearUser } from '../store/userSlice';
 const UserServices = {
   fetchUserById: async (userId: number) => {
     try {
-      const response = await api.get(`/users/${userId}`);
+      const response = await api.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -14,7 +14,7 @@ const UserServices = {
 
   updateUserById: async (userId: number, userData: any) => {
     try {
-      const response = await api.put(`/users/${userId}`, userData);
+      const response = await api.put(`/user/${userId}`, userData);
       return response.data;
     } catch (error) {
       throw error;
@@ -23,7 +23,7 @@ const UserServices = {
 
   deleteUserById: async (userId: number, dispatch: Dispatch) => {
     try {
-      await api.delete(`/users/${userId}`);
+      await api.delete(`/user/${userId}`);
       dispatch(clearUser());
     } catch (error) {
       throw error;

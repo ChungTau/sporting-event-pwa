@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/signUp:
+ * /api/users/signUp:
  *   post:
  *     summary: Create a new user.
  *     description: Create a new user with the provided username, email, and password.
@@ -35,7 +35,7 @@ router.post('/signUp', UserController.createUser);
 
 /**
  * @swagger
- * /api/signIn:
+ * /api/users/signIn:
  *   post:
  *     summary: Authenticate user and get JWT token.
  *     description: Authenticate a user with their email and password and return a JWT token.
@@ -92,7 +92,7 @@ router.post('/signIn', UserController.loginUser);
  *       500:
  *         description: Internal server error.
  */
-router.get('/users', authenticate, UserController.getUsers);
+router.get('/', authenticate, UserController.getUsers);
 
 /**
  * @swagger
@@ -126,7 +126,7 @@ router.get('/users', authenticate, UserController.getUsers);
  *       500:
  *         description: Internal server error.
  */
-router.get('/users/:id', authenticate, UserController.getUserById);
+router.get('/:id', authenticate, UserController.getUserById);
 
 /**
  * @swagger
@@ -162,7 +162,7 @@ router.get('/users/:id', authenticate, UserController.getUserById);
  *       500:
  *         description: Internal server error.
  */
-router.put('/users/:id', authenticate, UserController.updateUser);
+router.put('/:id', authenticate, UserController.updateUser);
 
 /**
  * @swagger
@@ -192,6 +192,6 @@ router.put('/users/:id', authenticate, UserController.updateUser);
  *       500:
  *         description: Internal server error.
  */
-router.delete('/users/:id', authenticate, UserController.deleteUser);
+router.delete('/:id', authenticate, UserController.deleteUser);
 
 export default router;

@@ -7,7 +7,7 @@ import Credential from '../models/Credential';
 const AuthServices = {
   signUp: async (user: User) => {
     try {
-      const response = await api.post('/user/signUp', user);
+      const response = await api.post('/users/signUp', user);
       //localStorage.setItem('token', token);
       return response.data.token ? true: false; // Sign-up was successful
     } catch (error) {
@@ -18,7 +18,7 @@ const AuthServices = {
 
   signIn: async (credentials: Credential, dispatch: Dispatch) => {
     try {
-      const response = await api.post('/user/signIn', credentials);
+      const response = await api.post('/users/signIn', credentials);
 
       const { token } = response.data;
 
@@ -38,7 +38,7 @@ const AuthServices = {
 
   forgotPassword: async (email: string) => {
     try {
-      const response = await api.post('/user/forgotPassword', { email });
+      const response = await api.post('/users/forgotPassword', { email });
       return response.data;
     } catch (error) {
       console.error('Forgot password failed:', error);
@@ -47,7 +47,7 @@ const AuthServices = {
 
   resetPassword: async (password: string) => {
     try {
-      const response = await api.post('/user/resetPassword', password);
+      const response = await api.post('/users/resetPassword', password);
       return response.data;
     } catch (error) {
       console.error('Password reset failed:', error);

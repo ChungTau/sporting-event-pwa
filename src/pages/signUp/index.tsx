@@ -19,7 +19,6 @@ import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
 
-import { useDispatch} from "react-redux";
 import AuthServices from "../../services/authServices";
 import User from "../../models/User";
 

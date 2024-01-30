@@ -24,7 +24,6 @@ import AuthServices from "../../services/authServices";
 import User from "../../models/User";
 
 function SignUpPage() {
-  const dispatch = useDispatch();
   const [isValidationSuccessful, setIsValidationSuccessful] =
     useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);

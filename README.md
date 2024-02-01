@@ -9,9 +9,23 @@
 每做完一個feature就push去feature branch
 feature無問題就會merge去develop
 
-## DEV Website Preview Tutorial
-* Connect to the HKUST SSL VPN
-* Enter <a href="http://vml1wk156.cse.ust.hk/home" target="_blank">http://vml1wk156.cse.ust.hk/home</a> in your browser
+## Connect MySQL Database Remotely 
+1. Install Cloudflared CLI in Powershell
+`winget install --id Cloudflare.cloudflared`
+2. To access the tunnel remotely, run:
+`cloudflared access tcp --hostname db.chungtau.com --url localhost:3366`
+
+## View the MySQL with GUI
+1. Install SQLectron
+[Click here to Download](https://github.com/sqlectron/sqlectron-gui/releases/download/v1.38.0/sqlectron-Setup-1.38.0.exe)
+2. Run before connect MYSQL database remotely
+3. Input fields
+    a. Name: FYP
+b. Database Type: MySQL
+c. Server Address: localhost
+d. Port 3366
+e. User: fyp
+f. Password: FYP_gib5
 
 ## Common Git Command Tutorial
 

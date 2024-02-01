@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/register:
+ * /api/users/signUp:
  *   post:
  *     summary: Create a new event.
  *     description: Create a new event with the provided name, email, and password.
@@ -31,11 +31,11 @@ const router = Router();
  *       500:
  *         description: Internal server error.
  */
-router.post('/register', UserController.createUser);
+router.post('/signUp', UserController.createUser);
 
 /**
  * @swagger
- * /api/login:
+ * /api/users/signIn:
  *   post:
  *     summary: Authenticate user and get JWT token.
  *     description: Authenticate a user with their email and password and return a JWT token.
@@ -65,14 +65,21 @@ router.post('/register', UserController.createUser);
  *       500:
  *         description: Internal server error.
  */
-router.post('/login', UserController.loginUser);
+router.post('/signIn', UserController.loginUser);
 
 /**
  * @swagger
- * /api:
+ * /api/users:
  *   get:
  *     summary: Get all users.
  *     description: Get a list of all users.
+ *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *     responses:
  *       200:
  *         description: List of users retrieved successfully.
@@ -89,11 +96,17 @@ router.get('/', authenticate, UserController.getUsers);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   get:
  *     summary: Get user by ID.
  *     description: Get a user's details by their ID.
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -117,11 +130,17 @@ router.get('/:id', authenticate, UserController.getUserById);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   put:
  *     summary: Update user by ID.
  *     description: Update a user's details by their ID.
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -147,11 +166,17 @@ router.put('/:id', authenticate, UserController.updateUser);
 
 /**
  * @swagger
- * /api/{id}:
+ * /api/users/{id}:
  *   delete:
  *     summary: Delete user by ID.
  *     description: Delete a user by their ID.
  *     parameters:
+ *       - in: header
+ *         name: x-auth-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true

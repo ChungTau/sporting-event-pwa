@@ -2,9 +2,9 @@ import { Sequelize } from 'sequelize-typescript';
 
 const DB = {
   name: 'FYP',
-  user: 'root',
+  user: 'fyp',
   pass: 'FYP_gib5',
-  host: 'localhost',
+  host: '127.0.0.1',
 };
 
 export const JWT_SECRET = 'gib5';
@@ -14,7 +14,7 @@ const sequelize = new Sequelize(DB.name, DB.user, DB.pass, {
   dialect: 'mysql',
   models: [__dirname + '/../models'],
   logging: console.log,
-  port: 3306
+  port: 3366
 });
 
 export default sequelize;

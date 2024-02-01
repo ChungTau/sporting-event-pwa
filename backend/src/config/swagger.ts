@@ -9,7 +9,6 @@ const options = {
       description: 'API documentation for Sporting Event PWA',
     },
   },
- 
   apis: ['./routes/userRoutes.js'],
 };
 

@@ -1,27 +1,33 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
+import  User  from '../models/User';
 import bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/dbConfig';
 
 class UserController {
   // Create a new user
-  static async createUser(req: Request, res: Response) {
+  static async createUser(req: Request<{}, {}, User>, res: Response) {
     try {
-      const { username, email, password, createdAt, updatedAt} = req.body;
-      if (!req.body.password) {
-        return res.status(400).json({ message: 'Password is required' });
+      const { username, email, password } = req.body;
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Username, email, and password are required' });
       }
+
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email is already registered' });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
-      console.log(hashedPassword);
-      const user = await User.create({ username, email, password: hashedPassword, createdAt, updatedAt  });
+
+      const user = await User.create({...req.body, password: hashedPassword});
+  
       return res.status(201).json(user);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: 'Error creating user' });
+      return res.status(500).json({ message: 'Error creating user: '+error });
     }
   }
-  
 
   // Get all users
   static async getUsers(res: Response) {
@@ -30,7 +36,7 @@ class UserController {
       res.json(users);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching users' });
+      res.status(500).json({ message: 'Error fetching users: '+error });
     }
   }
 

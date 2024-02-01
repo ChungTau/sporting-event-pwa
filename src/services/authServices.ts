@@ -1,23 +1,58 @@
 import { Dispatch } from 'redux';
 import { setLoggedIn, setToken } from '../store/authSlice';
 import api from '../config/api';
+import User from '../models/User';
+import Credential from '../models/Credential';
 
-export const login = async (credentials: { email: string, password: string }, dispatch: Dispatch) => {
-  try {
-    const response = await api.post('/login', credentials);
+const AuthServices = {
+  signUp: async (user: User) => {
+    try {
+      const response = await api.post('/users/signUp', user);
+      //localStorage.setItem('token', token);
+      return response.data.token ? true: false; // Sign-up was successful
+    } catch (error) {
+      console.error('Sign-up failed:', error);
+      return false; // Sign-up failed
+    }
+  },
 
-    const { token } = response.data;
+  signIn: async (credentials: Credential, dispatch: Dispatch) => {
+    try {
+      const response = await api.post('/users/signIn', credentials);
 
-    localStorage.setItem('token', token);
+      const { token } = response.data;
 
-    dispatch(setLoggedIn(true));
-    dispatch(setToken(token));
-  } catch (error) {
-  }
+      localStorage.setItem('token', token);
+
+      dispatch(setLoggedIn(true));
+      dispatch(setToken(token));
+    } catch (error) {
+    }
+  },
+
+  signOut: (dispatch: Dispatch) => {
+    localStorage.removeItem('token');
+    dispatch(setLoggedIn(false));
+    dispatch(setToken(null));
+  },
+
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await api.post('/users/forgotPassword', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Forgot password failed:', error);
+    }
+  },
+
+  resetPassword: async (password: string) => {
+    try {
+      const response = await api.post('/users/resetPassword', password);
+      return response.data;
+    } catch (error) {
+      console.error('Password reset failed:', error);
+    }
+  },
 };
 
-export const logout = (dispatch: Dispatch) => {
-  localStorage.removeItem('token');
-  dispatch(setLoggedIn(false));
-  dispatch(setToken(null));
-};
+export default AuthServices;

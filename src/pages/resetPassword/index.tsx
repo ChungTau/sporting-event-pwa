@@ -1,10 +1,8 @@
-import { useDispatch } from "react-redux";
-import { setLoggedIn } from "../../store/authSlice";
 import { useNavigate } from "react-router-dom";
 import Column from "../../components/Column";
 import InputForm, { InputFormRef } from "./InputForm";
-import { SignInFooter } from "./SignInFooter";
-import { SignInHeader } from "./SignInHeader";
+import { ResetPasswordFooter } from "./resetPasswordFooter";
+import { ResetPasswordHeader } from "./resetPasswordHeader";
 import { useRef, useState } from "react";
 import {
   Modal,
@@ -21,17 +19,15 @@ import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
 import AuthServices from '../../services/authServices';
-import Credential from "../../models/Credential";
-//import ApiService from "../../service/apiservice";
 
-function SignInPage() {
-  const dispatch = useDispatch();
+function ResetPasswordPage() {
   const navigate = useNavigate();
   const [isValidationSuccessful, setIsValidationSuccessful] =
     useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalContent, setModalContent] = useState("");
 
   const NewBox = styled(Box)({
     padding: "10px",
@@ -55,15 +51,20 @@ function SignInPage() {
 
   const validateFormData = (formData: {
     password: string;
-    username: string;
+    confirmPassword: string;
   }) => {
     let validationErrors = [];
 
-    if (!formData.username) {
-      validationErrors.push("The field 'Username' is required.");
-    }
     if (!formData.password) {
       validationErrors.push("The field 'Password' is required.");
+    }
+    if (!formData.confirmPassword) {
+      validationErrors.push("The field 'Confirm Password' is required.");
+    }
+    if (formData.password !== formData.confirmPassword) {
+      validationErrors.push(
+        "The field 'Password' and 'Confirm Password'  do not match."
+      );
     }
 
     return {
@@ -80,46 +81,27 @@ function SignInPage() {
     </ul>
   );
 
-  const handleCreateAccount = () => {
-    navigate(routes.SIGNUP.path);
-  };
-
   const handleBackToHome = () => {
     navigate(routes.MAIN.path);
   };
 
-  const handleSignIn = () => {
+  const handleResetPassword = () => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        //setModalContent("Account created successfully!");
-        const data:Credential = {
-          username: formData.username,
-          password: formData.password,
-        };
-        AuthServices.signIn(data, dispatch);
+        AuthServices.resetPassword(formData.password);
         setIsValidationSuccessful(true);
+        setModalContent("Now you can login your account.");
         setValidationErrors([]);
-        dispatch(setLoggedIn(true));
-        const redirectPath = sessionStorage.getItem("redirectPath");
-        if (redirectPath) {
-          navigate(redirectPath);
-          sessionStorage.removeItem("redirectPath");
-        } else {
-          navigate(routes.MAIN.path);
-        }
+        navigate(routes.SIGNIN.path);
       } else {
         setValidationErrors(validation.messages);
         setIsValidationSuccessful(false);
       }
       onOpen();
     }
-  };
-
-  const handleForgotPassword = () => {
-    navigate(routes.FORGOT_PASSWORD.path);
   };
 
   return (
@@ -138,24 +120,20 @@ function SignInPage() {
       <Center>
         <NewBox>
           <Column gap={9}>
-            <SignInHeader
-              createAccount={handleCreateAccount}
-              backToHome={handleBackToHome}
-            />
+            <ResetPasswordHeader backToHome={handleBackToHome} />
             <InputForm ref={inputFormRef} />
-            <SignInFooter
-              onSignIn={handleSignIn}
-              onForgotPassword={handleForgotPassword}
-            />
+            <ResetPasswordFooter onResetPassword={handleResetPassword} />
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent mx={4}>
                 <ModalHeader>
-                  {!isValidationSuccessful && "Sign in Failure"}
+                  {isValidationSuccessful
+                    ? "Successfully reset password!"
+                    : "Reset password Failure"}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody px={10} py={4}>
-                  {!isValidationSuccessful && renderErrorList()}
+                  {isValidationSuccessful ? modalContent : renderErrorList()}
                 </ModalBody>
               </ModalContent>
             </Modal>
@@ -166,4 +144,4 @@ function SignInPage() {
   );
 }
 
-export default SignInPage;
+export default ResetPasswordPage;

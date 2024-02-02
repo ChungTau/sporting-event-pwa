@@ -4,7 +4,7 @@ import Credential from "./Credential";
 interface User extends BaseModel, Credential{
     profilePic: Blob;
     nickname: string,
-    email: string,
+    username: string,
     gender: string,
     dob: string,
     phoneNumber: string,

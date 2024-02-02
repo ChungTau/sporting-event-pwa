@@ -8,19 +8,19 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 export interface InputFormRef {
   getFormData: () => {
-    username: string;
+    email: string;
     password: string;
   };
 }
 
 const InputForm = forwardRef<InputFormRef, {}>((props, ref) => {
   const passwordRef = useRef<HTMLInputElement | null>(null);
-  const usernameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
 
   useImperativeHandle(ref, () => ({
     getFormData: () => ({
       password: passwordRef.current?.value || "",
-      username: usernameRef.current?.value || "",
+      email: emailRef.current?.value || "",
     }),
   }));
 
@@ -44,8 +44,8 @@ const InputForm = forwardRef<InputFormRef, {}>((props, ref) => {
     >
       <Column gap={5} flex={1}>
         {" "}
-        <CustomFormControl isRequired label="Username">
-          <Input ref={usernameRef} {...commonInputStyles} />
+        <CustomFormControl isRequired label="Email">
+          <Input ref={emailRef} {...commonInputStyles} />
         </CustomFormControl>
         <CustomFormControl label="Password" isRequired>
           <InputGroup size="md">

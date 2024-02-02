@@ -16,10 +16,10 @@ import {IoLogOut} from "react-icons/io5";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../store";
-import {setLoggedIn} from "../../../store/authSlice";
 import Row from "../../../components/Row";
 import {RouteConfig, mainOutlet, routes, userOutlet} from "../../../constants/routes";
 import {COLOR_PRIMARY_RGB, COLOR_SECONDARY, COLOR_SECONDARY_LIGHT} from "../../../constants/palatte";
+import AuthServices from "../../../services/authServices";
 
 type HandleNavigationFunction = (path: string) => void;
 
@@ -82,7 +82,7 @@ const ActionBar = () => {
 
     const handleLogout = () => {
         navigate('/');
-        setTimeout(() => dispatch(setLoggedIn(false)), 800);
+        setTimeout(() => AuthServices.signOut(dispatch), 800);
     };
 
     return (

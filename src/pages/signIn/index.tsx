@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { setLoggedIn } from "../../store/authSlice";
+import { setLoggedIn, setToken } from "../../store/authSlice";
 import { useNavigate } from "react-router-dom";
 import Column from "../../components/Column";
 import InputForm, { InputFormRef } from "./InputForm";
@@ -55,11 +55,11 @@ function SignInPage() {
 
   const validateFormData = (formData: {
     password: string;
-    username: string;
+    email: string;
   }) => {
     let validationErrors = [];
 
-    if (!formData.username) {
+    if (!formData.email) {
       validationErrors.push("The field 'Username' is required.");
     }
     if (!formData.password) {
@@ -88,7 +88,7 @@ function SignInPage() {
     navigate(routes.MAIN.path);
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async() => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
@@ -96,19 +96,25 @@ function SignInPage() {
       if (validation.isValid) {
         //setModalContent("Account created successfully!");
         const data:Credential = {
-          username: formData.username,
+          email: formData.email,
           password: formData.password,
         };
-        AuthServices.signIn(data, dispatch);
-        setIsValidationSuccessful(true);
-        setValidationErrors([]);
-        dispatch(setLoggedIn(true));
-        const redirectPath = sessionStorage.getItem("redirectPath");
-        if (redirectPath) {
-          navigate(redirectPath);
-          sessionStorage.removeItem("redirectPath");
-        } else {
-          navigate(routes.MAIN.path);
+        const response = await AuthServices.signIn(data, dispatch);
+        console.log(response);
+        if(response?.status === 200){
+          const token = response.data.token;
+          setIsValidationSuccessful(true);
+          setValidationErrors([]);
+          localStorage.setItem('token', token);
+          dispatch(setLoggedIn(true));
+          dispatch(setToken(token));
+          const redirectPath = sessionStorage.getItem("redirectPath");
+          if (redirectPath) {
+            navigate(redirectPath);
+            sessionStorage.removeItem("redirectPath");
+          } else {
+            navigate(routes.MAIN.path);
+          }
         }
       } else {
         setValidationErrors(validation.messages);

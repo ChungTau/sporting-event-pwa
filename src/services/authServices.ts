@@ -8,8 +8,8 @@ const AuthServices = {
   signUp: async (user: User) => {
     try {
       const response = await api.post('/users/signUp', user);
-      //localStorage.setItem('token', token);
-      return response.data.token ? true: false; // Sign-up was successful
+      console.log(response);
+      return response.status === 201 ? true : false;
     } catch (error) {
       console.error('Sign-up failed:', error);
       return false; // Sign-up failed
@@ -19,14 +19,9 @@ const AuthServices = {
   signIn: async (credentials: Credential, dispatch: Dispatch) => {
     try {
       const response = await api.post('/users/signIn', credentials);
-
-      const { token } = response.data;
-
-      localStorage.setItem('token', token);
-
-      dispatch(setLoggedIn(true));
-      dispatch(setToken(token));
+      return response;
     } catch (error) {
+      console.error('Sign-in failed:', error);
     }
   },
 

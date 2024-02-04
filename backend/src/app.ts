@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import sequelize from './config/dbConfig';
 import userRoutes from './routes/userRoutes';
+import eventRoutes from './routes/eventRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
@@ -27,12 +28,14 @@ sequelize.authenticate()
 
     sequelize.sync();
     
-    app.use(express.json());
+    app.use(express.json({limit: '50mb'}));
+    app.use(express.urlencoded({ extended: false }));
     app.use(cors({
       origin: '*', // Set the origin to allow all origins
     }));
     app.use('/api/ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use('/api/users', userRoutes);
+    app.use('/api/events', eventRoutes)
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);

@@ -14,7 +14,17 @@ import {
 } from "@chakra-ui/react";
 import {Time} from "../../../../components/TimePicker";
 import {PointDetails} from "./DetailsBox";
+import EventServices from '../../../../services/eventServices';
 import { combineDateAndTime } from "../../../../helpers/combineDateAndTime";
+import EventData from "../../../../models/EventData";
+import { base64StringToBlob } from 'blob-util';
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store";
+
+function base64ToBlob(base64: string): Blob {
+    const byteArray = base64StringToBlob(base64.replace(/^data:image\/\w+;base64,/, ''), 'image/jpeg');
+    return new Blob([byteArray]);
+  }
 
 function AddEventPage() {
     const [isValidationSuccessful, setIsValidationSuccessful] = useState<boolean>(false);
@@ -26,11 +36,13 @@ function AddEventPage() {
     const [modalContent,
         setModalContent] = useState('');
 
+    const {token} = useSelector((state : RootState) => state.authenticated);
+
     const handlePointDetailsUpdate = useCallback((details : PointDetails) => {
         setPointDetails(details);
     }, [setPointDetails]);
     const validateFormData = (formData : {
-        title: string;
+        name: string;
         type: string;
         privacy: string ;
         maxOfParti: number;
@@ -38,12 +50,12 @@ function AddEventPage() {
         remark: string;
         startTime: Time;
         endTime: Time;
-        image: string;
+        backgroundImage: string;
         period: Date[] ;
     }) => {
         let validationErrors = [];
         
-        if (!formData.title) {
+        if (!formData.name) {
             validationErrors.push("The field 'title' is required.");
         }
         if (!formData.type) {
@@ -58,7 +70,7 @@ function AddEventPage() {
         if (!formData.endTime) {
             validationErrors.push("The field 'endTime' is required.");
         }
-        if (!formData.image) {
+        if (!formData.backgroundImage) {
             validationErrors.push("The field 'image' is required.");
         }
     
@@ -87,23 +99,51 @@ function AddEventPage() {
         </ul>
     );
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (inputFormRef.current) {
+          const formData = inputFormRef.current.getFormData();
+          const validation = validateFormData(formData);
+      
+          if (validation.isValid) {
+            const eventFormData = new FormData(); // Create a FormData object
+      
+            // Append form data to FormData object
+            eventFormData.append("name", formData.name);
+            eventFormData.append("type", formData.type);
+            eventFormData.append("privacy", formData.privacy);
+            eventFormData.append("maxOfParti", formData.maxOfParti.toString());
+            eventFormData.append("description", formData.description);
+            eventFormData.append("remark", formData.remark);
+            eventFormData.append(
+              "startDateTime",
+              combineDateAndTime(formData.period[0], formData.startTime)!.toISOString() // Convert to ISO string
+            );
+            eventFormData.append(
+              "endDateTime",
+              combineDateAndTime(formData.period[1], formData.endTime)!.toISOString() // Convert to ISO string
+            );
+            eventFormData.append("venue", JSON.stringify(pointDetails));
+            eventFormData.append("ownerId", "13");
+      
+            // Append backgroundImage file to FormData object
+            //eventFormData.append("backgroundImage", base64ToBlob(formData.backgroundImage), "background.jpg");
 
-            const formData = inputFormRef.current.getFormData();
-            const validation = validateFormData(formData);
-
-            if (validation.isValid) {
-                setModalContent('Event created successfully!');
-                setIsValidationSuccessful(true);
-                setValidationErrors([]);
-            } else {
-                setValidationErrors(validation.messages);
-                setIsValidationSuccessful(false);
+      
+            const response = await EventServices.createEvent(eventFormData);
+            console.log(response);
+            if (response) {
+              console.log("Event created successfully!");
+              setIsValidationSuccessful(true);
+              setValidationErrors([]);
             }
-            onOpen();
+          } else {
+            setValidationErrors(validation.messages);
+            setIsValidationSuccessful(false);
+          }
+          onOpen();
         }
-    };
+      };
+      
 
     return (
         <Column gap={5}>

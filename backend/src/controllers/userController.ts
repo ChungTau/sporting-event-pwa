@@ -33,10 +33,10 @@ class UserController {
   static async getUsers(res: Response) {
     try {
       const users = await User.findAll();
-      res.json(users);
+      return res.status(201).json(users);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Error fetching users: '+error });
+      return res.status(500).json({ message: 'Error fetching users: '+error });
     }
   }
 

@@ -15,7 +15,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-06-01"),
     endDateTime: new Date("2023-06-03"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "description",
     remark: "remark",
     venue: {
@@ -32,7 +32,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-04-01"),
     endDateTime: new Date("2023-04-03"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "",
     remark: "",
     venue: {
@@ -49,7 +49,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-02-15"),
     endDateTime: new Date("2023-02-16"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "",
     remark: "",
     venue: {
@@ -66,7 +66,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-03-18"),
     endDateTime: new Date("2023-03-19"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "",
     remark: "",
     venue: {
@@ -83,7 +83,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-02-09"),
     endDateTime: new Date("2023-02-14"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "",
     remark: "",
     venue: {
@@ -100,7 +100,7 @@ const eventCards = [
     maxOfParti: 10,
     startDateTime: new Date("2023-06-03"),
     endDateTime: new Date("2023-06-06"),
-    backgroundImage: "image",
+    backgroundImage: new Blob(),
     description: "",
     remark: "",
     venue: {

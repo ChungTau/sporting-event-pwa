@@ -61,8 +61,8 @@ const eventPrivacies = [
 ];
 
 export interface InputFormRef {
-    getFormData : () => {
-        title : string;
+    getFormData : () =>  {
+        name : string;
         type : string;
         privacy : string;
         maxOfParti : number;
@@ -71,7 +71,7 @@ export interface InputFormRef {
         startTime : Time;
         endTime : Time;
         period : Date[];
-        image : string;
+        backgroundImage : string;
     };
 };
 
@@ -90,7 +90,7 @@ const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
 
         useImperativeHandle(ref, () => ({
             getFormData: () => ({
-                title: titleRef.current
+                name: titleRef.current
                     ?.value || '',
                 type: typeRef.current
                     ?.value || '',
@@ -113,7 +113,7 @@ const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
                         minute: '00'
                     },
                 period: selectedDates,
-                image: imageDropZoneRef.current
+                backgroundImage: imageDropZoneRef.current
                     ?.getUploadedImage() || ''
             })
         }));

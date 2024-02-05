@@ -63,7 +63,7 @@ class EventController {
     }
     
 
-    static async getEvents(res: Response) {
+    static async getEvents(_req: Request, res: Response) {
         try{
             const events = await Event.findAll();
             return res.status(201).json(events);

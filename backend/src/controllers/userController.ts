@@ -30,7 +30,7 @@ class UserController {
   }
 
   // Get all users
-  static async getUsers(res: Response) {
+  static async getUsers(_req: Request, res: Response) {
     try {
       const users = await User.findAll();
       return res.status(201).json(users);

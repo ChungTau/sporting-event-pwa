@@ -18,13 +18,12 @@ class EventController {
             let backgroundImagePath = '';
     
             // Check if a GPX file was uploaded
-            if (req.file) {
-                console.log(req.file);
-                //res.send(req.file);
-                if (req.file.fieldname === 'gpxFile') {
-                    gpxFilePath = req.file.path; // Set the GPX file path
-                } else if (req.file.fieldname === 'backgroundImage') {
-                    backgroundImagePath = req.file.path; // Set the background image file path
+            const files= req.files as  {[fieldname: string]: Express.Multer.File[]};
+            if (files !== null) {
+                if(files['gpx']){
+                    gpxFilePath = files['gpx'][0].path;
+                }else if (files['backgroundImage']){
+                    backgroundImagePath = files['backgroundImage'][0].path;
                 }
             }
     

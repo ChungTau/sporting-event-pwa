@@ -21,10 +21,17 @@ import { base64StringToBlob } from 'blob-util';
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 
-function base64ToBlob(base64: string): Blob {
-    const byteArray = base64StringToBlob(base64.replace(/^data:image\/\w+;base64,/, ''), 'image/jpeg');
-    return new Blob([byteArray]);
+function base64ToBlob(base64:string, mimeType:string) {
+    // Remove the data URL prefix (e.g., 'data:image/png;base64,')
+    const base64WithoutPrefix = base64.replace(/^data:[^;]+;base64,/, '');
+  
+    // Convert the base64 string to a Uint8Array
+    const byteArray = atob(base64WithoutPrefix).split('').map(char => char.charCodeAt(0));
+    
+    // Create a Blob object with the specified MIME type
+    return new Blob([new Uint8Array(byteArray)], { type: mimeType });
   }
+  
 
 function AddEventPage() {
     const [isValidationSuccessful, setIsValidationSuccessful] = useState<boolean>(false);
@@ -126,7 +133,8 @@ function AddEventPage() {
             eventFormData.append("ownerId", "13");
       
             // Append backgroundImage file to FormData object
-            //eventFormData.append("backgroundImage", base64ToBlob(formData.backgroundImage), "background.jpg");
+            const mimeType = 'image/jpeg';
+            eventFormData.append("backgroundImage", base64ToBlob(formData.backgroundImage, mimeType), "background.jpg");
 
       
             const response = await EventServices.createEvent(eventFormData);

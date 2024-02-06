@@ -55,6 +55,7 @@ export const PlanMapView : React.FC = () => {
                 setFileSelected(true);
                 removeAllRoutes(map.mapRef);
                 map.clearMarkers();
+                gpx.setGPXXML(xml);
                 gpx.setGPXData(gpxData);
                 
             };

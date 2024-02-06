@@ -80,17 +80,17 @@ const PlanMap = () => {
             return;
         }
     
-        const marker = markerData.name === 'Start Point' ? createStartMarker() : createFinishMarker();
+        const marker = markerData.name === 'Start Point' ? createStartMarker() : markerData.name === 'End Point' ? createFinishMarker() : createCustomMarker();
         marker.setLngLat(markerData.position).addTo(map.mapRef.current.getMapInstance());
         marker.data = markerData;
         map.addMarker(marker);
     }, [map]);
 
-      const createMarkerData = (coord: Position, name: string, distance: number, elevationGain: number): MarkerData => {
+      const createMarkerData = (coord: Position, name: string, distance: number, elevationGain: number, services:string[]=[]): MarkerData => {
         return {
           id: uuidv4(),
           name: name,
-          services: [],
+          services: services,
           distance: distance,
           distanceInter: distance,
           elevationGain: elevationGain,
@@ -107,6 +107,22 @@ const PlanMap = () => {
     
         const coordinates = currentRoute.geometry.coordinates;
     
+        const waypoints = Array.from(gpx.gpxState.xml?.querySelectorAll('wpt')!);
+
+        const markers = waypoints.map((waypoint, index) => {
+            const lat = parseFloat(waypoint.getAttribute("lat")!);
+            const lng = parseFloat(waypoint.getAttribute("lon")!);
+            const name = waypoint.querySelector("name")?.textContent || `Waypoint ${index + 1}`;
+            const servicesElement = waypoint.querySelector("services");
+            const services = servicesElement? Array.from(servicesElement.querySelectorAll("service")).map((serviceElement) => serviceElement.textContent): [];
+            const nearestPoint = findNearestPointOnRoute({lat, lng}, currentRoute!);
+            const newDistance = calculateDistanceAlongRoute(nearestPoint!, currentRoute as RouteFeature);
+            const newElevationGain = calculateElevationGainToPoint(currentRoute as RouteFeature, nearestPoint as[number,number]);
+            return createMarkerData(nearestPoint as[number,number], name, newDistance, newElevationGain, services.filter(Boolean) as string[]); // Adjust the parameters as needed.
+        });
+
+        markers.forEach(addMarkerToMap);
+
         if (currentRoute.geometry.type === "LineString") {
             const startCoord = coordinates[0];
             const endCoord = coordinates[coordinates.length - 1];
@@ -128,6 +144,9 @@ const PlanMap = () => {
             addMarkerToMap(startPoint);
             addMarkerToMap(endPoint);
         }
+
+        
+
     }, [gpx.gpxState.data, map.isStyleLoaded]);
       /* eslint-enable react-hooks/exhaustive-deps */
       

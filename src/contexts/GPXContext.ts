@@ -10,6 +10,7 @@ import {
   import  GpxData  from '../models/GpxData';
   
   export interface GPXState {
+    xml?: Document | undefined;
     data?: GpxData | undefined;
     route?: Feature<LineString, Properties>;
     isLoading: boolean;
@@ -22,6 +23,7 @@ import {
     setLoading: () => void;
     clearLoading: () => void;
     setGPXData: (data: GpxData | undefined) => void;
+    setGPXXML: (data: Document | undefined) => void;
     clearGPXData: () => void;
   }
   

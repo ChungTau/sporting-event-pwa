@@ -1,22 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import User from '../models/User';
 
 interface UserState {
-  user: any;
+  user: User | undefined;
 }
 
 const initialState: UserState = {
-  user: null,
+  user: undefined,
 };
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<any>) => {
+    setUser: (state, action: PayloadAction<User | undefined>) => {
       state.user = action.payload;
     },
     clearUser: (state) => {
-      state.user = null;
+      state.user = undefined; // Set it to undefined to clear the user data
     },
   },
 });

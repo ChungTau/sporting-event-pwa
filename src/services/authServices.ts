@@ -1,8 +1,9 @@
 import { Dispatch } from 'redux';
-import { setLoggedIn, setToken } from '../store/authSlice';
+import { clearUserData, setLoggedIn, setToken } from '../store/authSlice';
 import api from '../config/api';
 import User from '../models/User';
 import Credential from '../models/Credential';
+import { clearUser } from '../store/userSlice';
 
 const AuthServices = {
   signUp: async (user: User) => {
@@ -26,9 +27,7 @@ const AuthServices = {
   },
 
   signOut: (dispatch: Dispatch) => {
-    localStorage.removeItem('token');
-    dispatch(setLoggedIn(false));
-    dispatch(setToken(null));
+    dispatch(clearUserData());
   },
 
   forgotPassword: async (email: string) => {

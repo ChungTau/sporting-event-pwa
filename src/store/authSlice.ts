@@ -20,10 +20,23 @@ const authSlice = createSlice({
     },
     setToken: (state, action: PayloadAction<string | null>) => {
       state.token = action.payload;
+      // Save the token to local storage
+      if (action.payload) {
+        localStorage.setItem('token', action.payload);
+      } else {
+        localStorage.removeItem('token');
+      }
+    },
+
+    // New action to clear the token and user data
+    clearUserData: (state) => {
+      state.token = null;
+      state.isLoggedIn = false;
+      localStorage.removeItem('token');
     },
   },
 });
 
-export const { setLoggedIn, setToken } = authSlice.actions;
+export const { setLoggedIn, setToken, clearUserData } = authSlice.actions;
 
 export default authSlice.reducer;

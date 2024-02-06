@@ -1,4 +1,3 @@
-import EventData from "../models/EventData";
 import api from '../config/api';
 
 const EventServices = {

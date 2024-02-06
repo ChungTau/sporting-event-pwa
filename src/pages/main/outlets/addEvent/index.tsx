@@ -16,8 +16,6 @@ import {Time} from "../../../../components/TimePicker";
 import {PointDetails} from "./DetailsBox";
 import EventServices from '../../../../services/eventServices';
 import { combineDateAndTime } from "../../../../helpers/combineDateAndTime";
-import EventData from "../../../../models/EventData";
-import { base64StringToBlob } from 'blob-util';
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 
@@ -43,7 +41,7 @@ function AddEventPage() {
     const [modalContent,
         setModalContent] = useState('');
 
-    const {token} = useSelector((state : RootState) => state.authenticated);
+    const {user} = useSelector((state : RootState) => state.user);
 
     const handlePointDetailsUpdate = useCallback((details : PointDetails) => {
         setPointDetails(details);
@@ -130,7 +128,7 @@ function AddEventPage() {
               combineDateAndTime(formData.period[1], formData.endTime)!.toISOString() // Convert to ISO string
             );
             eventFormData.append("venue", JSON.stringify(pointDetails));
-            eventFormData.append("ownerId", "13");
+            eventFormData.append("ownerId", user?.id?.toString()!);
       
             // Append backgroundImage file to FormData object
             const mimeType = 'image/jpeg';

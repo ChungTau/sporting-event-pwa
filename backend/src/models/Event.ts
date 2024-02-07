@@ -12,7 +12,7 @@ interface PointDetails{
   timestamps: true,
   tableName: 'events2', // Set your table name here
 })
-class Event extends Model<Event> {
+class Event extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({

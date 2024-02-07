@@ -20,7 +20,7 @@ process.on('uncaughtException', error => {
 });
 
 const app: Application = express();
-const PORT: number =  8080;
+const PORT: number =  8081;
 
 sequelize.authenticate()
   .then(() => {

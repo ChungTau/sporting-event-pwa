@@ -10,13 +10,32 @@ const ensureDirectoryExists = (directory: string) => {
   }
 };
 
-const storage = multer.diskStorage({
+const gpxStorage = multer.diskStorage({
   destination: (_req, file, cb) => {
     let destinationPath = '';
-
     if (file.fieldname === "gpx") {
-      destinationPath = './uploads/gpxs/';
-    } else if (file.fieldname === "backgroundImage") {
+      destinationPath = `./uploads/plans/${_req.body.id}`;
+    }
+
+    // Ensure the directory exists
+    ensureDirectoryExists(destinationPath);
+
+    cb(null, destinationPath);
+  },
+  filename: (_req, file, cb) => {
+    if (file.fieldname === "gpx"){
+         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+         const ext = path.extname(file.originalname);
+         const fileName = `${uniqueSuffix}${ext}`; // No need to use req.body.name here
+         cb(null, fileName);
+       }
+   }
+});
+
+const bgImageStorage = multer.diskStorage({
+  destination: (_req, file, cb) => {
+    let destinationPath = '';
+    if (file.fieldname === "backgroundImage") {
       destinationPath = './uploads/backgroundImages/';
     }
 
@@ -26,12 +45,7 @@ const storage = multer.diskStorage({
     cb(null, destinationPath);
   },
   filename: (_req, file, cb) => {
-    if(file.fieldname === "gpx"){
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        const fileName = `${uniqueSuffix}${ext}`; // No need to use req.body.name here
-        cb(null, fileName);
-      }else if (file.fieldname === "backgroundImage"){
+   if (file.fieldname === "backgroundImage"){
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = path.extname(file.originalname);
         const fileName = `${uniqueSuffix}${ext}`; // No need to use req.body.name here
@@ -57,12 +71,18 @@ function checkFileType(file:Express.Multer.File, cb:multer.FileFilterCallback) {
   }
 }
 
-const upload = multer({
-  storage: storage,
+export const uploadBgImage = multer({
+  storage: bgImageStorage,
   fileFilter: (_req, file, cb) => {
     checkFileType(file, cb);
   }
 });
 
-
-export default upload;
+export const uploadPlanGPX = multer(
+  {
+    storage: gpxStorage,
+    fileFilter: (_req, file, cb)=> {
+      checkFileType(file, cb);
+    }
+  }
+);

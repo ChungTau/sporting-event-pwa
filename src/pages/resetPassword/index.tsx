@@ -18,7 +18,9 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import AuthServices from '../../services/authServices';
+import AuthServices from "../../services/authServices";
+import Credential from "../../models/Credential";
+import { useParams } from "react-router-dom";
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ function ResetPasswordPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalContent, setModalContent] = useState("");
+  const { email } = useParams();
 
   const NewBox = styled(Box)({
     padding: "10px",
@@ -82,20 +84,24 @@ function ResetPasswordPage() {
   );
 
   const handleBackToHome = () => {
-    navigate(routes.MAIN.path);
+    navigate("/");
   };
 
   const handleResetPassword = () => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
-
+      console.log("userEmail: " + email);
+      let userEmail: string = email!;
       if (validation.isValid) {
-        AuthServices.resetPassword(formData.password);
+        const data: Credential = {
+          email: userEmail,
+          password: formData.password,
+        };
+
+        AuthServices.resetPassword(data);
         setIsValidationSuccessful(true);
-        setModalContent("Now you can login your account.");
         setValidationErrors([]);
-        navigate(routes.SIGNIN.path);
       } else {
         setValidationErrors(validation.messages);
         setIsValidationSuccessful(false);
@@ -133,7 +139,7 @@ function ResetPasswordPage() {
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody px={10} py={4}>
-                  {isValidationSuccessful ? modalContent : renderErrorList()}
+                  {!isValidationSuccessful && renderErrorList()}
                 </ModalBody>
               </ModalContent>
             </Modal>

@@ -1,143 +1,187 @@
 import {
-    HStack,
-    Button,
-    Menu,
-    IconButton,
-    MenuButton,
-    MenuItem,
-    MenuList,
-    useBreakpointValue,
-    MenuGroup,
-    MenuDivider
+  HStack,
+  Button,
+  Menu,
+  IconButton,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  useBreakpointValue,
+  MenuGroup,
+  MenuDivider,
 } from "@chakra-ui/react";
 
-import {IoMenu} from "react-icons/io5";
-import {IoLogOut} from "react-icons/io5";
-import {useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../../store";
+import { IoMenu } from "react-icons/io5";
+import { IoLogOut } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store";
 import Row from "../../../components/Row";
-import {RouteConfig, mainOutlet, routes, userOutlet} from "../../../constants/routes";
-import {COLOR_PRIMARY_RGB, COLOR_SECONDARY, COLOR_SECONDARY_LIGHT} from "../../../constants/palatte";
+import {
+  RouteConfig,
+  mainOutlet,
+  routes,
+  userOutlet,
+} from "../../../constants/routes";
+import {
+  COLOR_PRIMARY_RGB,
+  COLOR_SECONDARY,
+  COLOR_SECONDARY_LIGHT,
+} from "../../../constants/palatte";
 import AuthServices from "../../../services/authServices";
+import { FaUserFriends  } from 'react-icons/fa';
+import { loggedInUser } from "../../../store/userSlice";
 
 type HandleNavigationFunction = (path: string) => void;
 
 interface MenuProps {
-    handleNavigation: HandleNavigationFunction;
+  handleNavigation: HandleNavigationFunction;
 }
 
 const menuItemStyle = {
-    bg: 'transparent',
-    _hover: {
-        bg: `rgba(${COLOR_PRIMARY_RGB}, 0.3)`,
-        color: 'white'
-    },
-    color: 'white',
-    fontSize: '14px'
+  bg: "transparent",
+  _hover: {
+    bg: `rgba(${COLOR_PRIMARY_RGB}, 0.3)`,
+    color: "white",
+  },
+  color: "white",
+  fontSize: "14px",
 };
 
 const menuGroupStyle = {
-    marginX: '0.8rem',
-    fontWeight: 600,
-    color: 'gray.100',
+  marginX: "0.8rem",
+  fontWeight: 600,
+  color: "gray.100",
 };
 
-const createMenuItem = (route:RouteConfig, handleNavigation:HandleNavigationFunction) => (
-    <MenuItem
-        {...menuItemStyle}
-        icon={route.icon ? <route.icon /> : undefined}
-        onClick={() => handleNavigation(route.path || '#')}
-        key={route.name}>
-        {route.name}
-    </MenuItem>
+const createMenuItem = (
+  route: RouteConfig,
+  handleNavigation: HandleNavigationFunction
+) => (
+  <MenuItem
+    {...menuItemStyle}
+    icon={route.icon ? <route.icon /> : undefined}
+    onClick={() => handleNavigation(route.path || "#")}
+    key={route.name}
+  >
+    {route.name}
+  </MenuItem>
 );
 
 const MobileMenu: React.FC<MenuProps> = ({ handleNavigation }) => (
-    <>
-        <MenuGroup {...menuGroupStyle} title="Page">
-            {Object.entries(mainOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
-        </MenuGroup>
-        <MenuDivider my={4} borderBottomColor={'white'} />
-        <MenuGroup {...menuGroupStyle} title="User">
-            {Object.entries(userOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}
-        </MenuGroup>
-    </>
+  <>
+    <MenuGroup {...menuGroupStyle} title="Page">
+      {Object.entries(mainOutlet).map(([key, route]) =>
+        createMenuItem(route, handleNavigation)
+      )}
+    </MenuGroup>
+    <MenuDivider my={4} borderBottomColor={"white"} />
+    <MenuGroup {...menuGroupStyle} title="User">
+      {Object.entries(userOutlet).map(([key, route]) =>
+        createMenuItem(route, handleNavigation)
+      )}
+    </MenuGroup>
+  </>
 );
 
 const DesktopMenu: React.FC<MenuProps> = ({ handleNavigation }) => {
-    return(<>{Object.entries(userOutlet).map(([key, route]) => createMenuItem(route, handleNavigation))}</>);
+  return (
+    <>
+      {Object.entries(userOutlet).map(([key, route]) =>
+        createMenuItem(route, handleNavigation)
+      )}
+    </>
+  );
 };
 
-
 const ActionBar = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const isMobile = useBreakpointValue({base: true, md: false});
-    const isLoggedIn = useSelector((state : RootState) => state.authenticated.isLoggedIn);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isLoggedIn = useSelector(
+    (state: RootState) => state.authenticated.isLoggedIn
+  );
+  const userEmail: string = useSelector(loggedInUser);
 
-    const handleNavigation = (path : string) => {
-        navigate(path);
-    };
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
 
-    const handleLogout = () => {
-        navigate('/');
-        setTimeout(() => AuthServices.signOut(dispatch), 800);
-    };
+  const handleLogout = () => {
+    navigate("/");
+    setTimeout(() => AuthServices.signOut(dispatch), 800);
+  };
 
-    return (
-        <HStack>
-            {isLoggedIn
-                ? (
-                    <Menu>
-                        <MenuButton
-                            as={IconButton}
-                            color={'white'}
-                            
-                            _active={{
-                                bgColor: 'blackAlpha.400'
-                            }}
-                            _hover={{
-                                bgColor: 'blackAlpha.200'
-                            }}
-                            aria-label='Options'
-                            bgColor={'blackAlpha.400'}
-                            
-                            icon={< IoMenu />}
-                            variant={'primary'}
-                            />
-                        <MenuList
-                            mt={2}
-                            px={4}
-                            zIndex={11}
-                            borderColor={'transparent'}
-                            bg={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
-                            backdropFilter={'blur(4px)'}>
-                            {isMobile ? (
-                            <MobileMenu handleNavigation={handleNavigation} />
-                        ) : (
-                            <DesktopMenu handleNavigation={handleNavigation} />
-                        )}
-                            <MenuItem {...menuItemStyle} icon={< IoLogOut />} onClick={handleLogout}>
-                                Logout
-                            </MenuItem>
-                        </MenuList>
-                    </Menu>
-                )
-                : (
-                    <Row>
-                        <Button onClick={() => handleNavigation(routes.SIGNUP.path)}>{routes.SIGNUP.name}</Button>
-                        <Button
-                            color={'white'}
-                            bgColor={COLOR_SECONDARY}
-                            _hover={{
-                            bgColor: COLOR_SECONDARY_LIGHT
-                        }}
-                            onClick={() => handleNavigation(routes.SIGNIN.path)}>{routes.SIGNIN.name}</Button>
-                    </Row>
-                )}
-        </HStack>
-    );
-}
+  const handleToMyProfile=()=>{
+    navigate(`/user/profile/${userEmail}`);
+  }
+
+  return (
+    <HStack>
+      {isLoggedIn ? (
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            color={"white"}
+            _active={{
+              bgColor: "blackAlpha.400",
+            }}
+            _hover={{
+              bgColor: "blackAlpha.200",
+            }}
+            aria-label="Options"
+            bgColor={"blackAlpha.400"}
+            icon={<IoMenu />}
+            variant={"primary"}
+          />
+          <MenuList
+            mt={2}
+            px={4}
+            zIndex={11}
+            borderColor={"transparent"}
+            bg={`rgba(${COLOR_PRIMARY_RGB}, 0.7)`}
+            backdropFilter={"blur(4px)"}
+          >
+            {isMobile ? (
+              <MobileMenu handleNavigation={handleNavigation} />
+            ) : (
+              <DesktopMenu handleNavigation={handleNavigation} />
+            )}
+            <MenuItem
+              {...menuItemStyle}
+              icon={<FaUserFriends />}
+              onClick={handleToMyProfile}
+            >
+              My Profile
+            </MenuItem>
+            <MenuItem
+              {...menuItemStyle}
+              icon={<IoLogOut />}
+              onClick={handleLogout}
+            >
+              Logout
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      ) : (
+        <Row>
+          <Button onClick={() => handleNavigation(routes.SIGNUP.path)}>
+            {routes.SIGNUP.name}
+          </Button>
+          <Button
+            color={"white"}
+            bgColor={COLOR_SECONDARY}
+            _hover={{
+              bgColor: COLOR_SECONDARY_LIGHT,
+            }}
+            onClick={() => handleNavigation(routes.SIGNIN.path)}
+          >
+            {routes.SIGNIN.name}
+          </Button>
+        </Row>
+      )}
+    </HStack>
+  );
+};
 
 export default ActionBar;

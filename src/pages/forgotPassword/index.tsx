@@ -18,8 +18,10 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-// import ApiService from "../../service/apiservice";                                  // please uncomment this line if you test the backend
 import emailjs, { EmailJSResponseStatus } from "@emailjs/browser";
+import AuthServices from "../../services/authServices";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/userSlice";
 
 function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -29,6 +31,8 @@ function ForgotPasswordPage() {
   const inputFormRef = useRef<InputFormRef>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState("");
+  const [hasError, setHasError] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const NewBox = styled(Box)({
     padding: "10px",
@@ -50,11 +54,11 @@ function ForgotPasswordPage() {
     },
   });
 
-  const validateFormData = (formData: { emailOrPhoneNo: string }) => {
+  const validateFormData = (formData: { email: string }) => {
     let validationErrors = [];
 
-    if (!formData.emailOrPhoneNo) {
-      validationErrors.push("Please enter your email address or phone number.");
+    if (!formData.email) {
+      validationErrors.push("Please enter your email address.");
     }
 
     return {
@@ -62,22 +66,6 @@ function ForgotPasswordPage() {
       messages: validationErrors,
     };
   };
-
-                                                                                     // please uncomment the following function if you test the backend
-
-
-//   const verifyUserInfo = (email: string) => {
-//     let validationErrors = [];
-
-//     if (email === "") {
-//       validationErrors.push("Failed to verify email address or phone number.");
-//     }
-
-//     return {
-//       isValid: validationErrors.length === 0,
-//       messages: validationErrors,
-//     };
-//   };
 
   const renderErrorList = () => (
     <ul>
@@ -101,30 +89,31 @@ function ForgotPasswordPage() {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
-    //   var userInfo;                                                               // please uncomment this line if you test the backend
-
+      var user;
       if (validation.isValid) {
-        // userInfo = await ApiService.forgotPassword(formData.emailOrPhoneNo);      // please uncomment this line if you test the backend
-
+        user = await AuthServices.forgotPassword(formData.email);
+        console.log("user" + JSON.stringify(user));
         setIsValidationSuccessful(true);
         setValidationErrors([]);
       } else {
         setValidationErrors(validation.messages);
         setIsValidationSuccessful(false);
       }
-    //   if (userInfo.Email === "") {                                                // please uncomment this line if you test the backend
-    //     const verify = verifyUserInfo(userInfo.Email);                            // please uncomment this line if you test the backend
-    //     setValidationErrors(verify.messages);                                     // please uncomment this line if you test the backend
-    //     setIsValidationSuccessful(false);                                         // please uncomment this line if you test the backend
-    //   } else {                                                                    // please uncomment this line if you test the backend
-
-    if (validation.isValid) {                                          // please comment this line if you test the backend
+      if (user === 0) {
+        setHasError(true);
+      } else {
+        setIsValidationSuccessful(true);
+        setValidationErrors([]);
+        // console.log("user.username : " + user.username);
+        // console.log("user.username : " + user.email);
+        // setUsername(user.username);
+        // setEmail(user.email);
+        // console.log("email:" + email);
+        dispatch(setUser(user.email));
         const emailTemplateParams: EmailTemplateParams = {
-        //   email: userInfo.Email,                                                  // please uncomment this line if you test the backend
-        //   username: userInfo.Username,                                            // please uncomment this line if you test the backend
-        email: "chuyingminnie@gmail.com",                              // please comment this line if you test the backend
-        username: "Minnie",                                            // please comment this line if you test the backend
-          resetPasswordURL: "http://localhost:3000/reset-password",
+          email:  user.email,
+          username: user.username,
+          resetPasswordURL: `http://localhost:3000/reset-Password/${user.email}`,
         };
         const params: Record<string, unknown> = emailTemplateParams;
 
@@ -147,10 +136,9 @@ function ForgotPasswordPage() {
         setModalContent(
           "A reset pasword email will be sent to your email address. Please check your email."
         );
-        setIsValidationSuccessful(true);
-        setValidationErrors([]);
-    }                                                                   // please comment this line if you test the backend
-    //   }                                                                           // please uncomment this line if you test the backend
+     
+      } // please comment this line if you test the backend
+      //   }                                                                           // please uncomment this line if you test the backend
       onOpen();
     }
   };
@@ -178,13 +166,13 @@ function ForgotPasswordPage() {
               <ModalOverlay />
               <ModalContent mx={4}>
                 <ModalHeader>
-                  {isValidationSuccessful
-                    ? "Email address or Phone number Validation Success"
-                    : "Email address or Phone number Validation Failure"}
+                  {(!isValidationSuccessful || hasError)?
+                    "Email address Validation Failure":"Email address Validation Success"}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody px={10} py={4}>
                   {isValidationSuccessful ? modalContent : renderErrorList()}
+                  {hasError && "Something has wrong !"}
                 </ModalBody>
               </ModalContent>
             </Modal>

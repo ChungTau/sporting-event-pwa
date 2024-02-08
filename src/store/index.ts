@@ -1,5 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authenticatedReducer, { setLoggedIn, setToken } from './authSlice';
+import userReducer from './userSlice';
+
 
 const loadTokenFromLocalStorage = () => {
   const token = localStorage.getItem('token');
@@ -11,6 +13,7 @@ const initialToken = loadTokenFromLocalStorage();
 const store = configureStore({
   reducer: {
     authenticated: authenticatedReducer,
+    user:userReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
   preloadedState: {

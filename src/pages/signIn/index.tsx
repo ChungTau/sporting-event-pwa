@@ -20,9 +20,9 @@ import {
 import image from "../../assets/images/bgImage2.png";
 import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
-import AuthServices from '../../services/authServices';
+import AuthServices from "../../services/authServices";
 import Credential from "../../models/Credential";
-//import ApiService from "../../service/apiservice";
+import { setUser } from "../../store/userSlice";
 
 function SignInPage() {
   const dispatch = useDispatch();
@@ -53,10 +53,7 @@ function SignInPage() {
     },
   });
 
-  const validateFormData = (formData: {
-    password: string;
-    email: string;
-  }) => {
+  const validateFormData = (formData: { password: string; email: string }) => {
     let validationErrors = [];
 
     if (!formData.email) {
@@ -88,26 +85,26 @@ function SignInPage() {
     navigate(routes.MAIN.path);
   };
 
-  const handleSignIn = async() => {
+  const handleSignIn = async () => {
     if (inputFormRef.current) {
       const formData = inputFormRef.current.getFormData();
       const validation = validateFormData(formData);
 
       if (validation.isValid) {
-        //setModalContent("Account created successfully!");
-        const data:Credential = {
+        const data: Credential = {
           email: formData.email,
           password: formData.password,
         };
         const response = await AuthServices.signIn(data, dispatch);
-        console.log(response);
-        if(response?.status === 200){
+        console.log("response:" + JSON.stringify(response));
+        if (response?.status === 200) {
           const token = response.data.token;
           setIsValidationSuccessful(true);
           setValidationErrors([]);
-          localStorage.setItem('token', token);
+          localStorage.setItem("token", token);
           dispatch(setLoggedIn(true));
           dispatch(setToken(token));
+          dispatch(setUser(response.data.email));
           const redirectPath = sessionStorage.getItem("redirectPath");
           if (redirectPath) {
             navigate(redirectPath);

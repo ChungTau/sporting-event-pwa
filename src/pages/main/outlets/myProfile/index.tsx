@@ -1,5 +1,6 @@
 import Column from "../../../../components/Column";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   Modal,
   ModalBody,
@@ -19,14 +20,20 @@ import {
   Text,
   ButtonGroup,
   Spacer,
-  InputRightElement,
   ModalFooter,
+  Avatar,
+  Link,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { COLOR_PRIMARY_RGB } from "../../../../constants/palatte";
 import { CustomFormControl } from "../../../main/outlets/addEvent//CustomFormControl";
 import { commonInputStyles } from "../../../../constants/styles";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import UserServices from "../../../../services/userServices";
+import AuthServices from "../../../../services/authServices";
+import User from "../../../../models/User";
+import { useNavigate } from "react-router-dom";
+import { routes } from "../../../../constants/routes";
+import { useParams } from "react-router-dom";
 
 const FlexBox = styled(Flex)({
   flexDirection: "row",
@@ -52,22 +59,19 @@ const FlexBox2 = styled(Flex)({
 });
 
 const NewBox = styled(Box)({
-  padding: "10px",
-  marginTop: "20px",
-  width: "100%",
+  paddingTop: "3rem",
+  marginBottom: "5rem",
+  width: "95%",
   "@media (min-width: 600px)": {
-    paddingTop: "7rem",
     width: "90%",
   },
 
-  "@media (min-width: 1200px)": {
-    paddingTop: "7rem",
-    width: "80%",
+  "@media (min-width: 1100px)": {
+    width: "60%",
   },
 
-  "@media (min-width: 1800px)": {
-    paddingTop: "7rem",
-    width: "70%",
+  "@media (min-width: 1600px)": {
+    width: "40%",
   },
 });
 
@@ -93,41 +97,52 @@ function MyProfilePage() {
     useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { userEmail } = useParams();
 
-  const userInfo = {
-    username: "Minnie",
-    nickname: "Minnie",
-    password: "12345",
-    email: "minnie@gmail.com.hk",
-    gender: "Female",
-    dob: new Date("2000-01-01"),
-    phoneNumber: "12345678",
-    emergencyPerson: "Mini",
-    emergencyContact: "87654321",
-  };
-
-  const [username, setUsername] = useState(userInfo.username);
-  const [nickname, setNickname] = useState(userInfo.nickname);
-  const [password, setPassword] = useState(userInfo.password);
-  const [confirmPassword, setConfirmPassword] = useState(userInfo.password);
-  const [email, setEmail] = useState(userInfo.email);
-  const [gender, setGender] = useState(userInfo.gender);
-  const [dob, setDOB] = useState(new Date(userInfo.dob));
-  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
-  const [emergencyPerson, setEmergencyPerson] = useState(
-    userInfo.emergencyPerson
-  );
-  const [emergencyContact, setEmergencyContact] = useState(
-    userInfo.emergencyContact
-  );
+  const [profilePic, setProfilePic] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [nickname, setNickname] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [dob, setDOB] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [emergencyPerson, setEmergencyPerson] = useState<string>("");
+  const [emergencyContact, setEmergencyContact] = useState<string>("");
 
   const [isReadonly, setIsReadonly] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
 
-  const [show, setShow] = useState(false);
-  const [show2, setShow2] = useState(false);
-  const handleClickPassword = () => setShow(!show);
-  const handleClickConfirmPassword = () => setShow2(!show2);
+  const [Icon, setIcon] = useState<string>("");
+  const [profilePicFormData, setProfilePicFormData] = useState({});
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const hiddenFileInput = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    hiddenFileInput.current?.click();
+  };
+
+  const handleUploadIcon = (e: any) => {
+    if (e.target.files.length !== 0) {
+      setIcon("");
+      setIcon(URL.createObjectURL(e.target.files[0]));
+      const formData = new FormData();
+      formData.append(
+        "file",
+        e.target.files[0],
+        email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
+      );
+      console.log("formdata : " + formData);
+      setProfilePicFormData(formData);
+      setProfilePic(
+        email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
+      );
+      console.log("profilePic : " + profilePic);
+    }
+  };
   const handleEditProfile = () => {
     setIsReadonly(!isReadonly);
   };
@@ -140,17 +155,7 @@ function MyProfilePage() {
     if (!email) {
       validationErrors.push("The field 'Email' is required.");
     }
-    if (!password) {
-      validationErrors.push("The field 'Password' is required.");
-    }
-    if (!confirmPassword) {
-      validationErrors.push("The field 'Confirm Password' is required.");
-    }
-    if (password !== confirmPassword) {
-      validationErrors.push(
-        "The field 'Password' and 'Confirm Password'  do not match."
-      );
-    }
+
     return {
       isValid: validationErrors.length === 0,
       messages: validationErrors,
@@ -171,9 +176,6 @@ function MyProfilePage() {
   const handleChangeNickname = (e: any) => {
     setNickname(e.target.value);
   };
-  const handleChangeEmail = (e: any) => {
-    setEmail(e.target.value);
-  };
   const handleChangeGender = (e: any) => {
     setGender(e.target.value);
   };
@@ -181,21 +183,13 @@ function MyProfilePage() {
     setPhoneNumber(e.target.value);
   };
   const handleChangeDOB = (e: any) => {
-    setDOB(new Date(e.target.value));
+    setDOB(e.target.value);
   };
   const handleChangeEmergencyPerson = (e: any) => {
     setEmergencyPerson(e.target.value);
   };
   const handleChangeEmergencyContact = (e: any) => {
     setEmergencyContact(e.target.value);
-  };
-
-  const handleChangePassword = (e: any) => {
-    setPassword(e.target.value);
-  };
-
-  const handleChangeConfirmPassword = (e: any) => {
-    setConfirmPassword(e.target.value);
   };
 
   const handleCancelDeleteAccount = () => {
@@ -205,47 +199,87 @@ function MyProfilePage() {
   const onCloseModal = () => {
     setIsOnClickDeleteAccount(false);
   };
-
   const onClickDeleteAccount = () => {
     setIsOnClickDeleteAccount(true);
     onOpen();
   };
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
+    await AuthServices.signOut(dispatch);
+    navigate(routes.MAIN.path);
+    await UserServices.deleteUser(email, dispatch);
     onClose();
+
     setIsOnClickDeleteAccount(false);
   };
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = async () => {
     const validation = validateFormData();
-
+    setHasError(false);
     if (validation.isValid) {
-      //   const data = {
-      //     Username: username,
-      //     Nickname: nickname,
-      //     Email: email,
-      //     Gender: gender,
-      //     dob: dob,
-      //     PhoneNumber: phoneNumber,
-      //     EmergencyPerson: emergencyPerson,
-      //     EmergencyContact: emergencyContact,
-      //   };
-      // ApiService.signUp(data);
-
-      setIsReadonly(true);
-      setIsValidationSuccessful(true);
-      setValidationErrors([]);
-      // const redirectPath = sessionStorage.getItem("redirectPath");
-      // if (redirectPath) {
-      //   navigate(redirectPath);
-      //   sessionStorage.removeItem("redirectPath");
-      // } else {
-      //   navigate(routes.SIGNIN.path);
-      // }
+      const data: User = {
+        profilePic: profilePic,
+        username: username,
+        nickname: nickname,
+        password: password,
+        email: email,
+        gender: gender,
+        dob: dob,
+        phoneNumber: phoneNumber,
+        emergencyPerson: emergencyPerson,
+        emergencyContact: emergencyContact,
+      };
+      console.log("data :" + JSON.stringify(data));
+      const response = await UserServices.updateMyProfile(data);
+      if (
+        !(
+          Object.keys(profilePicFormData).length === 0 &&
+          profilePicFormData.constructor === Object
+        )
+      ) {
+        await UserServices.saveProfilePic(profilePicFormData);
+      }
+      if (response === 1) {
+        setIsReadonly(true);
+        setIsValidationSuccessful(true);
+        setValidationErrors([]);
+      } else {
+        setHasError(true);
+      }
     } else {
       setValidationErrors(validation.messages);
       setIsValidationSuccessful(false);
     }
     onOpen();
   };
+
+  const fetchUserData = async () => {
+    let emailTemp: string = userEmail!;
+    console.log("userEmail: " + emailTemp);
+    const data = {
+      email: emailTemp,
+    };
+    console.log("data" + JSON.stringify(data));
+
+    const result = await UserServices.getUserByEmail(data);
+
+    setProfilePic(result.profilePic);
+    setUsername(result.username);
+    setNickname(result.nickname);
+    setPassword(result.password);
+    setEmail(result.email);
+    setGender(result.gender);
+    setDOB(result.dob);
+    setPhoneNumber(result.phoneNumber);
+    setEmergencyPerson(result.emergencyPerson);
+    setEmergencyContact(result.emergencyContact);
+    if (result.profilePic !== "") {
+      setIcon("http://localhost:5067/image/" + result.profilePic);
+    }
+    setIsValidationSuccessful(true);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   return (
     <Box
@@ -262,7 +296,7 @@ function MyProfilePage() {
                   <Text className="page-title">My Profile</Text>
                 </Box>
                 <Spacer />
-                <ButtonGroup gap="3" alignItems="right">
+                <ButtonGroup gap="2" alignItems="right">
                   <Button
                     color="white"
                     bgColor={`rgba(${COLOR_PRIMARY_RGB},0.8)`}
@@ -271,7 +305,17 @@ function MyProfilePage() {
                   >
                     {isReadonly ? "Edit Profile" : "Cancel"}
                   </Button>
-                  <Spacer />
+                  <Button
+                    color="white"
+                    bgColor={`rgba(${COLOR_PRIMARY_RGB},0.8)`}
+                    _hover={{ bgColor: `rgba(${COLOR_PRIMARY_RGB},0.6)` }}
+                  >
+                    <Link href={"/reset-Password/" + email}>
+                      {" "}
+                      Reset Password
+                    </Link>
+                  </Button>
+
                   <Button
                     color="white"
                     bgColor="red"
@@ -324,70 +368,16 @@ function MyProfilePage() {
                       />
                     </CustomFormControl>
                   </FlexBox>
-                  <FlexBox>
-                    <CustomFormControl label="Password" isRequired>
-                      <InputGroup size="md">
-                        <Input
-                          {...commonInputStyles}
-                          type={show ? "text" : "password"}
-                          readOnly={isReadonly}
-                          value={password}
-                          onChange={handleChangePassword}
-                        />
-                        <InputRightElement width="4.5rem">
-                          <Button
-                            h="1.75rem"
-                            size="sm"
-                            color="white"
-                            bgColor={`rgba(${COLOR_PRIMARY_RGB},0.5)`}
-                            _hover={{
-                              bgColor: `rgba(${COLOR_PRIMARY_RGB},0.3)`,
-                            }}
-                            onClick={handleClickPassword}
-                          >
-                            {show ? <ViewOffIcon /> : <ViewIcon />}
-                          </Button>
-                        </InputRightElement>
-                      </InputGroup>
-                    </CustomFormControl>
-                    <CustomFormControl label="Confirm Password" isRequired>
-                      <InputGroup size="md">
-                        <Input
-                          {...commonInputStyles}
-                          type={show2 ? "text" : "password"}
-                          readOnly={isReadonly}
-                          value={confirmPassword}
-                          onChange={handleChangeConfirmPassword}
-                        />
-                        <InputRightElement width="4.5rem">
-                          <Button
-                            h="1.75rem"
-                            size="sm"
-                            color="white"
-                            bgColor={`rgba(${COLOR_PRIMARY_RGB},0.5)`}
-                            _hover={{
-                              bgColor: `rgba(${COLOR_PRIMARY_RGB},0.3)`,
-                            }}
-                            onClick={handleClickConfirmPassword}
-                          >
-                            {show2 ? <ViewOffIcon /> : <ViewIcon />}
-                          </Button>
-                        </InputRightElement>
-                      </InputGroup>
-                    </CustomFormControl>
-                  </FlexBox>
                   <CustomFormControl isRequired label="Email">
                     <Input
                       {...commonInputStyles}
                       value={email}
-                      onChange={handleChangeEmail}
-                      readOnly={isReadonly}
+                      readOnly={true}
                     />
                   </CustomFormControl>
                   <FlexBox>
                     <CustomFormControl label="Gender" minWidth={"40%"} flex={1}>
                       <Select
-                        // defaultValue={genderRef.current?.value}
                         defaultValue={gender}
                         onChange={handleChangeGender}
                         disabled={isReadonly}
@@ -419,7 +409,7 @@ function MyProfilePage() {
                     <Input
                       size="md"
                       type="date"
-                      value={dob.toISOString().split("T")[0]}
+                      value={dob}
                       {...commonInputStyles}
                       onChange={handleChangeDOB}
                     />
@@ -442,6 +432,28 @@ function MyProfilePage() {
                       />
                     </CustomFormControl>
                   </FlexBox>
+                  <CustomFormControl label="Profile Picture:">
+                    <Button
+                      variant="solid"
+                      style={{ maxWidth: "26vw", minWidth: "10vw" }}
+                      colorScheme="teal"
+                      onClick={handleClick}
+                      isDisabled={isReadonly}
+                    >
+                      <p>Upload Icon</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple={false}
+                        onChange={handleUploadIcon}
+                        ref={hiddenFileInput}
+                        style={{ display: "none" }}
+                      />
+                    </Button>
+                    <Center>
+                      <Avatar src={Icon} sx={{ width: 60, height: 60 }} />
+                    </Center>
+                  </CustomFormControl>
                 </Column>
               </FlexBox2>
             </Column>
@@ -470,7 +482,8 @@ function MyProfilePage() {
                   {isValidationSuccessful &&
                     !isOnClickDeleteAccount &&
                     "Profile successfully updated."}
-                  {!isValidationSuccessful && "Profile Update Failure"}
+                  {(!isValidationSuccessful || hasError) &&
+                    "Profile Update Failure"}
                   {isOnClickDeleteAccount && "Delete Account"}
                 </ModalHeader>
                 <ModalCloseButton />
@@ -478,6 +491,7 @@ function MyProfilePage() {
                   {!isValidationSuccessful && renderErrorList()}
                   {isOnClickDeleteAccount &&
                     "Are you sure? You can't undo this action afterwards."}
+                  {hasError && "Something has wrong ! "}
                 </ModalBody>
                 {isOnClickDeleteAccount && (
                   <ModalFooter>

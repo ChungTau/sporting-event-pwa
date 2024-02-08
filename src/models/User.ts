@@ -2,7 +2,7 @@ import { BaseModel } from "./BaseModel";
 import Credential from "./Credential";
 
 interface User extends BaseModel, Credential{
-    profilePic: Blob;
+    profilePic: string;
     nickname: string,
     username: string,
     gender: string,

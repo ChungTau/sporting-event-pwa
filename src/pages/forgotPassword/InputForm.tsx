@@ -7,16 +7,16 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 
 export interface InputFormRef {
   getFormData: () => {
-    emailOrPhoneNo: string;
+    email: string;
   };
 }
 
 const InputForm = forwardRef<InputFormRef, {}>((props, ref) => {
-  const emailOrPhoneNoRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
 
   useImperativeHandle(ref, () => ({
     getFormData: () => ({
-      emailOrPhoneNo: emailOrPhoneNoRef.current?.value || "",
+      email: emailRef.current?.value || "",
     }),
   }));
 
@@ -39,9 +39,9 @@ const InputForm = forwardRef<InputFormRef, {}>((props, ref) => {
         {" "}
         <CustomFormControl
           isRequired
-          label="Please enter your email address or phone number so we can send you an email to reset your password."
+          label="Please enter your email address so we can send you an email to reset your password."
         >
-          <Input ref={emailOrPhoneNoRef} {...commonInputStyles} />
+          <Input ref={emailRef} {...commonInputStyles} />
         </CustomFormControl>
       </Column>
     </Column>

@@ -4,7 +4,7 @@ import User from "./User";
 @Table(
     {
         timestamps:true,
-        tableName: 'plan'
+        tableName: 'plans'
     }
 )
 class Plan extends Model{
@@ -33,6 +33,14 @@ class Plan extends Model{
         }
     )
     path!: string;
+
+    @Column(
+        {
+            type: DataType.STRING,
+            allowNull: false
+        }
+    )
+    thumbnail!: string;
 
     @ForeignKey(() => User) // Define the foreign key relationship
     @Column({

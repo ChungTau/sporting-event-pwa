@@ -2,7 +2,7 @@ import { BaseModel } from "./BaseModel";
 
 interface Plan extends BaseModel {
     name: string;
-    thumbnail: Blob;
+    thumbnail: string;
     path: Blob;
     ownerId: number;
 }

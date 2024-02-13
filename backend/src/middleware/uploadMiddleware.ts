@@ -11,10 +11,10 @@ const ensureDirectoryExists = (directory: string) => {
 };
 
 const gpxStorage = multer.diskStorage({
-  destination: (_req, file, cb) => {
+  destination: (req, file, cb) => {
     let destinationPath = '';
-    if (file.fieldname === "gpx") {
-      destinationPath = `./uploads/plans/${_req.body.id}`;
+    if (file.fieldname === "path") {
+      destinationPath = `./uploads/plans/${req.params.ownerId}`;
     }
 
     // Ensure the directory exists
@@ -23,7 +23,7 @@ const gpxStorage = multer.diskStorage({
     cb(null, destinationPath);
   },
   filename: (_req, file, cb) => {
-    if (file.fieldname === "gpx"){
+    if (file.fieldname === "path"){
          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
          const ext = path.extname(file.originalname);
          const fileName = `${uniqueSuffix}${ext}`; // No need to use req.body.name here
@@ -55,7 +55,7 @@ const bgImageStorage = multer.diskStorage({
 });
 
 function checkFileType(file:Express.Multer.File, cb:multer.FileFilterCallback) {
-  if(file.fieldname === "gpx"){
+  if(file.fieldname === "path"){
     if (file.mimetype === 'application/gpx+xml') {
       cb(null, true);
     } else {
@@ -81,7 +81,7 @@ export const uploadBgImage = multer({
 export const uploadPlanGPX = multer(
   {
     storage: gpxStorage,
-    fileFilter: (_req, file, cb)=> {
+    fileFilter: (_req, file, cb) => {
       checkFileType(file, cb);
     }
   }

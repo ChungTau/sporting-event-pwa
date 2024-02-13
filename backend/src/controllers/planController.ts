@@ -6,36 +6,31 @@ class PlanController {
         try {
             const {
                 name,
-                path,
                 ownerId,
+                thumbnail
             } = req.body;
     
             // Initialize variables for file paths
-            let gpxFilePath = '';
-    
+
             // Check if a GPX file was uploaded
-            const files= req.files as  {[fieldname: string]: Express.Multer.File[]};
-            if (files !== null) {
-                if(files['gpx']){
-                    gpxFilePath = files['gpx'][0].path;
-                }
-            }
+            const file= req.file as  Express.Multer.File;
+            if (file == null) return;
     
             if (
                 !name ||
-                !path ||
+                !thumbnail ||
                 !ownerId
             ) {
                 return res.status(400).json({
                     message:
-                        'Name, Type, Privacy, Max of Parti, Start Date Time, Description, Owner ID, and GPX file are required',
+                        'Name, Owner ID, and GPX file are required',
                 });
             }
     
             // Create a new Event instance and set the properties explicitly
             const plan = await Plan.create({
                 ...req.body,
-                file: gpxFilePath, 
+                path: file.path, 
             });
     
             // Save the Event instance to the database using Sequelize
@@ -107,6 +102,29 @@ class PlanController {
             return res.status(500).json({ message: 'Error deleting plan' });
         }
     }
+
+    // Add this method inside the PlanController class
+
+static async getPlansByOwnerId(req: Request, res: Response) {
+    const ownerId = parseInt(req.params.ownerId);
+    try {
+        const plans = await Plan.findAll({
+            where: {
+                ownerId: ownerId
+            }
+        });
+
+        if (plans.length === 0) {
+            return res.status(404).json({ message: 'No plans found for this user.' });
+        }
+
+        return res.status(200).json(plans);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching plans for the user: ' + error });
+    }
+}
+
 }
 
 export default PlanController;

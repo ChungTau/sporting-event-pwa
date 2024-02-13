@@ -74,7 +74,7 @@ const ActionBar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const isMobile = useBreakpointValue({base: true, md: false});
-    const isLoggedIn = useSelector((state : RootState) => state.authenticated.isLoggedIn);
+    const {token} = useSelector((state : RootState) => state.authenticated);
 
     const handleNavigation = (path : string) => {
         navigate(path);
@@ -87,7 +87,7 @@ const ActionBar = () => {
 
     return (
         <HStack>
-            {isLoggedIn
+            {token != null
                 ? (
                     <Menu>
                         <MenuButton

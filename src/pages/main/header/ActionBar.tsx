@@ -87,7 +87,7 @@ const ActionBar = () => {
 
     return (
         <HStack>
-            {token != null
+            {token !== null
                 ? (
                     <Menu>
                         <MenuButton

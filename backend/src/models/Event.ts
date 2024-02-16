@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import User from './User';
 
-interface PointDetails{
+export interface PointDetails{
   lng: number;
   lat: number;
   address: string;
@@ -79,7 +79,7 @@ class Event extends Model {
     type: DataType.JSONB, // You can use JSONB type for storing JSON data
     allowNull: false,
   })
-  venue!: PointDetails;
+  venue!: string;
 
   @Column({
     type: DataType.STRING,

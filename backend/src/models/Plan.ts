@@ -1,6 +1,13 @@
 import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
 import User from "./User";
 
+export interface Info{
+    distance: number;
+    climb: number;
+    fall: number;
+    max: number;
+    min: number;
+}
 @Table(
     {
         timestamps:true,
@@ -41,6 +48,14 @@ class Plan extends Model{
         }
     )
     thumbnail!: string;
+
+    @Column(
+        {
+            type: DataType.JSON,
+            allowNull: false
+        }
+    )
+    info!: Info;
 
     @ForeignKey(() => User) // Define the foreign key relationship
     @Column({

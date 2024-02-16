@@ -29,9 +29,15 @@ export interface OutletConfig {
     [key: string]: RouteConfig;
 }
 
+export const innerOutlet: OutletConfig = {
+    PLANVIEW: { name: 'PlanView', path: '/plan/:planId', lazyComponent: () => import('../pages/main/outlets/plan'), isProtected: true },
+    EVENTVIEW: { name: 'EventView', icon:FaRoute, path: '/event/:eventId', lazyComponent: () => import('../pages/main/outlets/event'), isProtected: false}
+};
+
 export const mainOutlet: OutletConfig = {
     HOME: { name: 'Home', icon:GoHomeFill, path: '/home', lazyComponent: () => import('../pages/main/outlets/home'),  isProtected: false },
     PLAN: { name: 'Plan', icon:FaRoute, path: '/plan', lazyComponent: () => import('../pages/main/outlets/plan'), isProtected: true },
+    
     ADD_EVENT: { name: 'Add Event', icon: IoCreate, path: '/add-event', lazyComponent: () => import('../pages/main/outlets/addEvent'), isProtected: true },
     EVENT: {name: 'Event', icon: FaPersonRunning, path: '/event', lazyComponent:()=> import('../pages/main/outlets/event'), isProtected: false}
 };
@@ -44,7 +50,7 @@ export const userOutlet: OutletConfig = {
 };
 
 export const routes = Object.freeze({
-    MAIN: {name: 'Main', path: '/', component: MainPage, outlet: { ...mainOutlet, ...userOutlet }, isProtected: false },
+    MAIN: {name: 'Main', path: '/', component: MainPage, outlet: { ...mainOutlet, ...userOutlet, ...innerOutlet }, isProtected: false },
     SIGNUP: { name: 'Sign Up', path: '/sign-up', component: SignUpPage, isProtected: false },
     SIGNIN: { name: 'Sign In', path: '/sign-in', component: SignInPage, isProtected: false },
     FORGOT_PASSWORD:{name: 'Forgot Password', path: '/forgot-password', component: ForgotPassword, isProtected: false },

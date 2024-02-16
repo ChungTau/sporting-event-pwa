@@ -7,11 +7,11 @@ interface EventData extends BaseModel{
     maxOfParti: number;
     startDateTime: Date;
     endDateTime?: Date| undefined;
-    backgroundImage?: Blob|undefined;
+    backgroundImage?: string;
     description: string;
     remark: string;
     venue: PointDetails;
-    file?: Blob|undefined;
+    file?: string|undefined;
     ownerId?: number|null;
 }
 

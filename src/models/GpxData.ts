@@ -6,7 +6,6 @@ export interface Info{
     fall: number;
     max: number;
     min: number;
-    waypoints: Feature[];
 }
 
 // Interface for the main output of the function

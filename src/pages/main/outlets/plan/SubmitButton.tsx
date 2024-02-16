@@ -114,7 +114,7 @@ const SubmitButton = () => {
             return;
         }
         // Generate Mapbox Image URL
-         const mapboxImageUrl = await generateMapboxImageUrl(gpx.gpxState.data?.routes, 0.001);
+         const mapboxImageUrl = await generateMapboxImageUrl(gpx.gpxState.data?.routes, 0.002);
          await console.log(mapboxImageUrl);
 
         // Convert the XML Document to a string
@@ -128,6 +128,9 @@ const SubmitButton = () => {
         planFormData.append("path", file);
         planFormData.append("ownerId", user?.id?.toString() || '');
         planFormData.append("thumbnail", mapboxImageUrl);
+        if (gpx.gpxState.data?.info) {
+            planFormData.append("info", JSON.stringify(gpx.gpxState.data.info));
+        }
         const response = await PlanServices.createPlan(planFormData);
         console.log(response);
         if(response){

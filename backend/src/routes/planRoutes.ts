@@ -10,6 +10,7 @@ router.get('/', PlanController.getPlans);
 router.get('/:id', PlanController.getPlansById);
 router.put('/:id', authenticate, PlanController.updatePlan);
 router.delete('/:id', authenticate, PlanController.deletePlan);
+router.post('/gpx/:userId/:filePath', authenticate, PlanController.getGPXFileByPath);
 // Add this route in your router setup
 
 router.get('/plans-by-owner/:ownerId', authenticate, PlanController.getPlansByOwnerId);

@@ -22,7 +22,7 @@ export const addLayersToMap = (mapRef: React.RefObject<mapboxgl.Map>, color:stri
 
 };
 
-export const resizeMap =(routes:Feature<MultiLineString, Properties> | Feature<LineString, Properties> | undefined, mapRef: React.RefObject<mapboxgl.Map>) =>{
+export const resizeMap =(routes:Feature<MultiLineString, Properties> | Feature<LineString, Properties> | undefined, mapRef: React.RefObject<mapboxgl.Map>, duration: number = 2600) =>{
     if (routes && mapRef.current
         ?.getMapInstance()) {
         const [minLng,
@@ -39,7 +39,7 @@ export const resizeMap =(routes:Feature<MultiLineString, Properties> | Feature<L
                         [maxLng, maxLat]
                     ], {
                         padding: MAP_PADDING,
-                        duration: 2600,
+                        duration: duration,
                     });
         }, 400);
     }

@@ -29,7 +29,38 @@ const PlanServices = {
             console.error('Error fetching plans by owner ID: ' + error);
             return null;
         }
+    },
+    getPlanById: async (id: string) => {
+        try {
+            const response = await api.get(`/plans/${id}`, {
+                headers: {
+                    'x-auth-token': localStorage.getItem('token')
+                },
+            });
+            console.log(response);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching plan by ID: ' + error);
+            return null;
+        }
+    },
+    getGPXFileContent: async (filePath: string) => {
+        try {
+            const response = await api.post(`/plans/gpx/${filePath}`, {}, {
+                headers: {
+                    'x-auth-token': localStorage.getItem('token')
+                },
+                responseType: 'text' // As GPX is a text format
+            });
+            console.log(response);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching GPX file content: ' + error);
+            return null;
+        }
     }
+
+
 };
 
 export default PlanServices;

@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import Event from '../models/Event';
-
+import path from 'path';
+import fs from 'fs';
+import mime from 'mime';
 class EventController {
     static async createEvent(req: Request, res: Response) {
         try {
@@ -117,6 +119,46 @@ class EventController {
             return res.status(500).json({ message: 'Error deleting user' });
         }
     }
+
+    static async getEventsByOwnerId(req: Request, res: Response): Promise<Response | void> {
+        const ownerId = parseInt(req.params.ownerId);
+        try {
+            const events = await Event.findAll({
+                where: {
+                    ownerId: ownerId
+                }
+            });
+    
+            if (events.length === 0) {
+                return res.status(404).json({ message: 'No events found for this user.' });
+            }
+    
+            const eventsJson = events.map(event => {
+                event.venue = JSON.parse(event.venue);
+                // Convert backgroundImage to base64
+                if (event.backgroundImage) {
+                    const fullPath = path.resolve(__dirname, `../../`, event.backgroundImage);
+                    if (fs.existsSync(fullPath)) {
+                        const mimeType = mime.lookup(fullPath);
+                        if (mimeType) {
+                            const fileData = fs.readFileSync(fullPath);
+                            const base64Image = Buffer.from(fileData).toString('base64');
+                            event.backgroundImage = `data:${mimeType};base64,${base64Image}`;
+                        }
+                    }
+                }
+    
+                // Return the event as a plain object
+                return event.toJson();
+            });
+    
+            return res.status(200).json(eventsJson);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error fetching events for the user: ' + error });
+        }
+    }
+    
 }
 
 export default EventController;

@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import Plan from '../models/Plan';
-
+import path from 'path';
+import fs from 'fs';
 class PlanController {
     static async createPlan(req: Request, res: Response) {
         try {
             const {
                 name,
                 ownerId,
-                thumbnail
+                thumbnail,
+                info
             } = req.body;
     
             // Initialize variables for file paths
@@ -19,6 +21,7 @@ class PlanController {
             if (
                 !name ||
                 !thumbnail ||
+                !info ||
                 !ownerId
             ) {
                 return res.status(400).json({
@@ -124,6 +127,24 @@ static async getPlansByOwnerId(req: Request, res: Response) {
         return res.status(500).json({ message: 'Error fetching plans for the user: ' + error });
     }
 }
+
+static async getGPXFileByPath(req: Request, res: Response) {
+    // Assuming 'userId' and 'filePath' are passed as query parameters or URL parameters
+    const userId = req.params.userId;
+    const filePath = req.params.filePath;
+    const fullPath = path.resolve(__dirname, `../../uploads/plans/${userId}/`, filePath);
+
+    fs.readFile(fullPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error reading GPX file: ' + err.message });
+        }
+
+        // Send the GPX file content
+        return res.type('application/gpx+xml').send(data);
+    });
+}
+
 
 }
 

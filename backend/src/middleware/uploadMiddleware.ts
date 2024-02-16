@@ -26,7 +26,7 @@ const gpxStorage = multer.diskStorage({
     if (file.fieldname === "path"){
          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
          const ext = path.extname(file.originalname);
-         const fileName = `${uniqueSuffix}${ext}`; // No need to use req.body.name here
+         const fileName = `${uniqueSuffix}${ext}.gpx`; // No need to use req.body.name here
          cb(null, fileName);
        }
    }

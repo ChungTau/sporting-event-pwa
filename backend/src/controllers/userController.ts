@@ -115,7 +115,7 @@ class UserController {
         },
         JWT_SECRET,
         {
-          expiresIn: '1h',
+          expiresIn: '7d',
         }
       );
       return res.json({ token, user });

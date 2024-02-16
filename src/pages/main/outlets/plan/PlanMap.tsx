@@ -1,5 +1,5 @@
 // Map.js
-import React, {useEffect, useCallback, useState, useMemo, Suspense} from 'react';
+import React, {useEffect, useCallback, useState, useMemo, Suspense, useRef} from 'react';
 
 import {
     RouteFeature,
@@ -18,7 +18,7 @@ import mapboxgl from 'mapbox-gl';
 //@ts-ignore
 import {v4 as uuidv4} from 'uuid';
 import {createCustomMarker, createFinishMarker, createStartMarker} from './PlanMarker';
-import {Position} from '@turf/turf';
+import {Position, bbox} from '@turf/turf';
 import {useToast} from '@chakra-ui/react';
 import CheckpointModal from './CheckpointModal';
 import MapPanel from './MapPanel';
@@ -47,7 +47,6 @@ const PlanMap = () => {
         position: null
     });
     const currentRoute = useMemo(() => gpx.gpxState.data?.routes, [gpx.gpxState.data?.routes]);
-
     const [isStyleLoaded, setIsStyleLoaded] = useState < boolean > (false);
 
     useEffect(()=>{
@@ -55,6 +54,7 @@ const PlanMap = () => {
             const mapInstance = map.mapRef.current.getMapInstance();
             if(mapInstance.isStyleLoaded()){
                 setIsStyleLoaded(true);
+                
             }
         }
     },[map.mapRef]);
@@ -63,7 +63,7 @@ const PlanMap = () => {
         if (!map.mapRef.current || !currentRoute ||isStyleLoaded) {
             return;
         }
-
+        resizeMap(currentRoute, map.mapRef, 0);
         map.mapRef.current.getMapInstance().on('style.load',()=>{
             addLayersToMap(map.mapRef, '#887d73', currentRoute);
             return;
@@ -104,6 +104,8 @@ const PlanMap = () => {
         if (!gpx.gpxState.data || !currentRoute || currentRoute.geometry.coordinates.length === 0 || !map.isStyleLoaded) {
             return;
         }
+
+        
     
         const coordinates = currentRoute.geometry.coordinates;
     
@@ -252,15 +254,15 @@ const PlanMap = () => {
 
     const handleResize = useCallback(() => {
         resizeMap(currentRoute, map.mapRef);
-    }, [currentRoute,map.mapRef]);
+    }, [currentRoute, map.mapRef]);
 
     useEffect(() => {
-        if (currentRoute) {
-            handleResize();
-        }
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [currentRoute, map.mapRef, handleResize ]);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [currentRoute, map.mapRef, handleResize]);
 
     const handleModalSubmit = (checkpointData : MarkerData) => {
         if (tempMarker) {
@@ -293,15 +295,12 @@ const PlanMap = () => {
         setIsModalOpen(false);
     };
 
-    
-
     return (
       <>
       <Suspense fallback={< FallbackSpinner />}>
         <BaseMap 
                 ref = {map.mapRef}
-                center = {hongKongCoordinates }
-                zoom = {17}
+                center={hongKongCoordinates}
                 style = {{
                     position: 'relative',
                     width: '100%',

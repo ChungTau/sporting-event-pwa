@@ -23,7 +23,7 @@ class PlanController {
       }
 
       // Check if a GPX file was uploaded
-      const file = req.file as Express.Multer.file;
+      const file = req.file as Express.Multer.File;
       if (!file) {
         return res.status(400).json({
           message: 'GPX file is required',

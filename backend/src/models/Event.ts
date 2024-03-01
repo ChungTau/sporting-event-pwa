@@ -31,8 +31,8 @@ class Event {
     @Column({ type: 'timestamp', nullable: true })
     endDateTime?: Date;
 
-    @Column({ type: 'varchar', nullable: true })
-    backgroundImage?: string;
+    @Column({ type: 'bytea', nullable: true }) // Change type to 'bytea' for PostgreSQL
+    backgroundImage?: Buffer; // Change type to Buffer for binary data
 
     @Column({ type: 'text', nullable: false })
     description!: string;
@@ -43,10 +43,10 @@ class Event {
     @Column({ type: 'jsonb', nullable: false })
     venue!: PointDetails;
 
-    @Column({ type: 'varchar', nullable: true })
-    file?: string;
+    @Column({ type: 'bytea', nullable: true }) // Change type to 'bytea' for PostgreSQL
+    gpxFile?: Buffer; // Change type to Buffer for binary data
 
-    @ManyToOne(() => User, { onDelete: 'CASCADE' }) // Define the many-to-one relationship
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'ownerId' })
     owner!: User;
 

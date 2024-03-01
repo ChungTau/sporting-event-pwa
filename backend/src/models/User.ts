@@ -1,98 +1,46 @@
-import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-// `@` Annotations一定要擺係用嘅地方上面一行
-//Table啫係Model, 但內置包括埋timestamps. E.g. createAt, updateAt
-//Column啫係Attribute. E.g. name, email, age, gender
+@Entity({ name: 'users' }) // Specifies the table name
+class User {
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-//詳細版
-@Table({
-  timestamps: true,
-  tableName: 'users',
-})
-class User extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  id!: number; // Adding the id field
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column({ type: 'varchar', nullable: false })
   username!: string;
 
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-    allowNull: false,
-  })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   email!: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column({ type: 'varchar', nullable: false })
   password!: string;
 
-  @Column({
-    type: DataType.STRING, 
-    allowNull: true, 
-  })
+  @Column({ type: 'varchar', nullable: true })
   gender!: string;
 
-  @Column({
-    type: DataType.STRING, 
-    allowNull: true, 
-  })
-  dob!: string;
+  @Column({ type: 'varchar', nullable: true })
+  dob!: string; // Consider using 'date' type if this is a date field
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: true, 
-  })
+  @Column({ type: 'varchar', nullable: true })
   phoneNumber!: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: true, 
-  })
+  @Column({ type: 'varchar', nullable: true })
   emergencyPerson!: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
+  @Column({ type: 'varchar', nullable: true })
   emergencyContact!: string;
 
   toJson() {
-    const { id, username, email, gender, dob, phoneNumber, emergencyPerson, emergencyContact } = this;
     return {
-      id,
-      username,
-      email,
-      gender,
-      dob,
-      phoneNumber,
-      emergencyPerson,
-      emergencyContact,
+      id: this.id,
+      username: this.username,
+      email: this.email,
+      gender: this.gender,
+      dob: this.dob,
+      phoneNumber: this.phoneNumber,
+      emergencyPerson: this.emergencyPerson,
+      emergencyContact: this.emergencyContact,
     };
   }
 }
 
 export default User;
-
-
-//簡化Default版
-/**
- * @Table
- * export class User extends Model {
- *  @Column
- *  name!: string;
- * 
- *  @Column
- *  email!: string;
- * }
- */

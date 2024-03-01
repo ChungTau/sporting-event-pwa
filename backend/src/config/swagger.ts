@@ -1,17 +1,30 @@
-import swaggerJSDoc from 'swagger-jsdoc';
+//@ts-ignore
+import swaggerAutogen from 'swagger-autogen';
+import path from 'path';
+
+const outputFile = path.join(__dirname, 'swagger_output.json');
+const endpointsFiles = [path.join(__dirname, '../routes/userRoutes.ts')];
 
 const options = {
-  definition: {
-    openapi: '3.1.0', // Specify the OpenAPI version
-    info: {
-      title: 'Sporting Event PWA API Documentation',
-      version: '1.0.0',
-      description: 'API documentation for Sporting Event PWA',
-    },
+  info: {
+    title: 'Sporting Event PWA API Documentation',
+    version: '1.0.0',
+    description: 'API documentation for Sporting Event PWA',
   },
-  apis: ['./routes/userRoutes.js'],
+  servers: [
+    {
+      url: 'http://localhost:8080',
+      description: ''
+    }
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer'
+      }
+    }
+  }
 };
 
-const swaggerSpec = swaggerJSDoc(options);
-
-export default swaggerSpec;
+swaggerAutogen()(outputFile, endpointsFiles, options);

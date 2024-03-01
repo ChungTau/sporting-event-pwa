@@ -1,20 +1,17 @@
-import { Sequelize } from 'sequelize-typescript';
+import { DataSource } from 'typeorm';
 
-const DB = {
-  name: 'FYP',
-  user: 'fyp',
-  pass: 'FYP_gib5',
-  host: '127.0.0.1',
-};
-
-export const JWT_SECRET = 'gib5';
-
-const sequelize = new Sequelize(DB.name, DB.user, DB.pass, {
-  host: DB.host,
-  dialect: 'mysql',
-  models: [__dirname + '/../models'],
-  logging: console.log,
-  port: 3366
+export const AppDataSource = new DataSource({
+    type: 'postgres',
+    host: 'postgres', // instead of '127.0.0.1'
+    port: 5432,
+    username: 'fyp',
+    password: 'FYP_gib5',
+    database: 'FYP',
+    entities: [
+        __dirname + '/../models/*.ts' // adjust this path as necessary
+    ],
+    synchronize: true, // Note: only use this in development
+    logging: false,
 });
 
-export default sequelize;
+export const JWT_SECRET = 'gib5';

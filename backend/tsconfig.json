@@ -20,6 +20,7 @@
       "types": ["node", "express", "./custom"]
     },
     "include": [
+      "src/swagger-output.json",
       "src/**/*",
       "dist/**/*",  // Include files from the dist directory
       "migrations/**/*",  // Include migration files

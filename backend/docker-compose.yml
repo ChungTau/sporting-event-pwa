@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  postgres:
+    image: postgres:16.2-alpine3.18
+    restart: always
+    environment:
+      - POSTGRES_USER=fyp
+      - POSTGRES_PASSWORD=FYP_gib5
+      - POSTGRES_DB=FYP
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  database-data: {}

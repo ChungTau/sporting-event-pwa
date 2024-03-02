@@ -9,8 +9,12 @@ const AuthServices = {
   signUp: async (user: User) => {
     try {
       const response = await api.post('/api/user/signUp', user);
-      console.log(response);
-      return response.status === 201 ? true : false;
+      console.log("22"+JSON.stringify(response.data));
+      if(response.status === 400){
+        return "existed";
+      }else{
+        return response.status === 201 ? true : false;
+      }
     } catch (error) {
       console.error('Sign-up failed:', error);
       return false; // Sign-up failed

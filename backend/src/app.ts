@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import sequelize from './config/dbConfig';
 import userRoutes from './routes/userRoutes';
+import eventRoutes from './routes/eventRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
@@ -19,7 +20,7 @@ process.on('uncaughtException', error => {
 });
 
 const app: Application = express();
-const PORT: number =  8080;
+const PORT: number =  8081;
 
 sequelize.authenticate()
   .then(() => {
@@ -28,11 +29,10 @@ sequelize.authenticate()
     sequelize.sync();
     
     app.use(express.json());
-    app.use(cors({
-      origin: '*', // Set the origin to allow all origins
-    }));
-    app.use('/api/ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    app.use('/api/users', userRoutes);
+    app.use(cors());
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api/user', userRoutes);
+    app.use('/api/event',eventRoutes);
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);

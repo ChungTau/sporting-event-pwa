@@ -104,7 +104,7 @@ function SignInPage() {
           localStorage.setItem("token", token);
           dispatch(setLoggedIn(true));
           dispatch(setToken(token));
-          dispatch(setUser(response.data.email));
+          dispatch(setUser(response.data.user.email));
           const redirectPath = sessionStorage.getItem("redirectPath");
           if (redirectPath) {
             navigate(redirectPath);

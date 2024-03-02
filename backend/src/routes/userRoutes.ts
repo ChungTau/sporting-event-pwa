@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/signUp:
+ * /api/register:
  *   post:
  *     summary: Create a new user.
  *     description: Create a new user with the provided username, email, and password.
@@ -35,7 +35,7 @@ router.post('/signUp', UserController.createUser);
 
 /**
  * @swagger
- * /api/users/signIn:
+ * /api/login:
  *   post:
  *     summary: Authenticate user and get JWT token.
  *     description: Authenticate a user with their email and password and return a JWT token.
@@ -67,19 +67,17 @@ router.post('/signUp', UserController.createUser);
  */
 router.post('/signIn', UserController.loginUser);
 
+//forgotPassword
+router.post('/forgotPassword/:email', UserController.forgotPassword);
+
+//resetPassword
+router.post('/resetPassword', UserController.resetPassword);
 /**
  * @swagger
- * /api/users:
+ * /api:
  *   get:
  *     summary: Get all users.
  *     description: Get a list of all users.
- *     parameters:
- *       - in: header
- *         name: x-auth-token
- *         required: true
- *         schema:
- *           type: string
- *         description: JWT Token
  *     responses:
  *       200:
  *         description: List of users retrieved successfully.
@@ -92,21 +90,17 @@ router.post('/signIn', UserController.loginUser);
  *       500:
  *         description: Internal server error.
  */
-router.get('/', authenticate, UserController.getUsers);
+//router.get('/', authenticate, UserController.getUsers);
+router.get('/allUsers', UserController.getUsers);
+
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/{id}:
  *   get:
  *     summary: Get user by ID.
  *     description: Get a user's details by their ID.
  *     parameters:
- *       - in: header
- *         name: x-auth-token
- *         required: true
- *         schema:
- *           type: string
- *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -126,21 +120,17 @@ router.get('/', authenticate, UserController.getUsers);
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id', authenticate, UserController.getUserById);
+//router.post('/getUserByEmail', authenticate, UserController.getUserByEmail);
+router.post('/getUserByEmail', UserController.getUserByEmail);
+//localhost:8080/api/14
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/{id}:
  *   put:
  *     summary: Update user by ID.
  *     description: Update a user's details by their ID.
  *     parameters:
- *       - in: header
- *         name: x-auth-token
- *         required: true
- *         schema:
- *           type: string
- *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -162,21 +152,16 @@ router.get('/:id', authenticate, UserController.getUserById);
  *       500:
  *         description: Internal server error.
  */
-router.put('/:id', authenticate, UserController.updateUser);
+//router.put('/:email', authenticate, UserController.updateUser);
+router.put('/updateMyProfile', UserController.updateUser);
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/{id}:
  *   delete:
  *     summary: Delete user by ID.
  *     description: Delete a user by their ID.
  *     parameters:
- *       - in: header
- *         name: x-auth-token
- *         required: true
- *         schema:
- *           type: string
- *         description: JWT Token
  *       - in: path
  *         name: id
  *         required: true
@@ -192,6 +177,7 @@ router.put('/:id', authenticate, UserController.updateUser);
  *       500:
  *         description: Internal server error.
  */
-router.delete('/:id', authenticate, UserController.deleteUser);
+router.delete('/2/:email', authenticate, UserController.deleteUser);
+router.delete('/:email', UserController.deleteUser);
 
 export default router;

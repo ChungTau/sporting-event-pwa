@@ -233,9 +233,9 @@ function SignUpPage() {
           profilePicFormData.constructor === Object
         )
       ) {
-        await UserServices.saveProfilePic(profilePicFormData);
+        //await UserServices.saveProfilePic(profilePicFormData);
       }
-      if (!response) {
+      if (response) {
         setIsValidationSuccessful(true);
         setValidationErrors([]);
         const redirectPath = sessionStorage.getItem("redirectPath");
@@ -245,7 +245,7 @@ function SignUpPage() {
         } else {
           navigate(routes.SIGNIN.path);
         }
-      } else {
+      } else if(!response) {
         setHasError(true);
       }
     } else {

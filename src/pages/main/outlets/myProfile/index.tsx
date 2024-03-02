@@ -113,7 +113,7 @@ function MyProfilePage() {
   const [isReadonly, setIsReadonly] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
 
-  const [Icon, setIcon] = useState<string>("");
+  //const [Icon, setIcon] = useState<string>("");
   const [profilePicFormData, setProfilePicFormData] = useState({});
 
   const dispatch = useDispatch();
@@ -125,24 +125,24 @@ function MyProfilePage() {
     hiddenFileInput.current?.click();
   };
 
-  const handleUploadIcon = (e: any) => {
-    if (e.target.files.length !== 0) {
-      setIcon("");
-      setIcon(URL.createObjectURL(e.target.files[0]));
-      const formData = new FormData();
-      formData.append(
-        "file",
-        e.target.files[0],
-        email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
-      );
-      console.log("formdata : " + formData);
-      setProfilePicFormData(formData);
-      setProfilePic(
-        email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
-      );
-      console.log("profilePic : " + profilePic);
-    }
-  };
+  // const handleUploadIcon = (e: any) => {
+  //   if (e.target.files.length !== 0) {
+  //     setIcon("");
+  //     setIcon(URL.createObjectURL(e.target.files[0]));
+  //     const formData = new FormData();
+  //     formData.append(
+  //       "file",
+  //       e.target.files[0],
+  //       email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
+  //     );
+  //     console.log("formdata : " + formData);
+  //     setProfilePicFormData(formData);
+  //     setProfilePic(
+  //       email.substring(0, email.indexOf("@")) + "_" + e.target.files[0].name
+  //     );
+  //     console.log("profilePic : " + profilePic);
+  //   }
+  // };
   const handleEditProfile = () => {
     setIsReadonly(!isReadonly);
   };
@@ -237,11 +237,11 @@ function MyProfilePage() {
       ) {
         await UserServices.saveProfilePic(profilePicFormData);
       }
-      if (response === 1) {
+      if (response.status==201) {
         setIsReadonly(true);
         setIsValidationSuccessful(true);
         setValidationErrors([]);
-      } else {
+      } else if(response.status==404) {
         setHasError(true);
       }
     } else {
@@ -272,7 +272,7 @@ function MyProfilePage() {
     setEmergencyPerson(result.emergencyPerson);
     setEmergencyContact(result.emergencyContact);
     if (result.profilePic !== "") {
-      setIcon("http://localhost:5067/image/" + result.profilePic);
+      //setIcon("http://localhost:5067/image/" + result.profilePic);
     }
     setIsValidationSuccessful(true);
   };
@@ -432,7 +432,7 @@ function MyProfilePage() {
                       />
                     </CustomFormControl>
                   </FlexBox>
-                  <CustomFormControl label="Profile Picture:">
+                  {/* <CustomFormControl label="Profile Picture:">
                     <Button
                       variant="solid"
                       style={{ maxWidth: "26vw", minWidth: "10vw" }}
@@ -453,7 +453,7 @@ function MyProfilePage() {
                     <Center>
                       <Avatar src={Icon} sx={{ width: 60, height: 60 }} />
                     </Center>
-                  </CustomFormControl>
+                  </CustomFormControl> */}
                 </Column>
               </FlexBox2>
             </Column>

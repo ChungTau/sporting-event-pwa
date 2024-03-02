@@ -27,6 +27,7 @@ import PlanMap from "./PlanMap";
 import AnimationProvider from "../../../../providers/AnimationProvider";
 import { useGPX } from "../../../../contexts/GPXContext";
 import { useParams } from "react-router-dom";
+import { Buffer } from 'buffer';
 
 import PlanServices from "../../../../services/planServices";
 import Plan from "../../../../models/Plan";
@@ -45,15 +46,17 @@ export const PlanMapView : React.FC = () => {
         if(planId !== undefined){
             
         PlanServices.getPlanById(planId).then( async(plan:Plan) => {
-            
-            const byteArray = new Uint8Array(plan.gpxFile);
-            const fileString = new TextDecoder().decode(byteArray);
-            const xml = new DOMParser().parseFromString(fileString, "text/xml");
-            console.log(xml);
+            const buffer = Buffer.from(plan.gpxFile);
 
+            // Convert buffer to string
+            const decoder = new TextDecoder('utf-8');
+            const xmlString = decoder.decode(buffer);
 
+            // Parse XML string
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlString, 'text/xml');
             
-                /*const xml = new DOMParser().parseFromString(fileString, "text/xml");
+
                 console.log(xml);
                 const {name, author} = extractMetadata(xml);
                 const convertedGeoJSON = togeojson.gpx(xml);
@@ -68,10 +71,11 @@ export const PlanMapView : React.FC = () => {
                 //removeAllRoutes(map.mapRef);
                 map.clearMarkers();
                 gpx.setGPXXML(xml);
-                gpx.setGPXData(gpxData);*/
+                gpx.setGPXData(gpxData);
 
         });
     }
+    // eslint-disable-next-line
     },[planId]);
 
     const handleDrop = (acceptedFiles : File[]) => {

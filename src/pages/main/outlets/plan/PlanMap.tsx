@@ -68,7 +68,7 @@ const PlanMap = () => {
             addLayersToMap(map.mapRef, '#887d73', currentRoute);
             return;
         })
-        addLayersToMap(map.mapRef, '#887d73', currentRoute);
+        //addLayersToMap(map.mapRef, '#887d73', currentRoute);
       }, [currentRoute, map.mapRef, isStyleLoaded]);
 
       useEffect(() => {

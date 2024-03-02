@@ -75,16 +75,18 @@ const MapPanel = () => {
     }, [mapStyle, map.mapRef]);
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
-        if ((map.mapRef.current.getMapInstance() as any).isStyleLoaded()) {
-            if (mapStyle === "mapbox://styles/mapbox/standard-beta") {
+        if ((map.mapRef.current.getMapInstance())) {
+            if(map.mapRef.current.getMapInstance().isStyleLoaded()){
+                if (mapStyle === "mapbox://styles/mapbox/standard-beta") {
                 try {
                     (map.mapRef.current.getMapInstance() as any).setConfigProperty('basemap', 'lightPreset', selectedPreset);
                 } catch (error) {
                 }
             }
+            }
         }
 
-    }, [selectedPreset, mapStyle]);
+    }, [selectedPreset, mapStyle, map.mapRef]);
      /* eslint-enable react-hooks/exhaustive-deps */
 
     const renderPresetButtons = () => (['dawn', 'day', 'dusk', 'night'].map(preset => (<PresetIconButton

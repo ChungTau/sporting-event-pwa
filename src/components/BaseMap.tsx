@@ -1,88 +1,92 @@
-import React, {useRef, useEffect, forwardRef, useImperativeHandle, ReactNode} from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, ReactNode } from 'react';
 //@ts-ignore
 import mapboxgl from 'mapbox-gl';
 import { terrainRate } from '../constants/map';
 
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN !;
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 interface MapProps {
-    style?: React.CSSProperties | undefined;
-    center?: [number, number] | undefined;
-    bounds?: [number, number, number, number] | undefined;
+    style?: React.CSSProperties;
+    center?: [number, number];
+    bounds?: [number, number, number, number];
     zoom?: number;
-    children?: ReactNode; 
+    children?: ReactNode;
 }
 
 export interface MapRef {
-    getMapInstance : () => mapboxgl.Map | undefined;
+    getMapInstance: () => mapboxgl.Map | undefined;
 }
 
 const BaseMap = React.memo(
     forwardRef<MapRef, MapProps>((props, ref) => {
         const { style, center = [0, 0], zoom = 12, children, bounds } = props;
-      const mapContainerRef = useRef<HTMLDivElement | null>(null);
-      const mapInstance = useRef<mapboxgl.Map>();
-  
-      useEffect(() => {
-        mapInstance.current = new mapboxgl.Map({
-          container: mapContainerRef.current!,
-          bounds: bounds,
-          center: center,
-          zoom: zoom,
-          pitch: 50,
-          optimizeForTerrain: true,
-        });
-  
-        mapInstance.current.on('style.load', () => {
-          if (mapInstance.current) {
-            if (!mapInstance.current.getSource('mapbox-dem')) {
-              mapInstance.current?.addSource('mapbox-dem', {
-                type: 'raster-dem',
-                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                tileSize: 512,
-              });
-            }
-            mapInstance.current.setTerrain({
-              source: 'mapbox-dem',
-              exaggeration: terrainRate,
-            });
-            if ('imports' in mapInstance.current.getStyle()) {
-              (mapInstance.current as any).setConfigProperty(
-                'basemap',
-                'lightPreset',
-                'day'
-              );
-              (mapInstance.current as any).setConfigProperty(
-                'basemap',
-                'showPointOfInterestLabels',
-                false
-              );
-              (mapInstance.current as any).setConfigProperty(
-                'basemap',
-                'showTransitLabels',
-                false
-              );
-              (mapInstance.current as any).setConfigProperty(
-                'basemap',
-                'showRoadLabels',
-                false
-              );
-            }
-          }
-        });
-  
-        return () => {
-          mapInstance.current?.remove();
-        };
-      }, [center, zoom]);
+        const mapContainerRef = useRef<HTMLDivElement | null>(null);
+        const mapInstance = useRef<mapboxgl.Map>();
 
-      useImperativeHandle(ref, () => ({
-        getMapInstance: () => mapInstance.current,
-      }));
-  
-      return <div ref={mapContainerRef} style={style}>{children}</div>;
+        useEffect(() => {
+            mapInstance.current = new mapboxgl.Map({
+                container: mapContainerRef.current!,
+                bounds: bounds,
+                center: center,
+                zoom: zoom,
+                pitch: 50,
+                optimizeForTerrain: true,
+            });
+
+            mapInstance.current.on('style.load', () => {
+                if (mapInstance.current) {
+                    if (!mapInstance.current.getSource('mapbox-dem')) {
+                        mapInstance.current?.addSource('mapbox-dem', {
+                            type: 'raster-dem',
+                            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                            tileSize: 512,
+                        });
+                    }
+                    mapInstance.current.setTerrain({
+                        source: 'mapbox-dem',
+                        exaggeration: terrainRate,
+                    });
+                    if ('imports' in mapInstance.current.getStyle()) {
+                        (mapInstance.current as any).setConfigProperty(
+                            'basemap',
+                            'lightPreset',
+                            'day'
+                        );
+                        (mapInstance.current as any).setConfigProperty(
+                            'basemap',
+                            'showPointOfInterestLabels',
+                            false
+                        );
+                        (mapInstance.current as any).setConfigProperty(
+                            'basemap',
+                            'showTransitLabels',
+                            false
+                        );
+                        (mapInstance.current as any).setConfigProperty(
+                            'basemap',
+                            'showRoadLabels',
+                            false
+                        );
+                    }
+                }
+            });
+
+            return () => {
+                mapInstance.current?.remove();
+            };
+        }, [center, zoom, bounds]);
+
+        useImperativeHandle(ref, () => ({
+            getMapInstance: () => mapInstance.current,
+        }));
+
+        return (
+            <div style={style}>
+                <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+                {children}
+            </div>
+        );
     })
-  );
-  
-  export default BaseMap;
-  
+);
+
+export default BaseMap;

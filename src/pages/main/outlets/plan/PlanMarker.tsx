@@ -86,7 +86,7 @@ export const createCustomMarker = () => {
 
 export const createStartMarker = () =>{
     const pinImage = document.createElement('img');
-    pinImage.src = './images/start.png'; // Replace with the path to your pin shape PNG image
+    pinImage.src = '/images/start.png'; // Replace with the path to your pin shape PNG image
     pinImage.style.width = '40px'; // Adjust the width if needed
     pinImage.style.height = '40px';
     const markerEl = document.createElement('div');
@@ -100,7 +100,7 @@ export const createStartMarker = () =>{
 
 export const createFinishMarker = () =>{
     const pinImage = document.createElement('img');
-    pinImage.src = './images/finish.png'; // Replace with the path to your pin shape PNG image
+    pinImage.src = '/images/finish.png'; // Replace with the path to your pin shape PNG image
     pinImage.style.width = '40px'; // Adjust the width if needed
     pinImage.style.height = '40px';
     const markerEl = document.createElement('div');

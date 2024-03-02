@@ -22,18 +22,25 @@ class PlanController {
         });
       }
 
-      // Check if a GPX file was uploaded
       const file = req.file as Express.Multer.File;
       if (!file) {
-        return res.status(400).json({
-          message: 'GPX file is required',
-        });
+          return res.status(400).json({
+              message: 'GPX file is required',
+          });
       }
 
+      // Read the uploaded GPX file as Buffer
+      const gpxFileBuffer = fs.readFileSync(file.path);
+
+      // Create a new plan with the GPX file as Buffer
       const newPlan = await PlanController.planService.createPlan({
-        ...req.body,
-        path: file.path,
+          ...req.body,
+          gpxFile: gpxFileBuffer,
       });
+
+      // Delete the temporary file after reading
+      fs.unlinkSync(file.path);
+
 
       if (!newPlan) {
         return res.status(500).json({ message: 'Error creating plan' });
@@ -111,9 +118,8 @@ class PlanController {
 
   static async getGPXFileByPath(req: Request, res: Response) {
     // Assuming 'userId' and 'filePath' are passed as query parameters or URL parameters
-    const userId = req.params.userId;
     const filePath = req.params.filePath;
-    const fullPath = path.resolve(__dirname, `../../uploads/plans/${userId}/`, filePath);
+    const fullPath = path.resolve(__dirname, `../../uploads/plans/${filePath}`);
 
     fs.readFile(fullPath, 'utf8', (err, data) => {
       if (err) {

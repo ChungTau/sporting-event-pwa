@@ -34,6 +34,13 @@ interface GPXProviderProps {
         isLoading: false,
       }));
     };
+
+    const setGPXXML = (xml: Document | undefined) => {
+      setGPXState((prevState) => ({
+        ...prevState,
+        xml,
+      }));
+    }
   
     const clearGPXData = () => {
       setGPXState({
@@ -48,6 +55,7 @@ interface GPXProviderProps {
       setLoading,
       clearLoading,
       setGPXData,
+      setGPXXML,
       clearGPXData,
     };
   

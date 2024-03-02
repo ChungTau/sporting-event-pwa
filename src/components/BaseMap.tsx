@@ -6,8 +6,9 @@ import { terrainRate } from '../constants/map';
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN !;
 
 interface MapProps {
-    style?: React.CSSProperties | undefined
-    center?: [number, number];
+    style?: React.CSSProperties | undefined;
+    center?: [number, number] | undefined;
+    bounds?: [number, number, number, number] | undefined;
     zoom?: number;
     children?: ReactNode; 
 }
@@ -17,13 +18,15 @@ export interface MapRef {
 }
 
 const BaseMap = React.memo(
-    forwardRef<MapRef, MapProps>(({ style, center = [0, 0], zoom = 12, children }, ref) => {
+    forwardRef<MapRef, MapProps>((props, ref) => {
+        const { style, center = [0, 0], zoom = 12, children, bounds } = props;
       const mapContainerRef = useRef<HTMLDivElement | null>(null);
       const mapInstance = useRef<mapboxgl.Map>();
   
       useEffect(() => {
         mapInstance.current = new mapboxgl.Map({
           container: mapContainerRef.current!,
+          bounds: bounds,
           center: center,
           zoom: zoom,
           pitch: 50,

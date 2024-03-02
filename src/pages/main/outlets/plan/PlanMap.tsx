@@ -47,7 +47,6 @@ const PlanMap = () => {
         position: null
     });
     const currentRoute = useMemo(() => gpx.gpxState.data?.routes, [gpx.gpxState.data?.routes]);
-
     const [isStyleLoaded, setIsStyleLoaded] = useState < boolean > (false);
 
     useEffect(()=>{
@@ -55,6 +54,7 @@ const PlanMap = () => {
             const mapInstance = map.mapRef.current.getMapInstance();
             if(mapInstance.isStyleLoaded()){
                 setIsStyleLoaded(true);
+                
             }
         }
     },[map.mapRef]);
@@ -63,7 +63,7 @@ const PlanMap = () => {
         if (!map.mapRef.current || !currentRoute ||isStyleLoaded) {
             return;
         }
-
+        resizeMap(currentRoute, map.mapRef, 0);
         map.mapRef.current.getMapInstance().on('style.load',()=>{
             addLayersToMap(map.mapRef, '#887d73', currentRoute);
             return;
@@ -80,17 +80,17 @@ const PlanMap = () => {
             return;
         }
     
-        const marker = markerData.name === 'Start Point' ? createStartMarker() : createFinishMarker();
+        const marker = markerData.name === 'Start Point' ? createStartMarker() : markerData.name === 'End Point' ? createFinishMarker() : createCustomMarker();
         marker.setLngLat(markerData.position).addTo(map.mapRef.current.getMapInstance());
         marker.data = markerData;
         map.addMarker(marker);
     }, [map]);
 
-      const createMarkerData = (coord: Position, name: string, distance: number, elevationGain: number): MarkerData => {
+      const createMarkerData = (coord: Position, name: string, distance: number, elevationGain: number, services:string[]=[]): MarkerData => {
         return {
           id: uuidv4(),
           name: name,
-          services: [],
+          services: services,
           distance: distance,
           distanceInter: distance,
           elevationGain: elevationGain,
@@ -104,9 +104,27 @@ const PlanMap = () => {
         if (!gpx.gpxState.data || !currentRoute || currentRoute.geometry.coordinates.length === 0 || !map.isStyleLoaded) {
             return;
         }
+
+        
     
         const coordinates = currentRoute.geometry.coordinates;
     
+        const waypoints = Array.from(gpx.gpxState.xml?.querySelectorAll('wpt')!);
+
+        const markers = waypoints.map((waypoint, index) => {
+            const lat = parseFloat(waypoint.getAttribute("lat")!);
+            const lng = parseFloat(waypoint.getAttribute("lon")!);
+            const name = waypoint.querySelector("name")?.textContent || `Waypoint ${index + 1}`;
+            const servicesElement = waypoint.querySelector("services");
+            const services = servicesElement? Array.from(servicesElement.querySelectorAll("service")).map((serviceElement) => serviceElement.textContent): [];
+            const nearestPoint = findNearestPointOnRoute({lat, lng}, currentRoute!);
+            const newDistance = calculateDistanceAlongRoute(nearestPoint!, currentRoute as RouteFeature);
+            const newElevationGain = calculateElevationGainToPoint(currentRoute as RouteFeature, nearestPoint as[number,number]);
+            return createMarkerData(nearestPoint as[number,number], name, newDistance, newElevationGain, services.filter(Boolean) as string[]); // Adjust the parameters as needed.
+        });
+
+        markers.forEach(addMarkerToMap);
+
         if (currentRoute.geometry.type === "LineString") {
             const startCoord = coordinates[0];
             const endCoord = coordinates[coordinates.length - 1];
@@ -128,6 +146,9 @@ const PlanMap = () => {
             addMarkerToMap(startPoint);
             addMarkerToMap(endPoint);
         }
+
+        
+
     }, [gpx.gpxState.data, map.isStyleLoaded]);
       /* eslint-enable react-hooks/exhaustive-deps */
       
@@ -233,15 +254,15 @@ const PlanMap = () => {
 
     const handleResize = useCallback(() => {
         resizeMap(currentRoute, map.mapRef);
-    }, [currentRoute,map.mapRef]);
+    }, [currentRoute, map.mapRef]);
 
     useEffect(() => {
-        if (currentRoute) {
-            handleResize();
-        }
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [currentRoute, map.mapRef, handleResize ]);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [currentRoute, map.mapRef, handleResize]);
 
     const handleModalSubmit = (checkpointData : MarkerData) => {
         if (tempMarker) {
@@ -274,15 +295,12 @@ const PlanMap = () => {
         setIsModalOpen(false);
     };
 
-    
-
     return (
       <>
       <Suspense fallback={< FallbackSpinner />}>
         <BaseMap 
                 ref = {map.mapRef}
-                center = {hongKongCoordinates }
-                zoom = {17}
+                center={hongKongCoordinates}
                 style = {{
                     position: 'relative',
                     width: '100%',

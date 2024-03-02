@@ -29,7 +29,7 @@ export class UserService {
     return newUser;
   }
 
-  async validateUser(email: string, password: string): Promise<string | undefined> {
+  async validateUser(email: string, password: string): Promise<{token:string, user:User} | undefined> {
     const user = await this.repository.findOneBy({email});
     if (!user) return undefined;
 
@@ -39,10 +39,10 @@ export class UserService {
     const token = sign(
       { userId: user.id, username: user.username },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
 
-    return token;
+    return {token, user};
   }
 
   async getUsers(): Promise<User[]> {

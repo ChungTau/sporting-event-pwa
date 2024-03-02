@@ -16,7 +16,7 @@ const AuthServices = {
     }
   },
 
-  signIn: async (credentials: Credential, dispatch: Dispatch) => {
+  signIn: async (credentials: Credential) => {
     try {
       const response = await api.post('/users/signIn', credentials);
       return response;

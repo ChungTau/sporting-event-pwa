@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { setLoggedIn, setToken } from "../../store/authSlice";
+import { setUser } from "../../store/userSlice";
 import { useNavigate } from "react-router-dom";
 import Column from "../../components/Column";
 import InputForm, { InputFormRef } from "./InputForm";
@@ -22,7 +23,6 @@ import { routes } from "../../constants/routes";
 import styled from "@emotion/styled";
 import AuthServices from '../../services/authServices';
 import Credential from "../../models/Credential";
-//import ApiService from "../../service/apiservice";
 
 function SignInPage() {
   const dispatch = useDispatch();
@@ -99,15 +99,16 @@ function SignInPage() {
           email: formData.email,
           password: formData.password,
         };
-        const response = await AuthServices.signIn(data, dispatch);
+        const response = await AuthServices.signIn(data);
         console.log(response);
         if(response?.status === 200){
-          const token = response.data.token;
+          const {token, user} = response.data;
           setIsValidationSuccessful(true);
           setValidationErrors([]);
-          localStorage.setItem('token', token);
           dispatch(setLoggedIn(true));
           dispatch(setToken(token));
+          await console.log(user);
+          dispatch(setUser(user));
           const redirectPath = sessionStorage.getItem("redirectPath");
           if (redirectPath) {
             navigate(redirectPath);
@@ -120,6 +121,7 @@ function SignInPage() {
         setValidationErrors(validation.messages);
         setIsValidationSuccessful(false);
       }
+      
       onOpen();
     }
   };

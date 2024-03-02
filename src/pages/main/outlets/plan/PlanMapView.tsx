@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import togeojson from 'togeojson';
 import {useMap} from "../../../../contexts/MapContext";
 import {useDropzone} from "react-dropzone";
-import {Suspense, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import Column from "../../../../components/Column";
 
 import React from "react";
@@ -26,6 +26,10 @@ import UploadArea from "./UploadArea";
 import PlanMap from "./PlanMap";
 import AnimationProvider from "../../../../providers/AnimationProvider";
 import { useGPX } from "../../../../contexts/GPXContext";
+import { useParams } from "react-router-dom";
+
+import PlanServices from "../../../../services/planServices";
+import Plan from "../../../../models/Plan";
 
 const MapContainer = styled(Box)({width: '100%', height: '650px'});
 
@@ -35,6 +39,40 @@ export const PlanMapView : React.FC = () => {
     const map = useMap();
     const gpx = useGPX();
     const isMobile = useBreakpointValue({base: true, md: false});
+    const { planId } = useParams();
+
+    useEffect(()=>{
+        if(planId !== undefined){
+            
+        PlanServices.getPlanById(planId).then( async(plan:Plan) => {
+            
+            const byteArray = new Uint8Array(plan.gpxFile);
+            const fileString = new TextDecoder().decode(byteArray);
+            const xml = new DOMParser().parseFromString(fileString, "text/xml");
+            console.log(xml);
+
+
+            
+                /*const xml = new DOMParser().parseFromString(fileString, "text/xml");
+                console.log(xml);
+                const {name, author} = extractMetadata(xml);
+                const convertedGeoJSON = togeojson.gpx(xml);
+
+                const gpxData : GpxData = {
+                    name,
+                    author,
+                    info: processGeoJSON(convertedGeoJSON),
+                    routes: convertedGeoJSON.features[0]
+                };
+                setFileSelected(true);
+                //removeAllRoutes(map.mapRef);
+                map.clearMarkers();
+                gpx.setGPXXML(xml);
+                gpx.setGPXData(gpxData);*/
+
+        });
+    }
+    },[planId]);
 
     const handleDrop = (acceptedFiles : File[]) => {
         if (acceptedFiles.length) {
@@ -55,16 +93,14 @@ export const PlanMapView : React.FC = () => {
                 setFileSelected(true);
                 removeAllRoutes(map.mapRef);
                 map.clearMarkers();
+                gpx.setGPXXML(xml);
                 gpx.setGPXData(gpxData);
-                
             };
-
             reader.readAsText(acceptedFiles[0]);
         } else {
             setFileSelected(false);
             console.warn("Rejected non-gpx files");
         }
-        
     };
 
     const extractMetadata = (xml : Document) => {
@@ -180,11 +216,11 @@ export const PlanMapView : React.FC = () => {
                         </Flex>
                     </Column>
                 </Suspense>
-                <UploadArea
+                {planId?null:<UploadArea
                     getInputProps={getInputProps}
                     getRootProps={getRootProps}
                     isDragActive={isDragActive}
-                    fileSelected={fileSelected}/>
+                    fileSelected={fileSelected}/>}
 
             </Stack>
             </AnimationProvider>

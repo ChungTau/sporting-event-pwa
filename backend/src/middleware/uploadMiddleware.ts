@@ -30,10 +30,10 @@ const bgImageStorage = multer.diskStorage({
 });
 
 const gpxStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_req, file, cb) => {
       let destinationPath = '';
       if (file.fieldname === "gpxFile") {
-        destinationPath = `./uploads/plans/${req.params.ownerId}`;
+        destinationPath = `./uploads/plans/`;
       }
   
       ensureDirectoryExists(destinationPath);

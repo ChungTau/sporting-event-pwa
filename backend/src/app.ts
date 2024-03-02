@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerOutput from "./swagger_output.json";
+import eventRoutes from './routes/eventRoutes';
+import planRoutes from './routes/planRoutes';
 
 //For env File 
 dotenv.config();
@@ -31,7 +33,8 @@ AppDataSource.initialize()
         }));
         app.use('/api/ui', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
         app.use('/api/users', userRoutes);
-        
+        app.use('/api/events', eventRoutes);
+        app.use('/api/plans', planRoutes);
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server running on port ${PORT}`);
         });

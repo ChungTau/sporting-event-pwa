@@ -24,18 +24,17 @@ class EventController {
         });
       }
 
-      const gpxFilePath = req.file?.path; // Get file path from request object (using optional chaining)
+
       const backgroundImagePath = req.file?.path; // Get file path from request object (using optional chaining)
 
-      if (!gpxFilePath || !backgroundImagePath) {
-        return res.status(400).json({ message: 'GPX file and background image are required' });
+      if (!backgroundImagePath) {
+        return res.status(400).json({ message: 'Background image are required' });
       }
 
       const backgroundImageBlob = fs.readFileSync(backgroundImagePath);
 
       const newEvent = await EventController.eventService.createEvent({
         ...req.body,
-        gpxFile: gpxFilePath,
         backgroundImage: backgroundImageBlob,
       });
 

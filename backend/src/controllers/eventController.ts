@@ -25,17 +25,19 @@ class EventController {
       }
 
 
-      const backgroundImagePath = req.file?.path; // Get file path from request object (using optional chaining)
+      const backgroundImage = req.file as Express.Multer.File; // Get file path from request object (using optional chaining)
 
-      if (!backgroundImagePath) {
-        return res.status(400).json({ message: 'Background image are required' });
+      if(!backgroundImage){
+        return res.status(400).json({
+          message: 'Background Image is required'
+        });
       }
 
-      const backgroundImageBlob = fs.readFileSync(backgroundImagePath);
+      const backgroundImageBuffer = fs.readFileSync(backgroundImage.path);
 
       const newEvent = await EventController.eventService.createEvent({
         ...req.body,
-        backgroundImage: backgroundImageBlob,
+        backgroundImage: backgroundImageBuffer,
       });
 
       if (!newEvent) {

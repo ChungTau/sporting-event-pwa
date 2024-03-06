@@ -61,19 +61,20 @@ const eventPrivacies = [
 ];
 
 export interface InputFormRef {
-    getFormData : () => {
-        title : string;
-        type : string;
-        privacy : string;
-        maxOfParti : number;
-        description : string;
-        remark : string;
-        startTime : Time;
-        endTime : Time;
-        period : Date[];
-        image : string;
+    getFormData: () => {
+        name: string;
+        type: string;
+        privacy: string;
+        maxOfParti: number;
+        description: string;
+        remark: string;
+        startTime: Time;
+        endTime: Time;
+        period: Date[];
+        backgroundImage: string | null; // Modify the type to accept Blob | null
     };
 };
+
 
 const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
         const titleRef = useRef < HTMLInputElement | null > (null);
@@ -88,35 +89,26 @@ const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
         const [selectedDates,
             setSelectedDates] = useState < Date[] > ([new Date(), new Date()]);
 
-        useImperativeHandle(ref, () => ({
-            getFormData: () => ({
-                title: titleRef.current
-                    ?.value || '',
-                type: typeRef.current
-                    ?.value || '',
-                privacy: privacyRef.current
-                    ?.value || '',
-                maxOfParti: maxOfPartiRef.current
-                    ?.valueAsNumber || 0,
-                description: descriptionRef.current
-                    ?.value || '',
-                remark: remarkRef.current
-                    ?.value || '',
-                startTime: startTimeRef.current
-                    ?.getTime() || {
-                        hour: '00',
-                        minute: '00'
-                    },
-                endTime: endTimeRef.current
-                    ?.getTime() || {
-                        hour: '00',
-                        minute: '00'
-                    },
-                period: selectedDates,
-                image: imageDropZoneRef.current
-                    ?.getUploadedImage() || ''
-            })
-        }));
+            useImperativeHandle(ref, () => ({
+                getFormData: () => {
+                    const backgroundImageString = imageDropZoneRef.current?.getUploadedImage() || '';
+            
+                    return {
+                        name: titleRef.current?.value || '',
+                        type: typeRef.current?.value || '',
+                        privacy: privacyRef.current?.value || '',
+                        maxOfParti: maxOfPartiRef.current?.valueAsNumber || 0,
+                        description: descriptionRef.current?.value || '',
+                        remark: remarkRef.current?.value || '',
+                        startTime: startTimeRef.current?.getTime() || { hour: '00', minute: '00' },
+                        endTime: endTimeRef.current?.getTime() || { hour: '00', minute: '00' },
+                        period: selectedDates,
+                        backgroundImage: backgroundImageString
+                    };
+                }
+            }));
+            
+            
 
         return (
             <Column

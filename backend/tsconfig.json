@@ -17,6 +17,7 @@
       "noFallthroughCasesInSwitch": true, // Prevent fall-through in switch cases
       "noUnusedLocals": true, // Flag unused local variables
       "noUnusedParameters": true, // Flag unused function parameters
+      "allowSyntheticDefaultImports": true,
       "types": ["node", "express", "./custom"]
     },
     "include": [

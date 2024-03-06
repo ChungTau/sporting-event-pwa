@@ -9,7 +9,7 @@ interface EventData extends BaseModel{
     maxOfParti: number;
     startDateTime: Date;
     endDateTime?: Date|null;
-    backgroundImage: string;
+    backgroundImage: Buffer | null;
     description: string;
     remark: string;
     venue: PointDetails;

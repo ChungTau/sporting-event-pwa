@@ -37,7 +37,7 @@ const FlexBox2 = styled(Flex)({
     }
 });
 
-const eventTypes = [
+export const eventTypes = [
     {
         value: 'race',
         text: 'Race'
@@ -61,20 +61,19 @@ const eventPrivacies = [
 ];
 
 export interface InputFormRef {
-    getFormData: () => {
-        name: string;
-        type: string;
-        privacy: string;
-        maxOfParti: number;
-        description: string;
-        remark: string;
-        startTime: Time;
-        endTime: Time;
-        period: Date[];
-        backgroundImage: string | null; // Modify the type to accept Blob | null
+    getFormData : () =>  {
+        name : string;
+        type : string;
+        privacy : string;
+        maxOfParti : number;
+        description : string;
+        remark : string;
+        startTime : Time;
+        endTime : Time;
+        period : Date[];
+        backgroundImage : string;
     };
 };
-
 
 const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
         const titleRef = useRef < HTMLInputElement | null > (null);
@@ -89,26 +88,35 @@ const InputForm = forwardRef < InputFormRef, {} > ((props, ref) => {
         const [selectedDates,
             setSelectedDates] = useState < Date[] > ([new Date(), new Date()]);
 
-            useImperativeHandle(ref, () => ({
-                getFormData: () => {
-                    const backgroundImageString = imageDropZoneRef.current?.getUploadedImage() || '';
-            
-                    return {
-                        name: titleRef.current?.value || '',
-                        type: typeRef.current?.value || '',
-                        privacy: privacyRef.current?.value || '',
-                        maxOfParti: maxOfPartiRef.current?.valueAsNumber || 0,
-                        description: descriptionRef.current?.value || '',
-                        remark: remarkRef.current?.value || '',
-                        startTime: startTimeRef.current?.getTime() || { hour: '00', minute: '00' },
-                        endTime: endTimeRef.current?.getTime() || { hour: '00', minute: '00' },
-                        period: selectedDates,
-                        backgroundImage: backgroundImageString
-                    };
-                }
-            }));
-            
-            
+        useImperativeHandle(ref, () => ({
+            getFormData: () => ({
+                name: titleRef.current
+                    ?.value || '',
+                type: typeRef.current
+                    ?.value || '',
+                privacy: privacyRef.current
+                    ?.value || '',
+                maxOfParti: maxOfPartiRef.current
+                    ?.valueAsNumber || 0,
+                description: descriptionRef.current
+                    ?.value || '',
+                remark: remarkRef.current
+                    ?.value || '',
+                startTime: startTimeRef.current
+                    ?.getTime() || {
+                        hour: '00',
+                        minute: '00'
+                    },
+                endTime: endTimeRef.current
+                    ?.getTime() || {
+                        hour: '00',
+                        minute: '00'
+                    },
+                period: selectedDates,
+                backgroundImage: imageDropZoneRef.current
+                    ?.getUploadedImage() || ''
+            })
+        }));
 
         return (
             <Column

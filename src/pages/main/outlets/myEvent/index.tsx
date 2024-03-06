@@ -6,7 +6,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { useEffect, useState } from "react";
 import EventServices from "../../../../services/eventServices";
-
+//@ts-ignore
+import { imagefrombuffer } from "imagefrombuffer";
 
 interface EventCardProps {
     event: EventData;
@@ -29,23 +30,11 @@ function formatDate(dateString:string) {
     return new Intl.DateTimeFormat('en-US', options).format(date).toUpperCase() + ' AT ' + date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
   }
 
-const EventCard = ({ event}:EventCardProps) => {
+  const EventCard = ({ event }:EventCardProps) => {
     const navigator = useNavigate();
-    const base64String = btoa(
-        String.fromCharCode(... new Uint8Array(event.backgroundImage!))
-    );
     return (
         <Box cursor={'pointer'} maxW={"100%"} borderWidth="1px" borderRadius="lg" overflow="hidden" p="4" px={3} bgColor={"#FFFFFF"} onClick={()=>{navigator(`/event/${event.id}`)}}>
-            <Image
-    src={`data:image/png;base64,${base64String}`}
-    alt={`Image of ${event.name}`}
-    objectFit="contain" />
-
-
-
-
-
-
+            <Image src={event.backgroundImage!} alt={`Image of ${event.name}`} objectFit="contain" />
             <Tooltip justifyContent={'center'} alignItems={'center'} textAlign={'center'} label={event.name} aria-label="A tooltip">
                 <Text justifyContent={'center'} alignItems={'center'} textAlign={'center'} mt={3} fontSize={["sm", "md", "lg", "xl"]} fontWeight="bold" isTruncated>{event.name}</Text>
                 
@@ -54,7 +43,7 @@ const EventCard = ({ event}:EventCardProps) => {
             <Text fontSize={["sm", "md", "lg", "xl"]}>{formatDate(event.startDateTime as any)}</Text>
         </Box>
     );
-}
+};
 
 function MyEventPage(){
     const {user} = useSelector((state : RootState) => state.user);

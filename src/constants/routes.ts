@@ -38,7 +38,6 @@ export const mainOutlet: OutletConfig = {
     HOME: { name: 'Home', icon:GoHomeFill, path: '/home', lazyComponent: () => import('../pages/main/outlets/home'),  isProtected: false },
     PLAN: { name: 'Plan', icon:FaRoute, path: '/plan', lazyComponent: () => import('../pages/main/outlets/plan'), isProtected: true },
     ADD_EVENT: { name: 'Add Event', icon: IoCreate, path: '/add-event', lazyComponent: () => import('../pages/main/outlets/addEvent'), isProtected: true },
-    EVENT: {name: 'Event', icon: FaPersonRunning, path: '/event', lazyComponent:()=> import('../pages/main/outlets/event'), isProtected: false}
 };
 
 export const userOutlet: OutletConfig = {

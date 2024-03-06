@@ -10,12 +10,14 @@ router.get('/', authenticate, PlanController.getPlans);
 
 router.get('/:id', authenticate, PlanController.getPlansById);
 
+router.get('/getPlanFromEvent/:id', PlanController.getPlansById);
+
 router.put('/:id', authenticate, PlanController.updatePlan);
 
 router.delete('/:id', authenticate, PlanController.deletePlan);
 
 router.get('/getPlansByOwner/:ownerId', authenticate, PlanController.getPlansByOwnerId);
 
-router.get('/getGPXFile/:filePath', authenticate, PlanController.getGPXFileByPath);
+router.get('/getGPXFile/:filePath', PlanController.getGPXFileByPath);
 
 export default router;

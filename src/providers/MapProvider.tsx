@@ -36,6 +36,9 @@ useEffect(() => {
     };
   }
 }, [mapRef.current]);
+
+
+
 /* eslint-enable react-hooks/exhaustive-deps */
 
   const getMarkerById = (markerId: string): mapboxgl.Marker | undefined => {

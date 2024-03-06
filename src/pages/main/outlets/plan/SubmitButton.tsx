@@ -133,7 +133,7 @@ const SubmitButton = () => {
         if (gpx.gpxState.data?.info) {
             planFormData.append("info", JSON.stringify(gpx.gpxState.data.info));
         }
-    
+        console.log(planFormData);
         try {
             const response = await PlanServices.createPlan(planFormData);
             console.log(response);

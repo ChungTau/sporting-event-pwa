@@ -44,6 +44,20 @@ const PlanServices = {
             return null;
         }
     },
+    getPlanByIdFromEvent: async (id: string) => {
+        try {
+            const response = await api.get(`/plans/getPlanFromEvent/${id}`, {
+                headers: {
+                    'x-auth-token': localStorage.getItem('token')
+                },
+            });
+            console.log(response);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching plan by ID: ' + error);
+            return null;
+        }
+    },
     getGPXFileContent: async (filePath: string) => {
         try {
             const response = await api.post(`/plans/getGPXFile/${filePath}`, {}, {
@@ -57,6 +71,21 @@ const PlanServices = {
         } catch (error) {
             console.error('Error fetching GPX file content: ' + error);
             return null;
+        }
+    },
+    updatePlan: async (id: string, plan: FormData) => {
+        try {
+            const response = await api.put(`/plans/${id}`, plan, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'x-auth-token': localStorage.getItem('token')
+                },
+            });
+            console.log(response);
+            return response.status === 200 ? true : false;
+        } catch (error) {
+            console.error('Error updating plan: ' + error);
+            return false;
         }
     }
 

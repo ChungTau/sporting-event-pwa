@@ -14,10 +14,22 @@ import {
 } from "@chakra-ui/react";
 import {Time} from "../../../../components/TimePicker";
 import {PointDetails} from "./DetailsBox";
+import EventServices from '../../../../services/eventServices';
 import { combineDateAndTime } from "../../../../helpers/combineDateAndTime";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
-import EventServices from "../../../../services/eventServices";
+
+function base64ToBlob(base64:string, mimeType:string) {
+    // Remove the data URL prefix (e.g., 'data:image/png;base64,')
+    const base64WithoutPrefix = base64.replace(/^data:[^;]+;base64,/, '');
+  
+    // Convert the base64 string to a Uint8Array
+    const byteArray = atob(base64WithoutPrefix).split('').map(char => char.charCodeAt(0));
+    
+    // Create a Blob object with the specified MIME type
+    return new Blob([new Uint8Array(byteArray)], { type: mimeType });
+  }
+  
 
 function AddEventPage() {
     const [isValidationSuccessful, setIsValidationSuccessful] = useState<boolean>(false);
@@ -28,7 +40,8 @@ function AddEventPage() {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [modalContent,
         setModalContent] = useState('');
-        const {user} = useSelector((state : RootState) => state.user);
+
+    const {user} = useSelector((state : RootState) => state.user);
 
     const handlePointDetailsUpdate = useCallback((details : PointDetails) => {
         setPointDetails(details);
@@ -42,7 +55,7 @@ function AddEventPage() {
         remark: string;
         startTime: Time;
         endTime: Time;
-        backgroundImage: string | null;
+        backgroundImage: string;
         period: Date[] ;
     }) => {
         let validationErrors = [];
@@ -119,8 +132,8 @@ function AddEventPage() {
       
             // Append backgroundImage file to FormData object
             const mimeType = 'image/jpeg';
-            const blob = new Blob([formData.backgroundImage!],{type: mimeType});
-            eventFormData.append("backgroundImage", blob);
+            eventFormData.append("backgroundImage", base64ToBlob(formData.backgroundImage, mimeType), "background.jpg");
+
       
             const response = await EventServices.createEvent(eventFormData);
             console.log(response);
@@ -136,6 +149,7 @@ function AddEventPage() {
           onOpen();
         }
       };
+      
 
     return (
         <Column gap={5}>

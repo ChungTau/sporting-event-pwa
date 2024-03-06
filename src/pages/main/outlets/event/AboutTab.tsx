@@ -8,22 +8,14 @@ import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
 import {tabVariants} from "../../../../constants/animateVariant";
 import {Avatar, Box, Button, Collapse, Spacer, Text, useBreakpointValue} from "@chakra-ui/react";
 import {useState} from "react";
+import { TabProps } from ".";
 
-const description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem" +
-        " Ipsum has been the industry's standard dummy text ever since the 1500s, when an" +
-        " unknown printer took a galley of type and scrambled it to make a type specimen " +
-        "book. It has survived not only five centuries, but also the leap into electronic" +
-        " typesetting, remaining essentially unchanged. It was popularised in the 1960s w" +
-        "ith the release of Letraset sheets containing Lorem Ipsum passages, and more rec" +
-        "ently with desktop publishing software like Aldus PageMaker including versions o" +
-        "f Lorem Ipsum."; // Your full description text
-
-const AboutTab = () => {
+const AboutTab = ({event}:TabProps) => {
     const [showFullText,
         setShowFullText] = useState(false);
     const displayText = showFullText
-        ? description
-        : `${description.substring(0, 280)}... `;
+        ? event?.description
+        : `${event?.description.substring(0, 280)}... `;
 
         const [showParticipants] = useState(true);
         const isMobile = useBreakpointValue({base: true, sm: false});
@@ -61,19 +53,19 @@ const AboutTab = () => {
                         <Row alignItems={'center'}>
                             <FaUser color="#bcbcbc"/>
                             <Text>
-                                Hosted by HKUST
+                                {`Hosted by ${event?.owner?.username}`} 
                             </Text>
                         </Row>
                         <Row alignItems={'center'}>
                             <IoMdPin color="#bcbcbc"/>
                             <Text>
-                                Fok Ying Tung Sports Center
+                                {event?.venue.address}
                             </Text>
                         </Row>
                         <Row alignItems={'center'}>
                             <FaEarthAmericas color="#bcbcbc"/>
                             <Text>
-                                Public · Anyone on or off Sport Event PWA
+                                {`${event?.privacy} · Anyone on or off Sport Event PWA`}
                             </Text>
                         </Row>
                         

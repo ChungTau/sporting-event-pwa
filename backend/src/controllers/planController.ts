@@ -2,9 +2,12 @@ import { Request, Response } from 'express';
 import { PlanService } from '../service/PlanService';
 import path from 'path';
 import fs from 'fs';
+import { UserService } from '../service/UserService';
+import User from '../models/User';
 
 class PlanController {
   private static planService = new PlanService();
+  private static userService = new UserService();
 
   static async createPlan(req: Request, res: Response) {
     try {
@@ -109,7 +112,12 @@ class PlanController {
     try {
       const ownerId = parseInt(req.params.ownerId);
       const plans = await PlanController.planService.getPlansByOwnerId(ownerId);
-      return res.status(200).json(plans);
+      const plansJson = plans.map(plan => {
+        plan.info = JSON.parse(plan.info);
+        PlanController.userService.getUserById(ownerId).then((data:User|null) => plan.owner = data!);
+        return plan;
+      });
+      return res.status(200).json(plansJson);
     } catch (error) {
       console.error('Error fetching plans for the user:', error);
       return res.status(500).json({ message: 'Error fetching plans for the user: ' + error });

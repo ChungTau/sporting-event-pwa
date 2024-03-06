@@ -11,7 +11,7 @@ router.get('/', EventController.getEvents);
 
 router.get('/:id', EventController.getEventById);
 
-router.put('/:id', authenticate, EventController.updateEvent);
+router.put('/updateEvent', authenticate, EventController.updateEvent);
 
 router.delete('/:id', authenticate, EventController.deleteEvent);
 

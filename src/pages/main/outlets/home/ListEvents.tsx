@@ -91,7 +91,7 @@ function ListEvents(cards: EventCards) {
                             <ListIcon as={CalendarIcon} color="yellow.900" />
                           </Center>
                           <Text>
-                            {Moment(card.startDateTime.getTime()).format(
+                            {Moment(card.startDateTime).format(
                               "DD/MM/YY"
                             )}
                           </Text>

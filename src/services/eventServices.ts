@@ -44,6 +44,21 @@ const EventServices = {
             return null;
         }
     },
+    updateEvent: async (id: string, event: FormData) => {
+        try{
+            const response = await api.put(`/events/updateEvent`, event, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': localStorage.getItem('token')
+                },
+            });
+            console.log(response);
+            return response.status === 200 ? true : false;
+        }catch(error){
+            console.error('Error updating event: ' + error);
+            return false;
+        }
+    }
 }
 
 export default EventServices;

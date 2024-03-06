@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import { EventService } from '../service/EventService';
-import path from 'path';
-import fs from 'fs';
 
 class EventController {
   private static eventService = new EventService();
@@ -17,27 +15,22 @@ class EventController {
         ownerId,
       } = req.body;
 
-      // Check if required fields are missing
       if (!name || !type || !privacy || !startDateTime || !description || !ownerId) {
         return res.status(400).json({
           message: 'Name, Type, Privacy, Start Date Time, Description, and Owner ID are required',
         });
       }
 
-
-      const backgroundImage = req.file as Express.Multer.File; // Get file path from request object (using optional chaining)
-
-      if(!backgroundImage){
+      const backgroundImage = req.file as Express.Multer.File;
+      if (!backgroundImage) {
         return res.status(400).json({
           message: 'Background Image is required'
         });
       }
 
-      const backgroundImageBuffer = fs.readFileSync(backgroundImage.path);
-
       const newEvent = await EventController.eventService.createEvent({
         ...req.body,
-        backgroundImage: backgroundImageBuffer,
+        backgroundImage: backgroundImage.path,
       });
 
       if (!newEvent) {
@@ -50,7 +43,6 @@ class EventController {
       return res.status(500).json({ message: 'Error creating event: ' + error });
     }
   }
-  
 
   static async getEvents(_req: Request, res: Response) {
     try {
@@ -69,7 +61,7 @@ class EventController {
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
-      return res.json(event);
+      return res.status(200).json(event);;
     } catch (error) {
       console.error('Error fetching event:', error);
       return res.status(500).json({ message: 'Error fetching event: ' + error });
@@ -78,10 +70,11 @@ class EventController {
 
   static async updateEvent(req: Request, res: Response) {
     try {
-      const eventId = parseInt(req.params.id);
-      const success = await EventController.eventService.updateEvent(eventId, req.body);
+      const {id, planId} = req.body;
+      console.log(req.body);
+      const success = await EventController.eventService.updateEvent(id, {planId});
       if (!success) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: 'Event not found', id });
       }
       return res.status(200).json({ message: 'Event updated successfully' });
     } catch (error) {
@@ -113,23 +106,6 @@ class EventController {
       console.error('Error fetching events for the user:', error);
       return res.status(500).json({ message: 'Error fetching events for the user: ' + error });
     }
-  }
-
-  static async getGPXFileByPath(req: Request, res: Response) {
-    // Assuming 'userId' and 'filePath' are passed as query parameters or URL parameters
-    const userId = req.params.userId;
-    const filePath = req.params.filePath;
-    const fullPath = path.resolve(__dirname, `../../uploads/events/${userId}/`, filePath);
-
-    fs.readFile(fullPath, 'utf8', (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Error reading GPX file: ' + err.message });
-      }
-
-      // Send the GPX file content
-      return res.type('application/gpx+xml').send(data);
-    });
   }
 }
 

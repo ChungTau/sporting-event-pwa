@@ -13,8 +13,8 @@ const eventCards = [
     type: "race",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-06-01"),
-    endDateTime: new Date("2023-06-03"),
+    startDateTime: "2023-06-01",
+    endDateTime: "2023-06-03",
     backgroundImage: null,
     description: "description",
     remark: "remark",
@@ -30,8 +30,8 @@ const eventCards = [
     type: "companion",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-04-01"),
-    endDateTime: new Date("2023-04-03"),
+    startDateTime: "2023-04-01",
+    endDateTime:"2023-04-03",
     backgroundImage: null,
     description: "",
     remark: "",
@@ -47,8 +47,8 @@ const eventCards = [
     type: "challenge",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-02-15"),
-    endDateTime: new Date("2023-02-16"),
+    startDateTime: "2023-02-15",
+    endDateTime: "2023-02-16",
     backgroundImage: null,
     description: "",
     remark: "",
@@ -64,8 +64,8 @@ const eventCards = [
     type: "companion",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-03-18"),
-    endDateTime: new Date("2023-03-19"),
+    startDateTime: "2023-03-18",
+    endDateTime: "2023-03-19",
     backgroundImage: null,
     description: "",
     remark: "",
@@ -81,8 +81,8 @@ const eventCards = [
     type: "race",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-02-09"),
-    endDateTime: new Date("2023-02-14"),
+    startDateTime: "2023-02-09",
+    endDateTime: "2023-02-14",
     backgroundImage: null,
     description: "",
     remark: "",
@@ -98,8 +98,8 @@ const eventCards = [
     type: "challenge",
     privacy: "privacy",
     maxOfParti: 10,
-    startDateTime: new Date("2023-06-03"),
-    endDateTime: new Date("2023-06-06"),
+    startDateTime: "2023-06-03",
+    endDateTime: "2023-06-06",
     backgroundImage: null,
     description: "",
     remark: "",
@@ -134,7 +134,7 @@ function HomePage() {
 
     if (sortBy === "date") {
       const Cards = eventCards.sort(
-        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+        (a, b) => Date.parse(a.startDateTime) - Date.parse(b.startDateTime)
       );
       setFilteredEventCards([...Cards]);
       console.log("date" + JSON.stringify(Cards));

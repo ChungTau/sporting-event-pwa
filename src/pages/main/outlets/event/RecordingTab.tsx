@@ -2,11 +2,10 @@ import {motion} from "framer-motion";
 import {tabVariants} from "../../../../constants/animateVariant";
 import Column from "../../../../components/Column";
 import {COLOR_PRIMARY_RGB} from "../../../../constants/palatte";
-import { Text} from "@chakra-ui/react";
+import {Text} from "@chakra-ui/react";
+import { TabProps } from ".";
 
-const RecordingTab = () => {
-
-
+const RecordingTab = ({event}:TabProps) => {
     return (
         <motion.div
             key="parti"

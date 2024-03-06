@@ -1,19 +1,21 @@
 import { PointDetails } from "../pages/main/outlets/addEvent/DetailsBox";
 import { BaseModel } from "./BaseModel";
-import GpxData from "./GpxData";
-
+import Plan from "./Plan";
+import User from "./User";
 interface EventData extends BaseModel{
     name: string;
     type: string;
     privacy: string;
     maxOfParti: number;
-    startDateTime: Date;
-    endDateTime?: Date|null;
-    backgroundImage: Buffer | null;
+    startDateTime: string;
+    endDateTime?: string| undefined;
+    backgroundImage?: string | null;
     description: string;
     remark: string;
     venue: PointDetails;
-    route?: GpxData;
+    plan?: Plan|undefined;
+    owner?: User|undefined;
+    participant?: User[]|[];
 }
 
 export default EventData;

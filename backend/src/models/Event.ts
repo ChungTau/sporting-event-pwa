@@ -2,13 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import User from './User';
 import Plan from './Plan'; // Import the Plan entity
 
-interface PointDetails {
-    lng: number;
-    lat: number;
-    address: string;
-    name: string;
-}
-
 @Entity({ name: 'events' })
 class Event {
     @PrimaryGeneratedColumn()
@@ -32,8 +25,8 @@ class Event {
     @Column({ type: 'timestamp', nullable: true })
     endDateTime?: Date;
 
-    @Column({ type: 'bytea', nullable: true })
-    backgroundImage?: Buffer;
+    @Column({ type: 'text', nullable: true })
+    backgroundImage?: string|undefined;
 
     @Column({ type: 'text', nullable: false })
     description!: string;
@@ -42,21 +35,55 @@ class Event {
     remark!: string;
 
     @Column({ type: 'jsonb', nullable: false })
-    venue!: PointDetails;
+    venue!: string;
 
     @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'ownerId' })
-    owner!: User;
+    owner!: User|null;
 
     @Column({ type: 'int', nullable: false })
     ownerId!: number;
 
     @ManyToOne(() => Plan, plan => plan.events) // Define the many-to-one relationship
     @JoinColumn({ name: 'planId' })
-    plan!: Plan; // The plan associated with this event
+    plan!: Plan|null; // The plan associated with this event
 
     @Column({ type: 'int', nullable: true })
     planId?: number; // Nullable as it's optional
-}
+
+    toJson() {
+        const {
+          id,
+          name,
+          type,
+          privacy,
+          maxOfParti,
+          startDateTime,
+          endDateTime,
+          backgroundImage,
+          description,
+          remark,
+          venue,
+          planId,
+          ownerId
+        } = this;
+        return {
+          id,
+          name,
+          type,
+          privacy,
+          maxOfParti,
+          startDateTime,
+          endDateTime,
+          backgroundImage,
+          description,
+          remark,
+          venue,
+          planId,
+          ownerId
+        };
+      }
+    }
+    
 
 export default Event;

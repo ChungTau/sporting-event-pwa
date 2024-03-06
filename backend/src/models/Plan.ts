@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMan
 import User from './User';
 import Event from './Event'; // Import the Event entity
 
-interface Info {
+export interface Info {
     distance: number;
     climb: number;
     fall: number;
@@ -25,17 +25,17 @@ class Plan {
     thumbnail!: string;
 
     @Column({ type: 'json', nullable: false })
-    info!: Info;
+    info!: string;
 
     @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'ownerId' })
-    owner!: User;
+    owner!: User|null;
 
     @Column({ type: 'int', nullable: false })
     ownerId!: number;
 
-    @OneToMany(() => Event, event => event.plan) // Define the one-to-many relationship
-    events!: Event[]; // Array of events associated with this plan
+    @OneToMany(() => Event, event => event.plan, { cascade: true }) // Add cascade option
+    events!: Event[];  // Array of events associated with this plan
 }
 
 export default Plan;

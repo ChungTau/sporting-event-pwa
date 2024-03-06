@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "../config/dbConfig";
 import Plan from "../models/Plan";
+import { UserService } from "./UserService";
 
 export class PlanService {
     private repository: Repository<Plan>;
@@ -30,12 +31,30 @@ export class PlanService {
 
     async getPlanById(id: number): Promise<Plan | null> {
         try {
-            return await this.repository.findOneBy({id});
+            const plan = await this.repository.findOneBy({ id }); // Find the plan by ID
+    
+            if (!plan) {
+                return null; // Return null if no plan is found
+            }
+    
+            // Parse the info property if it exists
+            if (plan.info) {
+                plan.info = JSON.parse(plan.info);
+            }
+    
+            if (plan.ownerId) {
+                const userService = new UserService();
+                plan.owner = await userService.getUserById(plan.ownerId);
+            }
+    
+            return plan; // Return the found plan
         } catch (error) {
             console.error("Error fetching plan by ID:", error);
             throw error;
         }
     }
+    
+    
 
     async updatePlan(id: number, planData: Partial<Plan>): Promise<boolean> {
         try {

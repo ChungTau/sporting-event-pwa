@@ -32,6 +32,8 @@ import EventServices from "../../../../services/eventServices";
 import {useParams} from "react-router-dom";
 import EventData from "../../../../models/EventData";
 import {eventTypes} from "../addEvent/InputForm";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store";
 
 export interface TabProps {
     event: EventData|null;
@@ -87,7 +89,7 @@ function EventPage() {
         setActiveTab] = useState('about');
     const [underlinePosition,
         setUnderlinePosition] = useState({left: 0, width: 0});
-
+        const {user} = useSelector((state : RootState) => state.user);
     const isMobile = useBreakpointValue({base: true, sm: false});
     const {eventId} = useParams();
     const aboutRef = useRef(null);
@@ -303,7 +305,7 @@ function EventPage() {
                                 backgroundColor: COLOR_SECONDARY
                             }}/>
                         </Row>
-                        <Button
+                        {event?.owner?.id !== user?.id && <Button
                             color={'rgb(216, 227, 215)'}
                             _hover={{
                             bgColor: 'rgb(66, 77, 65)'
@@ -316,7 +318,7 @@ function EventPage() {
                             h={'36px'}
                             w={'100px'}>
                             Join
-                        </Button>
+                        </Button>}
                     </Row>
                 </Column>
 

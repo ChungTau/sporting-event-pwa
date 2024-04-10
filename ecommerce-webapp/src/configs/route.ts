@@ -1,0 +1,1 @@
+export const routes:RouteType[] = [{"name": "plan", "path": "/plans", "protected": true}, {"name":"add-event", "path": "/add-event", "protected": true}];

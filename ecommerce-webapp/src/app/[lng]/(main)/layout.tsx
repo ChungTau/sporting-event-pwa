@@ -18,7 +18,7 @@ export default function MainLayout({ children, params: { lng } }: LayoutProps) {
         {status === 'loading' && <FullLoadingScreen />}
       </AnimatePresence>
       <Header lng={lng} />
-      <main className="flex flex-col w-full overflow-y-auto h-screen items-center mt-16">
+      <main className="flex flex-col w-full overflow-y-auto h-screen items-center fixed top-16 z-0">
         <Wrapper>
           {children}
         </Wrapper>

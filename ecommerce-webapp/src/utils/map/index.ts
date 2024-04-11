@@ -9,9 +9,10 @@ import {
     LineString,
     MultiLineString,
     Properties,
-    along,
-    lineSlice,
-    point
+    point,
+    nearestPointOnLine,
+    pointOnLine,
+    multiLineString
     //@ts-ignore
 } from '@turf/turf';
 import mapboxgl from "mapbox-gl";
@@ -250,6 +251,21 @@ export const calculateAnimationPhase = (distanceOfCurrentRoute : number, time : 
     return (totalElapsed - start) / (distanceOfCurrentRoute * 1000) * 0.25 * speed; // Multiply by speed
 }
 
+export const calculateDistanceInter = (markers: mapboxgl.Marker[]) => {
+    for (let i = 1; i < markers.length; i++) {
+        const prevMarker = markers[i - 1];
+        const currentMarker = markers[i];
+        
+        const distanceInter =
+            (currentMarker.data?.distance ?? 0) - (prevMarker.data?.distance ?? 0);
+        currentMarker.data = {
+            ...currentMarker.data,
+            distanceInter: distanceInter,
+        };
+    }
+};
+
+
 export function removeProgressLines(mapview:MapRef|undefined, progressLine:Position[][]) {
     if (mapview) {
         const map = mapview.getMap();
@@ -268,3 +284,65 @@ export function removeProgressLines(mapview:MapRef|undefined, progressLine:Posit
         }
     }
 }
+
+export function findNearestPointOnRoute(markerLngLat: any, route: Feature<MultiLineString, Properties> | Feature<LineString, Properties>): Position | null {
+    const pt = point([markerLngLat.lng, markerLngLat.lat]);
+    let nearest;
+
+    if (route.geometry.type === 'LineString') {
+        const line = lineString(route.geometry.coordinates as Position[]);
+        nearest = nearestPointOnLine(line, pt);
+    }
+    // Check if it's a MultiLineString
+    else if (route.geometry.type === 'MultiLineString') {
+        const multiLine = multiLineString(route.geometry.coordinates as Position[][]);
+        nearest = nearestPointOnLine(multiLine, pt);
+    }
+
+    return nearest ? nearest.geometry.coordinates : null;
+}
+
+function getRouteCoordinates(routeFeature: Feature<LineString> | Feature<MultiLineString>): Position[] {
+    return routeFeature.geometry.type === 'LineString' ? 
+        routeFeature.geometry.coordinates : 
+        routeFeature.geometry.coordinates.flat(1);
+  }
+
+export function calculateDistanceAlongRoute(pt: Position, routeFeature: Feature<LineString> | Feature<MultiLineString>): number {
+    const line = lineString(getRouteCoordinates(routeFeature));
+    const along = pointOnLine(line, point(pt));
+    return along.properties.location!;
+}
+
+export function getElevationAtPoint(routeFeature: Feature<LineString> | Feature<MultiLineString>, point: Position): number | null {
+
+  for (const coord of routeFeature.geometry.coordinates) {
+      const [routeLng, routeLat, ele] = coord;
+      if (routeLng === point[0] && routeLat === point[1]) {
+          return ele as number;
+      }
+  }
+  return null; // Return null if no matching point is found
+}
+
+export function calculateElevationGainToPoint(routeFeature: Feature<LineString> | Feature<MultiLineString>, targetPoint: [number, number]|Position|Position[]): number {
+    let totalElevationGain = 0;
+    let previousElevation: number | null = null;
+  
+    for (const coord of routeFeature.geometry.coordinates) {
+        const [lng, lat, ele] = coord;
+        
+        if (previousElevation !== null && ele as number > previousElevation) {
+            totalElevationGain += ele as number - previousElevation;
+        }
+  
+        previousElevation = ele as number;
+  
+        // Stop the loop once the target point is reached or passed
+        if (lng as number === targetPoint[0] && lat as number === targetPoint[1]) {
+            break;
+        }
+    }
+  
+    return totalElevationGain;
+  }

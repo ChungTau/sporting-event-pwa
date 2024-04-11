@@ -14,7 +14,6 @@ import {
 import {MapRef} from 'react-map-gl';
 import {calculateAnimationPhase, executeFlyTo, lerp, removeProgressLines, resizeMap, updateLineToMap} from '.';
 import {useMapAnimStore} from '@/store/useMapAnimDataStore';
-import { Canvas2Video } from "canvas2video";
 
 export interface AnimationHook {
     startAnimation : () => void;
@@ -91,20 +90,11 @@ export const useAnimation = (routes : Feature < MultiLineString, Properties > | 
             return () => mapview.off('render', frame);
         };
         
-        const instance = new Canvas2Video({
-            canvas: canvas,
-            outVideoType: 'mp4',
-            
-            workerOptions: {
-              logger: str => console.error(str),
-            },
-            // audio: 'http://s5.qhres.com/static/465f1f953f1e6ff2.mp3'
-        });
 
         const startRecording = async () => {
             cleanupEncoder = await initVideoEncoder(); // This now always assigns a function
         
-            /*chunksRef.current = [];
+            chunksRef.current = [];
             const canvasStream = canvas.captureStream(120); // Assuming 25 FPS for the recording
             mediaRecorderRef.current = new MediaRecorder(canvasStream, {
                 mimeType: 'video/webm; codecs=vp9',
@@ -135,21 +125,14 @@ export const useAnimation = (routes : Feature < MultiLineString, Properties > | 
             };
         
             // Start recording
-            mediaRecorderRef.current.start();*/
-
-              instance.startRecord();
+            mediaRecorderRef.current.start();
         };
         
     
         const stopRecording = async() => {
-            /*if (mediaRecorderRef.current?.state === 'recording') {
+            if (mediaRecorderRef.current?.state === 'recording') {
                 mediaRecorderRef.current.stop();
-            }*/
-            instance.stopRecord();
-            const anchor = document.createElement('a');
-            anchor.href = await instance.getStreamURL();
-            anchor.download = 'map_animation.webm';
-            anchor.click();
+            }
             cleanupEncoder();
         };
     

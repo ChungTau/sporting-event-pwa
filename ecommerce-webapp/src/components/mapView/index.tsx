@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import Map, {Layer, Source, useMap} from 'react-map-gl';
+import React, {useEffect} from 'react';
+import Map, {Layer, useMap} from 'react-map-gl';
 import type {SkyLayer}
 from 'react-map-gl';
 import {motion} from 'framer-motion';
 import {LoadingSpinner} from '../animation/loadingSpinner';
 import {cn} from "@/lib/utils";
-import {removeAllRoutes, terrainRate} from '@/utils/map';
+import {terrainRate} from '@/utils/map';
 import { ChildrenProps } from '@/types/childrenProps';
 
 const skyLayer : SkyLayer = {

@@ -1,6 +1,6 @@
 // HeaderUI.tsx
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {TransType} from '@/types/transType';
 import {useHeader} from './useHeader';
 import {NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList} from '../ui/navigation-menu';
@@ -20,7 +20,7 @@ import { Session } from 'next-auth';
 const HeaderUI = ({t} : TransType) => {
     return (
         <header
-            className="fixed top-0 flex h-16 w-full items-center px-4 md:px-6 shadow z-[103]">
+            className="fixed top-0 flex h-16 w-full items-center px-4 md:px-6 shadow z-[200]">
             <NavigationMenu className="flex items-center justify-between w-full max-w-full">
                 <AppTitle/>
                 <NavigationMenuBar t={t}  />
@@ -39,7 +39,7 @@ function AppTitle() {
 
 function NavigationMenuBar({t}:TransType) {
     const {isOpen, toggleOpen, setIsOpen} = useHeader();
-    const { data: session} = useSession();
+    const { data: session, status} = useSession();
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth > 640) {
@@ -56,8 +56,8 @@ function NavigationMenuBar({t}:TransType) {
     return (<div>
         <MenuButton toggleOpen={toggleOpen} />
         <NavigationMenuList className={`sm:flex flex-col sm:flex-row ml-auto gap-2 h-auto items-center ${isOpen ? 'w-full fixed top-16 left-0 right-0 justify-center rounded-b-lg bg-gradient-to-b dark:from-neutral-800 dark:to-neutral-800/65 pb-6 backdrop-blur-sm shadow from-white to-white/65' : 'hidden'}`}>
-            <RouteList t={t} session={session} />
-            <li>{session ? <LogoutButton t={t}/>:<LoginButton t={t}/>}</li>
+            {status==="loading"?<div/>:<Fragment><RouteList t={t} session={session} />
+            <li>{session ? <LogoutButton t={t}/>:<LoginButton t={t}/>}</li></Fragment>}
             {!isOpen && <li><Separator orientation="vertical" className='h-6 bg-gray-500' /></li>}    
             <li><ModeToggle/></li>
             <li><LanguageSwitcher/></li>

@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:latest
+FROM edwardonion/ecommerce-template-fyp-keycloak:latest
 
 # Enable health and metrics support
 ENV KC_HEALTH_ENABLED=true

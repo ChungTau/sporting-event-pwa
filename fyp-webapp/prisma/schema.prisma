@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Privacy {
+  PUBLIC
+  PRIVATE
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Plan {
+  id        Int      @id @default(autoincrement())
+  name      String
+  gpxFile   String
+  thumbnail String?
+  info      Json
+  ownerId   String      
+  owner     User     @relation(fields: [ownerId], references: [id])
+  events    Event[]  @relation("PlanEvents")
+}
+
+model Event {
+  id            Int       @id @default(autoincrement())
+  name          String
+  type          String
+  privacy       String
+  maxParti      Int
+  desc          String?
+  image         String?
+  venue         String
+  startDate     DateTime
+  endDate       DateTime
+  startTime     Json?
+  planId        Int?      
+  ownerId       String      
+  participants  User[]    @relation("EventParticipants")
+  liveLocations LiveLocation[]
+  plan          Plan?     @relation("PlanEvents",fields: [planId], references: [id])
+  owner         User      @relation("OwnedEvents", fields: [ownerId], references: [id])
+}
+
+model LiveLocation {
+  id        Int      @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  userId    String
+  eventId   Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+  refresh_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  backgroundImage String?
+  privacy           Privacy         @default(PUBLIC)
+  plans               Plan[]
+  liveLocations LiveLocation[]
+  eventsAsOwner       Event[]   @relation("OwnedEvents")
+  eventsAsParticipant Event[]   @relation("EventParticipants")
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

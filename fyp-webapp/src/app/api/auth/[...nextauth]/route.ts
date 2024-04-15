@@ -33,6 +33,7 @@ const authOptions: AuthOptions = {
       issuer: process.env.KEYCLOAK_ISSUER,
     })
   ],
+  secret: process.env.SECRET,
   session: {
     strategy: "jwt"
   },

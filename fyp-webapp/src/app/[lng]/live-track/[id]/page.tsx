@@ -6,7 +6,7 @@ import { useGpxDataStore } from "@/store/useGpxDataStore";
 import { extractMetadata, processGeoJSON } from "@/utils/map";
 import { gpx } from "@tmcw/togeojson";
 import { Badge, Dot, Loader2, Minus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMarkerStore } from "@/store/useMarkerStore";
 import { Separator } from "@/components/ui/separator";
@@ -64,32 +64,6 @@ function LiveTrack({params} : {
         }
     };
 
-    // Function to stop watching location
-    const stopLocationTracking = () => {
-        if (navigator.geolocation && watchId.current) {
-            removeLiveTrackData();
-            navigator.geolocation.clearWatch(watchId.current);
-        }
-    };
-
-    const toggleGpsTracking = () => {
-        setGpsEnabled(!gpsEnabled);
-        if (!gpsEnabled) {
-            startLocationTracking();
-        } else {
-            stopLocationTracking();
-        }
-    };
-
-    // Cleanup on component unmount
-    useEffect(() => {
-        return () => {
-            if (gpsEnabled) {
-                stopLocationTracking();
-            }
-        };
-    }, [gpsEnabled]);
-
     const updateLocation = async (latitude:number, longitude:number) => {
         try {
             const response = await fetch(`/api/live-tracking`, {
@@ -111,29 +85,54 @@ function LiveTrack({params} : {
         }
     };
 
-    const removeLiveTrackData = async () => {
+    const removeLiveTrackData = useCallback(async () => {
         try {
-            const response = await fetch(`/api/live-tracking`,{
+            const response = await fetch(`/api/live-tracking`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     userId: userId,
-                    eventId: parseInt( params.id! ,10)
+                    eventId: parseInt(params.id, 10)
                 })
             });
             if (!response.ok) {
                 throw new Error('Failed to delete live tracking data');
             }
             const liveTrackResult = await response.json();
-            //setLiveTrackData(liveTrackResult); // Update live track data in your state
             console.log('Live track data:', liveTrackResult);
         } catch (error) {
             console.error('Error deleting live track data:', error);
         }
-    };
+    }, [userId, params.id]); // Assuming `userId` and `params.id` are stable and don't change often
     
+    
+    // Function to stop watching location
+    const stopLocationTracking = useCallback(() => {
+        if (navigator.geolocation && watchId.current) {
+            removeLiveTrackData();
+            navigator.geolocation.clearWatch(watchId.current);
+        }
+    },[removeLiveTrackData]);
+
+    const toggleGpsTracking = () => {
+        setGpsEnabled(!gpsEnabled);
+        if (!gpsEnabled) {
+            startLocationTracking();
+        } else {
+            stopLocationTracking();
+        }
+    };
+
+    // Cleanup on component unmount
+    useEffect(() => {
+        return () => {
+            if (gpsEnabled) {
+                stopLocationTracking();
+            }
+        };
+    }, [gpsEnabled, stopLocationTracking]);
 
     const toggleAllCheckpointItems = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         event.stopPropagation(); // Prevents event bubbling
@@ -152,7 +151,7 @@ function LiveTrack({params} : {
         }
     };
 
-    const fetchEvent = async() => {
+    const fetchEvent = useCallback(async () => {
         try {
             if (!params.id) {
                 throw new Error("User ID not found");
@@ -167,16 +166,16 @@ function LiveTrack({params} : {
             const xmlString = result.plan.gpxFile;
             const parser = new DOMParser();
             const xml = parser.parseFromString(xmlString, 'text/xml');
-            const {name, author} = extractMetadata(xml);
+            const { name, author } = extractMetadata(xml);
             const geojson = gpx(xml);
             const info = processGeoJSON(geojson);
             const routes = geojson.features[0];
-            init({name, author, info, routes});
+            init({ name, author, info, routes });
             setInPage("live");
-            setXML(xml); 
-            const {participants, ...otherData} = result;
+            setXML(xml);
+            const { participants, ...otherData } = result;
             setData(otherData);
-            const sortedParticipants = participants.sort((a:any, b:any) => {
+            const sortedParticipants = participants.sort((a: any, b: any) => {
                 if (a.id === userId) return -1;
                 if (b.id === userId) return 1;
                 return 0;
@@ -185,19 +184,17 @@ function LiveTrack({params} : {
         } catch (error) {
             console.error("Error fetching event:", error);
         }
-    };
+    }, [params.id, init, setInPage, setXML, setData, setParticipants, userId]);
 
-    const fetchParticipants = async() => {
+    const fetchParticipants = useCallback(async () => {
         try {
             if (!params.id) {
                 throw new Error("User ID not found");
             }
-
             const response = await fetch(`/api/events/${params.id}/participants`);
             if (!response.ok) {
                 throw new Error("Failed to fetch participants");
             }
-
             const result = await response.json();
             const sortedParticipants = result.participants.sort((a:any, b:any) => {
                 if (a.id === userId) return -1;
@@ -205,11 +202,11 @@ function LiveTrack({params} : {
                 return 0;
             });
             setParticipants(sortedParticipants);
-            
         } catch (error) {
             console.error("Error fetching event:", error);
         }
-    };
+    }, [params.id, userId, setParticipants]); // Ensure all used values are listed in the dependencies array
+    
 
     useEffect(() => {
         setLoading(true); 
@@ -217,9 +214,9 @@ function LiveTrack({params} : {
             setLoading(false);
         });
 
-    }, [params.id]);
+    }, [params.id, fetchEvent]);
 
-    const fetchLiveTrackData = async () => {
+   const fetchLiveTrackData = useCallback(async () => {
         try {
             await fetchParticipants();
             const response = await fetch(`/api/live-tracking/${params.id}`);
@@ -232,7 +229,7 @@ function LiveTrack({params} : {
         } catch (error) {
             console.error('Error fetching live track data:', error);
         }
-    };
+    }, [params.id, fetchParticipants, setLiveTrackData]);
 
     useEffect(() => {
         
@@ -241,7 +238,7 @@ function LiveTrack({params} : {
 
         // Clean up interval on component unmount
         return () => clearInterval(intervalId);
-    }, [params.id]);
+    }, [params.id, fetchLiveTrackData]);
 
     useEffect(() => {
         return () => {
@@ -250,7 +247,7 @@ function LiveTrack({params} : {
             setParticipants([]);
             setLiveTrackData([]);
         };
-    }, [reset, setData]);
+    }, [reset, setData, setParticipants, setLiveTrackData]);
 
 
     if(loading){

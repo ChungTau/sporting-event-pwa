@@ -15,6 +15,7 @@ import { signIn, useSession } from "next-auth/react";
 import {useEffect, useState} from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 function formatDate(dateString : string) {
     const date = new Date(dateString);
@@ -76,7 +77,7 @@ function EventIdPage({params} : {
 
         fetchEvent();
 
-    }, [params.id]);
+    }, [params.id, init, setData, setInPage, setXML]);
 
     useEffect(() => {
         if (data) {
@@ -124,11 +125,14 @@ function EventIdPage({params} : {
     return (
         <div className="flex flex-col gap-4">
             {data && (
-                <div className="flex items-center justify-center rounded-md">
-                    <img
+                <div className="flex items-center justify-center rounded-md overflow-clip">
+                    <Image
                         src={data.image !}
+                        width={0}
+                        height={0}
+                        style={{width: '100%', height: '400px'}}
                         alt="Uploaded"
-                        className="h-[300px] w-full rounded-md object-cover"/>
+                        className="rounded-md object-cover"/>
                 </div>
             )}
             <div className="flex flex-row justify-between">

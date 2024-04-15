@@ -2,19 +2,19 @@
 import { useUserDataStore } from "@/store/userUserDataStore";
 import { signOut, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Fragment, ReactNode, useEffect } from "react";
+import { Fragment, ReactNode, useCallback, useEffect } from "react";
 
 export default function SessionGuard({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
   const {setUserData} = useUserDataStore();
 
-  async function fetchUserData(){
-    try{
-      if(!session || session?.user.id === null){
-          throw new Error("User ID not found");
+  const fetchUserData = useCallback(async () => {
+    try {
+      if (!session || session?.user.id === null) {
+        throw new Error("User ID not found");
       }
-
-      const response = await fetch(`/api/users`,{
+  
+      const response = await fetch(`/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -25,10 +25,10 @@ export default function SessionGuard({ children }: { children: ReactNode }) {
       });
       const fetchedUserData = await response.json();
       setUserData(fetchedUserData);
-    }catch(error){
+    } catch (error) {
       console.error(error);
     }
-  }
+  }, [session, setUserData]);
 
   useEffect(() => {
     if (session) {
@@ -42,7 +42,7 @@ export default function SessionGuard({ children }: { children: ReactNode }) {
       }
      
     }
-  }, [session]);
+  }, [session, fetchUserData,  setUserData, status]);
 
   return <Fragment>{children}</Fragment>;
 }

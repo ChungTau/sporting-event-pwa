@@ -71,7 +71,7 @@ function PlanCheckpointDialog({open, onClose, onSubmit, checkpointData}: PlanChe
           <DialogHeader>
             <DialogTitle>Create new checkpoint</DialogTitle>
             <DialogDescription>
-              Make new checkpoint here. Click save when you're done.
+              {"Make new checkpoint here. Click save when you&apos;re done."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

@@ -9,6 +9,7 @@ import { User } from "@prisma/client";
 import { Loader2, Upload } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 function getInitials(name:string) {
     return name
@@ -109,12 +110,11 @@ function UserProfile({params} : {
     };
 
     useEffect(() => {
-            setLoading(true);
+            
             if(isMe){
-                setLoading(false);
                 setUData(userData);
             }else{
-                
+                setLoading(true);
                 const fetchUser = async() => {
                     try{
                         const response = await fetch(`/api/users/${params.id}`);
@@ -138,7 +138,7 @@ function UserProfile({params} : {
                 fetchUser();
             }
 
-    },[params.id]);
+    },[params.id, isMe, userData]);
 
     const ProfileAccessComponent = () => {
         if(loading){
@@ -155,8 +155,8 @@ function UserProfile({params} : {
             }else{
                 return(
                     <div className="w-full h-full flex flex-col gap-2">
-                        <div className="flex flex-row bg-gray-200 dark-zinc-600 relative w-full h-[400px] rounded-md">
-                    <img className="bg-gray-200 dark-zinc-600 w-full h-full rounded-md border-none border-0 object-cover" src={uData?.backgroundImage ?? "https://www.mensjournal.com/.image/t_share/MTk2MTM2OTYwMjAwMDI1NjA1/utmb_main.jpg"}/>
+                        <div className="flex flex-row bg-gray-200 dark-zinc-600 relative w-full h-[400px] rounded-md overflow-clip">
+                    <Image unoptimized={uData?.backgroundImage === null} width={0} height={0} style={{width:"100%", height:"100%"}} className="bg-gray-200 dark-zinc-600 rounded-md border-none border-0 object-cover" src={uData?.backgroundImage ?? "/images/default_background.jpg"} alt={"avatar"}/>
                         <div className="absolute bottom-4 left-4 flex flex-row items-end gap-4">
                             <Avatar className="sm:w-[120px] sm:h-[120px] w-[70px] h-[70px] border-white border-4">
                                 <AvatarImage className="object-cover" src={uData?.image??"https://github.com/shadcn.png"} />

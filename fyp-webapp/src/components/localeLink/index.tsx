@@ -7,7 +7,9 @@ import { LocaleLinkProps } from "./types";
 const LocaleLink = React.forwardRef<HTMLAnchorElement, LocaleLinkProps>(
     ({ locale, href, children, className }: LocaleLinkProps, ref) => {
         const pathName = usePathname();
-        const [basePath, subRoute] = pathName.split("/").slice(1);
+        const segments = pathName.split("/").filter(Boolean); // Split and remove empty segments
+        const basePath = segments[0]; // First segment as base path
+        const subRoute = segments.slice(1).join("/"); 
 
         const resolvedLocale = locale ?? basePath ?? "en";
         const resolvedHref = href ?? (subRoute ? `/${subRoute}` : "/");

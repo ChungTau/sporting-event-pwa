@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardFooter, CardHeader } from "../ui/card";
 import { SkeletonPlanCardImage } from "../planCard/skeleton";
+import Image from "next/image";
 
 export interface EventCardProps {
     name: string;
@@ -33,13 +34,15 @@ function EventCardHeader({src}:EventCardHeaderProps) {
       setImageLoaded(true);
     };
     return(
-        <CardHeader className="p-4 relative space-y-0">
-            <img
+        <CardHeader className="p-4 relative space-y-0 overflow-clip">
+            <Image
                 src={src}
                 alt="Random event"
-                className="w-full h-[260px] object-cover  rounded-md"
+                width={0}
+                height={0}
+                className="object-cover  rounded-md"
                 onLoad={handleImageLoad}
-                style={{ display: imageLoaded ? "block" : "none" }}
+                style={{ display: imageLoaded ? "block" : "none", width: "100%", height: "260px"}}
             />
             {!imageLoaded && <SkeletonPlanCardImage />}
         </CardHeader>

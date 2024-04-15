@@ -43,7 +43,7 @@ export default function PlanPage() {
             setFileSelected(false);
             console.warn("Rejected non-gpx files");
         }
-    }, [init]);
+    }, [init, setInPage, setXML]);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         onDrop,

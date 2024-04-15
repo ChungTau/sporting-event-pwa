@@ -25,5 +25,13 @@ services:
     depends_on:
       - fyp-db
 
+  fyp-webapp:
+    build: 
+      context: fyp-webapp
+      dockerfile: Dockerfile
+    container_name: fyp-webapp
+    ports:
+      - "3000:3000"
+
 volumes:
   fyp-db-data:

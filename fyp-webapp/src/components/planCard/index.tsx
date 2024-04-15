@@ -5,6 +5,7 @@ import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { SkeletonPlanCardImage } from "./skeleton";
 import { Info } from "@/types/infoType";
 import { Separator } from "../ui/separator";
+import Image from "next/image";
 
 export interface PlanCardProps {
   name: string;
@@ -56,21 +57,23 @@ function PlanCardHeader({src, distance, climb, fall}:PlanCardHeaderProps) {
     setImageLoaded(true);
   };
 
+  console.log(src);
+
   return (
-    <CardHeader className="p-4 relative space-y-0">
+    <CardHeader className="p-4 relative space-y-0 overflow-clip">
       {/* Use alt text for images for accessibility */}
       <img
         src={src}
+        
         alt="Random event"
-        className="w-full h-full rounded-md"
+        className="object-cover  rounded-md"
         onLoad={handleImageLoad}
-        style={{ display: imageLoaded ? "block" : "none" }}
+        style={{ display: imageLoaded ? "block" : "none" , width: "100%", height:"260px"}}
       />
-      {!imageLoaded && <SkeletonPlanCardImage />}
       <div
         id="overlay"
         className="absolute flex flex-row justify-end items-center gap-2 inset-4 pr-4 rounded-md bg-gradient-to-r from-transparent from-20% to-zinc-900/70 to-80%"
-        style={{ display: imageLoaded ? "flex" : "none" }}
+        style={{ display: imageLoaded ? "flex" : "none"}}
       >
         {/* Stack Divider and InfoColumns over the image */}
         <Separator orientation="vertical" className="bg-zinc-400"/>

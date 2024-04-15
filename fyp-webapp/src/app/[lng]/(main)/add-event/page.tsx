@@ -20,6 +20,7 @@ import { TimePicker } from "@/components/ui/datetime-picker";
 import { TimeValue } from "react-aria";
 import { SubmissionStatus } from "@/types/submissionStatus";
 import ResponseDialog from "@/components/dialog/ResponseDialog";
+import Image from "next/image";
 
 const MAX_FILE_SIZE = 50000000;
 const ACCEPTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -215,8 +216,9 @@ export default function AddEventPage(){
               )}
             />
             {image && (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-md">
-                        <img src={image} alt="Uploaded" className="h-[300px] w-full rounded-md object-cover"/>
+                      <div className="absolute inset-0 flex items-center justify-center rounded-md overflow-clip">
+                        <Image src={image} width={0}
+  height={0} style={{width: '100%', height:400}} alt="Uploaded" className="rounded-md object-cover"/>
                       </div>
                     )}
         </div>

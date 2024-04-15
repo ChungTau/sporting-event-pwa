@@ -161,6 +161,37 @@ export const useAnimation = (routes : Feature < MultiLineString, Properties > | 
             }
           };
 
+          const resetAnimationState = useCallback((resetRouteIndex = true, delay : number = 0) => {
+            cancelAllAnimationFrames();
+    
+            if (resetRouteIndex) {
+                setCurrentRouteIndex(0);
+                setCurrentPosition(getInitialPosition(routes));
+                setProgressLine(getInitialProgress(routes));
+            }
+    
+            Object.assign(animationControlRefs, {
+                lastPosition: null,
+                startTime: 0,
+                start: 0,
+                elapsedTime: 0,
+                bearingRef: 0,
+                zoomRef: 0
+            });
+    
+            setTimeout(() => {
+                setIsPlaying(false);
+            }, delay);
+            updateRouteLayersVisibility(true);
+            removeProgressLines(mapview, progressLine);
+            resizeMap(mapview, routes, 2600, inPage === "live" ? {
+                top: 80,
+                bottom: 500,
+                left: 40,
+                right: 40
+            }:MAP_PADDING);
+        }, [routes, mapview, currentPosition]);
+
     useEffect(() => {
         if (routes && mapview) {
             resetAnimationState(true);
@@ -214,37 +245,6 @@ export const useAnimation = (routes : Feature < MultiLineString, Properties > | 
             }
         }
     }, [routes, mapview]);
-
-    const resetAnimationState = useCallback((resetRouteIndex = true, delay : number = 0) => {
-        cancelAllAnimationFrames();
-
-        if (resetRouteIndex) {
-            setCurrentRouteIndex(0);
-            setCurrentPosition(getInitialPosition(routes));
-            setProgressLine(getInitialProgress(routes));
-        }
-
-        Object.assign(animationControlRefs, {
-            lastPosition: null,
-            startTime: 0,
-            start: 0,
-            elapsedTime: 0,
-            bearingRef: 0,
-            zoomRef: 0
-        });
-
-        setTimeout(() => {
-            setIsPlaying(false);
-        }, delay);
-        updateRouteLayersVisibility(true);
-        removeProgressLines(mapview, progressLine);
-        resizeMap(mapview, routes, 2600, inPage === "live" ? {
-            top: 80,
-            bottom: 500,
-            left: 40,
-            right: 40
-        }:MAP_PADDING);
-    }, [routes, mapview, currentPosition]);
 
     const startAnimation = useCallback(() => {
         setIsPlaying(!isPlaying);

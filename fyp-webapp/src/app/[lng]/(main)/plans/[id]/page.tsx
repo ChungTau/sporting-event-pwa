@@ -43,7 +43,7 @@ function PlanIdPage({params} : {
 
         fetchPlan();
         
-    }, [params.id]);
+    }, [params.id, init, setInPage, setXML]);
 
     useEffect(() => {
         return () => {

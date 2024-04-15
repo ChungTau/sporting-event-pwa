@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_OPTIONS='--max-http-header-size=12800000' next dev",
     "build": "next build",
-    "start": "node server.js",
+    "start": "cross-env NODE_OPTIONS='--max-http-header-size=12800000' next start",
     "lint": "next lint"
-  },
+  }
+,  
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -70,6 +71,7 @@
     "@types/react-dom": "^18.2.22",
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.1.4",
     "postcss": "^8.4.38",

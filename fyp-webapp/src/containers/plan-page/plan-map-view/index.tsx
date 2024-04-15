@@ -24,7 +24,7 @@ function PlanMapView() {
     const {routes, info, xml, inPage} = useGpxDataStore();
     const [tempMarker,
         setTempMarker] = useState < mapboxgl.Marker | null > (null);
-    const currentRoute = routes;
+
     function useAspectStyle(resolution:'desktop'|'mobile'|'responsive'|"none") {
         return useMemo(() => {
             switch (resolution) {
@@ -62,13 +62,13 @@ function PlanMapView() {
     });
     const aspectStyle = useAspectStyle(resolution);
     useEffect(() => {
-        if (mapview && currentRoute) {
+        if (mapview && routes) {
 
             const handleStyleLoad = () => {
                 removeAllRoutes(mapview);
                 
-                addRouteToMap(mapview, currentRoute);
-                resizeMap(mapview, currentRoute, 2600, inPage === "live" ? {
+                addRouteToMap(mapview, routes);
+                resizeMap(mapview, routes, 2600, inPage === "live" ? {
                     top: 80,
                     bottom: 500,
                     left: 40,
@@ -86,10 +86,10 @@ function PlanMapView() {
                 mapview.off('styledata', handleStyleLoad);
             };
         }
-    }, [mapview, currentRoute]);
+    }, [mapview, routes, inPage]);
 
     useEffect(()=>{
-        if(liveTrackData && mapview){
+        if(liveTrackData && mapview && partiMarkers){
 
             const map = mapview.getMap();
             liveTrackData.forEach((liveData) => {
@@ -121,12 +121,12 @@ function PlanMapView() {
         }
     },[liveTrackData]);
 
-    const addMarkerToMap = (markerData: MarkerData, draggable: boolean = true) => {
+    const addMarkerToMap = useCallback((markerData: MarkerData, draggable: boolean = true) => {
         if (!mapview) {
             return;
         }
         const map = mapview.getMap();
-        if(!map){
+        if (!map) {
             return;
         }
         const marker = markerData.name === 'Start Point'
@@ -139,7 +139,8 @@ function PlanMapView() {
             .addTo(map);
         marker.data = markerData;
         addMarkers(marker);
-    };
+    }, [mapview, addMarkers]);  // ensure dependencies are correctly listed here
+    
 
     const createMarkerData = (coord : Position, name : string, distance : number, elevationGain : number, services : string[] = [], removable: boolean = true) : MarkerData => {
         return {
@@ -161,7 +162,7 @@ function PlanMapView() {
         }
         clearMarkers();
         clearPartiMarkers();
-        const coordinates = currentRoute.geometry.coordinates;
+        const coordinates = routes.geometry.coordinates;
         const waypoints = Array.from(xml
             ?.querySelectorAll('wpt')!);
 
@@ -179,9 +180,9 @@ function PlanMapView() {
                 const nearestPoint = findNearestPointOnRoute({
                     lat,
                     lng
-                }, currentRoute !);
-                const newDistance = calculateDistanceAlongRoute(nearestPoint !, currentRoute);
-                const newElevationGain = calculateElevationGainToPoint(currentRoute, nearestPoint as[number,
+                }, routes !);
+                const newDistance = calculateDistanceAlongRoute(nearestPoint !, routes);
+                const newElevationGain = calculateElevationGainToPoint(routes, nearestPoint as[number,
                     number]);
                 return createMarkerData(nearestPoint as[number,
                     number], name, newDistance, newElevationGain, services.filter(Boolean)as string[], true); // Adjust the parameters as needed.
@@ -189,7 +190,7 @@ function PlanMapView() {
 
             
         markers.forEach((markerData) => addMarkerToMap(markerData, false));
-        if (currentRoute.geometry.type === "LineString") {
+        if (routes.geometry.type === "LineString") {
             const startCoord = coordinates[0];
             const endCoord = coordinates[coordinates.length - 1];
     
@@ -201,7 +202,7 @@ function PlanMapView() {
         }
     
         // Handle MultiLineString
-        else if (currentRoute.geometry.type === "MultiLineString") {
+        else if (routes.geometry.type === "MultiLineString") {
             const startCoord = coordinates[0][0];
             const endCoord = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1];
     
@@ -210,7 +211,7 @@ function PlanMapView() {
             addMarkerToMap(startPoint);
             addMarkerToMap(endPoint);
         }
-    }, [routes, mapview]);
+    }, [routes, mapview,addMarkerToMap, clearMarkers, clearPartiMarkers, info?.climb, info?.distance, xml]);
 
     const placePinNearRoute = useCallback((lngLat : Position) => {
         if (!routes.geometry.coordinates) return;
@@ -218,18 +219,18 @@ function PlanMapView() {
         if (!mRef) {
             return;
         }
-        const nearest = findNearestPointOnRoute(lngLat, currentRoute);
+        const nearest = findNearestPointOnRoute(lngLat, routes);
         if (nearest) {
             const newMarker = createCustomMarker().setLngLat(nearest).addTo(mRef).on('dragend', () => {
                     const draggedLngLat = newMarker.getLngLat();
-                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, currentRoute!);
+                    const nearestPoint = findNearestPointOnRoute(draggedLngLat, routes!);
                     if (nearestPoint) {
                         newMarker.setLngLat(nearestPoint);
 
                         // Update new marker's data
-                        const newDistance = calculateDistanceAlongRoute(nearestPoint, currentRoute);
-                        const newElevationGain = calculateElevationGainToPoint(currentRoute, nearestPoint as[number,number]);
-                        const newElevation = getElevationAtPoint(currentRoute, nearestPoint);
+                        const newDistance = calculateDistanceAlongRoute(nearestPoint, routes);
+                        const newElevationGain = calculateElevationGainToPoint(routes, nearestPoint as[number,number]);
+                        const newElevation = getElevationAtPoint(routes, nearestPoint);
                         const updatedMarkerData = {
                             ...newMarker.data,
                             distance: newDistance,
@@ -267,7 +268,7 @@ function PlanMapView() {
             } else {
                 toast('Error', {description: 'Marker must be placed near the route', duration: 3000});
             }
-        }, [routes,mapview]);
+        }, [routes,mapview, updateMarker]);
 
 
         useEffect(() => {
@@ -305,20 +306,20 @@ function PlanMapView() {
                 initializeCheckpoints();
             };
     
-            if (currentRoute) {
+            if (routes) {
                 initializeAndSetCheckpoints();
             }
-        }, [currentRoute,initializeCheckpoints]);
+        }, [routes,initializeCheckpoints]);
     
 
     const handleResize = useCallback(() => {
-        resizeMap(mapview, currentRoute, 2600, inPage === "live" ? {
+        resizeMap(mapview, routes, 2600, inPage === "live" ? {
             top: 80,
             bottom: 500,
             left: 40,
             right: 40
         }:MAP_PADDING);
-    }, [currentRoute, mapview]);
+    }, [routes, mapview, inPage]);
 
     useEffect(() => {
         window.addEventListener('resize', handleResize);
@@ -326,7 +327,7 @@ function PlanMapView() {
 
             window.removeEventListener('resize', handleResize);
         };
-    }, [currentRoute, mapview, handleResize]);
+    }, [routes, mapview, handleResize]);
     useEffect(()=>{
         if(resolution && mapview){
             mapview.resize();
@@ -350,9 +351,9 @@ function PlanMapView() {
             checkpointData.id = uuid();
             checkpointData.distance = calculateDistanceAlongRoute([
                 lngLat.lng, lngLat.lat
-            ], currentRoute);
-            checkpointData.elevationGain = calculateElevationGainToPoint(currentRoute, [lngLat.lng, lngLat.lat]);
-            checkpointData.elevation = getElevationAtPoint(currentRoute, [lngLat.lng, lngLat.lat])!;
+            ], routes);
+            checkpointData.elevationGain = calculateElevationGainToPoint(routes, [lngLat.lng, lngLat.lat]);
+            checkpointData.elevation = getElevationAtPoint(routes, [lngLat.lng, lngLat.lat])!;
 
             const newMarkerData = {
                 ...checkpointData,

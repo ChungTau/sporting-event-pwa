@@ -34,7 +34,6 @@ jobs:
         chmod 600 deploy_key.pem
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           set -e  # Stop the script if any command fails
-          mkdir -p /sport-event-pwa  # Create the directory if it does not exist
           cd /sport-event-pwa
           docker-compose pull
           docker-compose up -d

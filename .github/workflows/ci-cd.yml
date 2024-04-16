@@ -39,6 +39,4 @@ jobs:
           docker-compose pull
           docker-compose up -d
         EOF
-      shell: bash
-      cleanup: 
-        run: rm -f deploy_key.pem
+        rm -f deploy_key.pem 

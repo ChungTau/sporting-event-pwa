@@ -24,6 +24,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN npx prisma generate
 COPY migrate-and-start.sh wait-for.sh ./
 RUN chmod +x migrate-and-start.sh wait-for.sh
 # Next.js collects completely anonymous telemetry data about general usage.

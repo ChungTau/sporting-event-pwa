@@ -32,14 +32,27 @@ jobs:
       run: |
         echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
         chmod 600 deploy_key.pem
-        scp -o StrictHostKeyChecking=no -i deploy_key.pem docker-compose.yml ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa/docker-compose.yml
-        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
+        tar -czf build.tar.gz .
+      
+        # Transfer the tarball to the server
+        scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/build.tar.gz
+        
+        # SSH into the server, extract files, and start services
+        ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           set -e  # Stop the script if any command fails
+
+          # Move the tarball to the target directory and extract it
+          mv /tmp/build.tar.gz /sporting-event-pwa/build.tar.gz
           cd /sporting-event-pwa
+          tar -xzf build.tar.gz
+          rm build.tar.gz
+          
+          # Perform Docker actions
           if [ ! -f docker-compose.yml ]; then
             echo "Docker-compose configuration file not found"
             exit 1
           fi
+          
           docker-compose pull
           docker-compose up -d
         EOF

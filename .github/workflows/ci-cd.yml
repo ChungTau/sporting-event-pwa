@@ -32,14 +32,12 @@ jobs:
       run: |
         echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
         chmod 600 deploy_key.pem
-
-        tar -czf build.tar.gz .
-        scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/sporting-event-pwa
+        scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/build.tar.gz
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           set -e  # Stop the script if any command fails
-          chown -R $DEPLOY_USER:$DEPLOY_USER /sporting-event-pwa
-          chmod -R 755 /sporting-event-pwa
+          sudo mv /tmp/build.tar.gz /sporting-event-pwa/build.tar.gz
           cd /sporting-event-pwa
+          sudo tar -xzf build.tar.gz
           docker-compose pull
           docker-compose up -d
         EOF

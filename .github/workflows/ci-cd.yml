@@ -34,7 +34,7 @@ jobs:
         chmod 600 deploy_key.pem
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           set -e  # Stop the script if any command fails
-          cd /sport-event-pwa
+          cd /sporting-event-pwa
           docker-compose pull
           docker-compose up -d
         EOF

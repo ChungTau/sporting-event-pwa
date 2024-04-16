@@ -34,6 +34,13 @@ jobs:
         chmod 600 deploy_key.pem
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           set -e  # Stop the script if any command fails
+          # Install Docker Compose if it's not installed
+          if ! command -v docker-compose &> /dev/null
+          then
+              echo "Installing Docker Compose..."
+              sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+          fi
           cd /sporting-event-pwa
           docker-compose pull
           docker-compose up -d

@@ -27,17 +27,17 @@ jobs:
       run: |
         docker-compose -f docker-compose.yml build
         docker-compose -f docker-compose.yml push
+
+    - name: Create a tarball of the project
+      run: |
+        tar -czf build.tar.gz --exclude='./volatile-dir' --exclude='./node_modules' --exclude='./logs' --ignore-failed-read .
+        
       
     - name: Deploy to Server
       run: |
         echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
         chmod 600 deploy_key.pem
-        tar -czf build.tar.gz .
-      
-        # Transfer the tarball to the server
         scp -o StrictHostKeyChecking=no -i deploy_key.pem build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/build.tar.gz
-        
-        # SSH into the server, extract files, and start services
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           set -e  # Stop the script if any command fails
 

@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "production") {
   }
 }
 const prisma = global.prisma; // This guarantees prisma is always defined.
-
+  prisma.$executeRaw`CREATE DATABASE demo`;
   prisma.$use(async (params, next) => {
     if (params.action == "create" && params.model == "Account") {
       delete params.args.data["not-before-policy"]

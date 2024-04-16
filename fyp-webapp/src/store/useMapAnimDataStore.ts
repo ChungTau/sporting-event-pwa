@@ -15,7 +15,7 @@ type MapAnimState = {
 
 export const useMapAnimStore = create<MapAnimState>((set) => ({
   pitch: 40,
-  zoom: 16.2,
+  zoom: 14.8,
   speed: 1,
   isPlaying: false,
   resolution: "responsive",

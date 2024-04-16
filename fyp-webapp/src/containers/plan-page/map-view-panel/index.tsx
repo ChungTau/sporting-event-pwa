@@ -42,7 +42,7 @@ const MapControlPanel = memo(({mapview, startAnimation, stopAnimation, recordAni
                         defaultValue={[zoom]}
                         max={21}
                         step={0.1}
-                        min={8}
+                        min={11}
                         onValueChange={(v) => setZoom(v[0])}/>
                     <div className="flex flex-row justify-between my-1">
                         <Label htmlFor="speed">Speed</Label>

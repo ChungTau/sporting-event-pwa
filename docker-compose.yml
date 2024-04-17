@@ -51,6 +51,7 @@ services:
     volumes:
       - ./user_conf.d:/etc/nginx/user_conf.d
       - ./letsencrypt:/etc/letsencrypt
+      - ./proxy_params:/etc/nginx/proxy_params:ro
     ports:
       - "80:80"
       - "443:443"

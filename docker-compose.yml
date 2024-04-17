@@ -51,12 +51,25 @@ services:
     container_name: fyp-nginx
     volumes:
       - fyp-webapp-build:/app
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - fyp-webapp
       - fyp-keycloak
+  fyp-certbot:
+    container_name: fyp-certbot
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    command: certonly --webroot --webroot-path=/var/www/certbot --email scchanau@connect.ust.hk --agree-tos --no-eff-email --force-renewal -d fyp.chungtau.com --deploy-hook 'nginx -s reload'
 
 volumes:
   fyp-db-data:
   fyp-webapp-build:
+  data: {}

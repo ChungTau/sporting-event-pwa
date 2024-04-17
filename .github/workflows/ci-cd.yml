@@ -22,7 +22,6 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           cd ~/fyp/sporting-event-pwa
-          ssh -T git@github.com
           # Ensure we're on the production branch
           git fetch --all
           git checkout production || git checkout -b production

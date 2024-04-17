@@ -61,6 +61,7 @@ services:
   fyp-certbot:
     container_name: fyp-certbot
     image: certbot/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email scchanau@connect.ust.hk --agree-tos --no-eff-email --deploy-hook "nginx -s reload" -d fyp.chungtau.com
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
@@ -68,4 +69,3 @@ services:
 volumes:
   fyp-db-data:
   fyp-webapp-build:
-  data: {}

@@ -24,7 +24,8 @@ services:
     restart: always
     volumes:
       - ./config/:/opt/keycloak/data/import:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./certs/fullchain.pem:/etc/x509/https/tls.crt"
+      - ./certs/privkey.pem:/etc/x509/https/tls.key
     ports:
       - "8443:8443"
     environment:

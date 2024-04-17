@@ -18,8 +18,12 @@ ENV KEYCLOAK_ADMIN_PASSWORD=admin
 ENV KC_DB_URL=jdbc:postgresql://fyp-db:5432/fyp
 ENV KC_DB_USERNAME=fyp
 ENV KC_DB_PASSWORD=fyp
+ENV KC_HTTP_ENABLED=true
+ENV KC_HOSTNAME_STRICT=false
 ENV KC_HOSTNAME=fyp.chungtau.com
+ENV KC_HTTPS_CERTIFICATE_FILE=/etc/x509/https/tls.crt
+ENV KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/x509/https/tls.key
 
 # Set the default entry point and command
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD ["start", "--import-realm"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--import-realm"]
+

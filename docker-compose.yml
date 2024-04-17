@@ -35,8 +35,6 @@ services:
       context: fyp-webapp
       dockerfile: Dockerfile
     container_name: fyp-webapp
-    volumes:
-      - fyp-webapp-build:/app
     environment:
       DATABASE_URL: postgresql://fyp:fyp@fyp-db:5432/demo?schema=public&connect_timeout=60
     ports:
@@ -45,27 +43,20 @@ services:
       - fyp-db
       - fyp-keycloak
   fyp-nginx:
-    build:
-      context: nginx
-      dockerfile: Dockerfile.nginx
+    image: jonasal/nginx-certbot:3
     container_name: fyp-nginx
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL=edwardonionc0209@gmail.com
     volumes:
-      - fyp-webapp-build:/app
-      - ./certbot/www/:/var/www/certbot/:ro
+      - ./user_conf.d:/etc/nginx/user_conf.d
+      - ./letsencrypt:/etc/letsencrypt
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - fyp-webapp
       - fyp-keycloak
-  fyp-certbot:
-    container_name: fyp-certbot
-    image: certbot/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email scchanau@connect.ust.hk --agree-tos --no-eff-email --deploy-hook "nginx -s reload" -d fyp.chungtau.com
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   fyp-db-data:
-  fyp-webapp-build:

@@ -4,7 +4,8 @@ import { fallbackLng, languages, cookieName } from "@/lib/i18n/settings";
 import {withAuth} from "next-auth/middleware";
 
 const privatePages = ['/plans', '/add-event'];
-  
+const keycloakPaths = ['/keycloak', '/keycloak/auth', '/keycloak/auth/realms/fyp'];
+
 acceptLanguage.languages(languages);
 
 const authMiddleware = withAuth(
@@ -23,13 +24,18 @@ export const config = {
 };
 
 export function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+
+  // Check if the path is a Keycloak path and skip specific handling if so
+  if (keycloakPaths.some(path => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
+
   let lng;
   if (req.cookies.has(cookieName))
     lng = acceptLanguage.get(req.cookies.get(cookieName)!.value);
   if (!lng) lng = acceptLanguage.get(req.headers.get("Accept-Language"));
   if (!lng) lng = fallbackLng;
-
-  const pathname = req.nextUrl.pathname
   // Redirect if lng in path is not supported
   if (
     !languages.some((loc) => pathname.startsWith(`/${loc}`)) &&

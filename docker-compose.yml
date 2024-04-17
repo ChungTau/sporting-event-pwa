@@ -28,11 +28,12 @@ services:
     ports:
       - "8443:8443"
     environment:
-      KC_HTTPS_CERTIFICATE_FILE: /etc/letsencrypt/live/fyp.chungtau.com/fullchain.pem
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/letsencrypt/live/fyp.chungtau.com/privkey.pem
+      KC_HTTPS_CERTIFICATE_FILE: /etc/letsencrypt/live/auth.chungtau.com/fullchain.pem
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/letsencrypt/live/auth.chungtau.com/privkey.pem
       KC_HTTPS_PORT: 8443
     depends_on:
       - fyp-db
+      - fyp-keycloak-nginx
 
   fyp-webapp:
     build: 
@@ -46,9 +47,10 @@ services:
     depends_on:
       - fyp-db
       - fyp-keycloak
-  fyp-nginx:
+
+  fyp-webapp-nginx:
     image: jonasal/nginx-certbot:3
-    container_name: fyp-nginx
+    container_name: fyp-webapp-nginx
     restart: unless-stopped
     environment:
       - CERTBOT_EMAIL=edwardonionc0209@gmail.com
@@ -62,6 +64,22 @@ services:
     depends_on:
       - fyp-webapp
       - fyp-keycloak
+
+  fyp-keycloak-nginx:
+    image: jonasal/nginx-certbot:3
+    container_name: fyp-keycloak-nginx
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL=edwardonionc0209@gmail.com
+    volumes:
+      - ./keycloak_conf.d:/etc/nginx/keycloak_conf.d
+      - ./letsencrypt-keycloak:/etc/letsencrypt
+      - ./proxy_params:/etc/nginx/proxy_params:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - fyp-db
 
 volumes:
   fyp-db-data:

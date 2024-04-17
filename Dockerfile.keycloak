@@ -18,7 +18,7 @@ ENV KEYCLOAK_ADMIN_PASSWORD=admin
 ENV KC_DB_URL=jdbc:postgresql://fyp-db:5432/fyp
 ENV KC_DB_USERNAME=fyp
 ENV KC_DB_PASSWORD=fyp
-ENV KC_HOSTNAME=auth.chungtau.com
+ENV KC_HOSTNAME=fyp.chungtau.com
 
 # Set the default entry point and command
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

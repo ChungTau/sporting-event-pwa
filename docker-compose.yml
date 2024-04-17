@@ -35,6 +35,8 @@ services:
       context: fyp-webapp
       dockerfile: Dockerfile
     container_name: fyp-webapp
+    volumes:
+      - fyp-webapp-build:/app
     environment:
       DATABASE_URL: postgresql://fyp:fyp@fyp-db:5432/demo?schema=public&connect_timeout=60
     ports:
@@ -47,6 +49,8 @@ services:
       context: nginx
       dockerfile: Dockerfile.nginx
     container_name: fyp-nginx
+    volumes:
+      - fyp-webapp-build:/app
     ports:
       - "80:80"
     depends_on:
@@ -54,3 +58,4 @@ services:
 
 volumes:
   fyp-db-data:
+  fyp-webapp-build:

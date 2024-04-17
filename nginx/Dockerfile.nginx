@@ -4,8 +4,11 @@ FROM nginx:latest
 # Remove the default Nginx configuration
 RUN rm -rf /etc/nginx/conf.d/*
 
-# Copy the build files from the React application to the Nginx root directory
-COPY build /usr/share/nginx/html
-
 # Copy your custom Nginx configuration (if needed)
 COPY nginx.conf /etc/nginx/conf.d/
+
+# Expose port 80 to the outside world
+EXPOSE 80
+
+# Start Nginx when the container starts
+CMD ["nginx", "-g", "daemon off;"]

@@ -24,7 +24,7 @@ services:
     restart: always
     volumes:
       - ./config/:/opt/keycloak/data/import:ro
-    entrypoint: '/opt/keycloak/bin/kc.sh start --import-realm'
+    entrypoint: '/opt/keycloak/bin/kc.sh start --import-realm --optimized'
     ports:
       - "8080:8080"
     depends_on:

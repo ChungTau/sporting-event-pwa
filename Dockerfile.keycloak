@@ -17,5 +17,6 @@ ENV KEYCLOAK_ADMIN_PASSWORD=admin
 ENV KC_DB_URL=jdbc:postgresql://fyp-db:5432/fyp
 ENV KC_DB_USERNAME=fyp
 ENV KC_DB_PASSWORD=fyp
+ENV KC_HOSTNAME=fyp.chungtau.com
 
 CMD ["start"]

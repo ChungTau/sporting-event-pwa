@@ -45,7 +45,8 @@ services:
   fyp-nginx:
     build:
       context: nginx
-    container_name: Dockerfile.nginx
+      dockerfile: Dockerfile.nginx
+    container_name: fyp-nginx
     ports:
       - "80:80"
     depends_on:

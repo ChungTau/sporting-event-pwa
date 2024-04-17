@@ -44,7 +44,7 @@ services:
       - fyp-keycloak
   fyp-nginx:
     build:
-      context: ./nginx
+      context: nginx
     container_name: Dockerfile.nginx
     ports:
       - "80:80"

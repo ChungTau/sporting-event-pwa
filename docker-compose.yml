@@ -42,6 +42,14 @@ services:
     depends_on:
       - fyp-db
       - fyp-keycloak
+  fyp-nginx:
+    build:
+      context: ./nginx
+    container_name: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - fyp-webapp
 
 volumes:
   fyp-db-data:

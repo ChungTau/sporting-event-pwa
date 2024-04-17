@@ -16,14 +16,24 @@ jobs:
     - name: Set up SSH key
       run: |
         echo "${{ secrets.SSH_DEPLOY_KEY }}" > deploy_key.pem
-        chmod 600 deploy_key.pem
+        chmod 600 deploy_key.pem  
 
     - name: Git Pull on Server
       run: |
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           cd /sporting-event-pwa
-          git reset --hard HEAD
-          git clean -fd
+
+          # Check if a Git repository needs to be initialized
+
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+
+          # Ensure we're on the production branch
+          git fetch --all
+          git checkout production || git checkout -b production
+          git reset --hard origin/production
+
+          # Pull the latest changes
           git pull origin production
 
           docker-compose up -d --build

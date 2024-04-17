@@ -76,7 +76,6 @@ services:
       - ./letsencrypt-keycloak:/etc/letsencrypt
       - ./proxy_params:/etc/nginx/proxy_params:ro
     ports:
-      - "80:80"
       - "443:443"
     depends_on:
       - fyp-db

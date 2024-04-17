@@ -4,7 +4,7 @@ import { fallbackLng, languages, cookieName } from "@/lib/i18n/settings";
 import {withAuth} from "next-auth/middleware";
 
 const privatePages = ['/plans', '/add-event'];
-const keycloakPaths = ['/keycloak', '/keycloak/auth', '/keycloak/auth/realms/fyp'];
+const keycloakPaths = ['/keycloak', '/keycloak/auth', '/keycloak/auth/realms/fyp', '/realms/fyp/protocol/openid-connect/auth'];
 
 acceptLanguage.languages(languages);
 

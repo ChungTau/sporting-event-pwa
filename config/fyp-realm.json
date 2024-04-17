@@ -616,7 +616,7 @@
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "redirectUris" : [ "http://localhost:3000/api/auth/callback/keycloak", "https://fyp.chungtau.com/api/auth/callback/keycloak", "http://127.0.0.1:3000/api/auth/callback/keycloak", "http://fyp-webapp:3000/api/auth/callback/keycloak" ],
-    "webOrigins" : [ "http://127.0.0.1:3000", "http://localhost:3000", "http://fyp-webapp:3000", "https://fyp.chungtau.com" ],
+    "webOrigins" : [ "http://127.0.0.1:3000", "http://localhost:3000", "http://fyp-webapp:3000", "https://fyp.chungtau.com/keycloak/auth" ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,

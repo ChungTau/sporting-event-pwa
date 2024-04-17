@@ -25,7 +25,6 @@ services:
     volumes:
       - ./config/:/opt/keycloak/data/import:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
-    entrypoint: '/opt/keycloak/bin/kc.sh start --import-realm --optimized'
     ports:
       - "8443:8443"
     environment:

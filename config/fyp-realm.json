@@ -615,8 +615,8 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://localhost:3000/api/auth/callback/keycloak", "http://127.0.0.1:3000/api/auth/callback/keycloak", "http://fyp-webapp:3000/api/auth/callback/keycloak" ],
-    "webOrigins" : [ "http://127.0.0.1:3000", "http://localhost:3000", "http://fyp-webapp:3000" ],
+    "redirectUris" : [ "http://localhost:3000/api/auth/callback/keycloak", "http://fyp.chungtau.com/api/auth/callback/keycloak", "http://127.0.0.1:3000/api/auth/callback/keycloak", "http://fyp-webapp:3000/api/auth/callback/keycloak" ],
+    "webOrigins" : [ "http://127.0.0.1:3000", "http://localhost:3000", "http://fyp-webapp:3000", "http://fyp.chungtau.com" ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,
@@ -630,7 +630,7 @@
     "attributes" : {
       "oidc.ciba.grant.enabled" : "false",
       "backchannel.logout.session.required" : "true",
-      "post.logout.redirect.uris" : "http://localhost:3000##http://127.0.0.1:3000##http://fyp-webapp:3000",
+      "post.logout.redirect.uris" : "http://localhost:3000##http://127.0.0.1:3000##http://fyp-webapp:3000##http://fyp.chungtau.com",
       "display.on.consent.screen" : "false",
       "oauth2.device.authorization.grant.enabled" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"

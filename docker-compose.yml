@@ -55,6 +55,7 @@ services:
       - "80:80"
     depends_on:
       - fyp-webapp
+      - fyp-keycloak
 
 volumes:
   fyp-db-data:

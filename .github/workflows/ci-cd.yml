@@ -21,12 +21,7 @@ jobs:
     - name: Git Pull on Server
       run: |
         ssh -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
-          cd /sporting-event-pwa
-
-          # Check if a Git repository needs to be initialized
-
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
+          cd ~/fyp/sporting-event-pwa
 
           # Ensure we're on the production branch
           git fetch --all

@@ -29,8 +29,6 @@ services:
     ports:
       - "8443:8443"
     environment:
-      KC_HTTPS_CERTIFICATE_FILE: /etc/letsencrypt/live/fyp.chungtau.com/fullchain.pem
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/letsencrypt/live/fyp.chungtau.com/privkey.pem
       KC_HTTPS_PORT: 8443
     depends_on:
       - fyp-db

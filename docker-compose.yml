@@ -46,6 +46,7 @@ services:
     depends_on:
       - fyp-db
       - fyp-keycloak
+      - fyp-nginx
 
   fyp-nginx:
     image: jonasal/nginx-certbot:3

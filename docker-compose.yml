@@ -30,6 +30,7 @@ services:
       - "8443:8443"
     environment:
       PROXY_ADDRESS_FORWARDING: "true"
+      JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
     depends_on:
       - fyp-db
       - fyp-nginx

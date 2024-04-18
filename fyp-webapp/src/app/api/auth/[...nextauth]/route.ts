@@ -31,6 +31,7 @@ const authOptions: AuthOptions = {
       clientId: process.env.KEYCLOAK_CLIENT_ID,
       clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
       issuer: process.env.KEYCLOAK_ISSUER,
+      checks: ['none']
     })
   ],
   secret: process.env.SECRET,

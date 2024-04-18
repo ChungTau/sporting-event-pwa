@@ -58,6 +58,8 @@ services:
       - ./user_conf.d:/etc/nginx/user_conf.d
       - ./letsencrypt:/etc/letsencrypt
       - ./proxy_params:/etc/nginx/proxy_params:ro
+      - /etc/letsencrypt/live/auth.chungtau.com/fullchain.pem:/etc/letsencrypt/live/auth.chungtau.com/fullchain.pem
+      - /etc/letsencrypt/live/auth.chungtau.com/privkey.pem:/etc/letsencrypt/live/auth.chungtau.com/privkey.pem
     ports:
       - "80:80"
       - "443:443"

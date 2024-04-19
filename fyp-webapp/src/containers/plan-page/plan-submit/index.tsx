@@ -6,7 +6,7 @@ import bbox from '@turf/bbox';
 //@ts-ignore
 import { Feature, LineString, MultiLineString, Properties, simplify } from "@turf/turf";
 import { useSession } from "next-auth/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ResponseDialog from "../../../components/dialog/ResponseDialog";
 import { SubmissionStatus } from "@/types/submissionStatus";
 
@@ -45,6 +45,7 @@ const generateMapboxImageUrl = (routes: Feature<MultiLineString | LineString, Pr
 function PlanSubmit(){
     const {markers} = useMarkerStore();
     const {xml, setXML, name, routes, info} = useGpxDataStore();
+    const [readyToSubmit, setReadyToSubmit] = useState(false);
     const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>(SubmissionStatus.Inactive);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const session = useSession();
@@ -73,8 +74,9 @@ function PlanSubmit(){
         });
     
         // Iterate through markers and create <wpt> elements
-        markers.forEach((marker) => {
+        markers.slice(1, -1).forEach((marker) => {
             const { data } = marker;
+            console.log(data);
             if (data) {
                 const wptElement = xmlDoc.createElement("wpt");
                 wptElement.setAttribute("lat", String(data.position[1]));
@@ -105,7 +107,15 @@ function PlanSubmit(){
         setXML(xmlDoc);
         //console.log(xmlDoc);
         console.log("Markers saved to GPX XML.");
+        setReadyToSubmit(true);
     };
+
+    useEffect(() => {
+        if (readyToSubmit) {
+            handleSubmit();
+            setReadyToSubmit(false); // Reset state to avoid re-running handleSubmit
+        }
+    }, [readyToSubmit]);
 
     const handleSubmit = async () => {
         if (!xml) {
@@ -160,10 +170,7 @@ function PlanSubmit(){
 
     return(
         <Fragment>
-            <Button onClick={async()=>{
-            await addMarkersToXML();
-            await handleSubmit();
-        }} className="w-full h-10 mt-8 text-lg ">
+            <Button onClick={addMarkersToXML} className="w-full h-10 mt-8 text-lg ">
             Submit
         </Button>
         <ResponseDialog open={isModalOpen} status={submissionStatus} name="Plan" redirectPath="my-plans"/>

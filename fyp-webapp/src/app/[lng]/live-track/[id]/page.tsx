@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { useLiveTrackStore } from "@/store/useLiveTrackStore";
 import { useUserDataStore } from "@/store/userUserDataStore";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { LocaleLink } from "@/components/localeLink";
 
 function getInitials(name:string) {
     return name
@@ -33,7 +35,7 @@ function calculateHeight(drawerHeight:string) {
     } else if (drawerHeight === '100%') {
         return `calc(${drawerHeight} - 40px)`;
     } else {
-        return `calc(${drawerHeight} - 60px)`;
+        return `calc(${drawerHeight} - 62px)`;
     }
 }
 
@@ -283,11 +285,12 @@ function LiveTrack({params} : {
                     dismissible={false}
                     modal={false}
                     >
-                    <DrawerContent className="w-full h-full bg-white">
+                    <DrawerContent className="w-full h-full bg-white dark:bg-zinc-700">
                     <Tabs defaultValue="checkpoints" className="w-full h-full mt-2 bg-transparent overflow-clip">
-                        <TabsList className="flex flex-row justify-evenly overflow-clip sm:h-auto h-[30px] sm:mx-4 mx-2">
+                        <TabsList className="flex flex-row justify-evenly overflow-clip sm:h-auto dark:bg-zinc-600 h-[30px] sm:mx-4 mx-2">
                             <TabsTrigger className="flex-1 sm:text-base text-sm font-semibold sm:rounded-l-md rounded-l-sm py-0.5 sm:py-1.5" value="checkpoints">Checkpoints</TabsTrigger>
                             <TabsTrigger className="flex-1 sm:text-base text-sm font-semibold sm:rounded-r-md rounded-r-sm py-0.5 sm:py-1.5" value="participants">Participants</TabsTrigger>
+                            <TabsTrigger className="flex-1 sm:text-base text-sm font-semibold sm:rounded-l-md rounded-l-sm py-0.5 sm:py-1.5" value="ranking">Ranking</TabsTrigger>
                         </TabsList>
                         <div className="sm:px-4 px-2 mt-1 sm:text-sm text-xs overflow-y-auto" style={{
                             height: calculateHeight(drawerHeight)
@@ -377,6 +380,7 @@ function LiveTrack({params} : {
                                         );
                                     })}
                                 </Accordion>
+                                <div className="w-full h-2"/>
                             </TabsContent>
                             <TabsContent value="participants">
                                 {participants && participants.length > 0 ? (
@@ -386,7 +390,7 @@ function LiveTrack({params} : {
                                             return(
                                                 <AccordionItem key={participant.id} value={participant.id}>
                                                     <AccordionTrigger className={`flex flex-row items-center px-4 py-2 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
-                                                        <div className="flex flex-row px-4 py-2 w-full justify-between items-center">
+                                                        <div className="flex flex-row px-4 py-0.5 w-full justify-between items-center">
                                                             <div className="flex flex-row gap-4 items-center">
                                                                 <Avatar>
                                                                     <AvatarImage className="object-cover" src={participant?.image??"https://github.com/shadcn.png"} />
@@ -406,10 +410,15 @@ function LiveTrack({params} : {
                                                     </AccordionTrigger>
                                                     <AccordionContent className={`px-4 pb-4 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
                                                         <Separator className={`${index % 2 === 0 ? "bg-gray-400":"bg-zinc-100"} mb-4`}/>
-                                                        {(session && session.data?.user.id === participant.id) && <div className="flex items-center space-x-2">
+                                                        {/*(session && session.data?.user.id === participant.id) && <div className="flex items-center space-x-2">
                                                             <Switch id={`gps-switch-${participant.id}`} checked={gpsEnabled} onCheckedChange={toggleGpsTracking} />
                                                             <Label htmlFor={`gps-switch-${participant.id}`}>Share Live Location</Label>
-                                                        </div>}
+                                            </div>*/}
+                                                        <LocaleLink className={"w-full"} href={`/users/${participant.id}`}>
+                                                            <Button className="w-full">
+                                                                View Profile
+                                                            </Button>
+                                                        </LocaleLink>
                                                     </AccordionContent>
                                                 </AccordionItem>
                                             )
@@ -420,6 +429,9 @@ function LiveTrack({params} : {
                                         There are no participants in this event.
                                     </div>
                                 )}
+                            </TabsContent>
+                            <TabsContent value="ranking">
+
                             </TabsContent>
                         </div>
                     </Tabs>

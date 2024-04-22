@@ -112,32 +112,32 @@ export default function AddEventPage(){
         setSubmissionStatus(SubmissionStatus.Error);
         return;
     }
-    const { period, ...otherValues } = values;
-      const { from: startDate, to: endDate } = period;
-      
-      const formData = {
-        ...otherValues,
-        startDate,
-        endDate,
-        planId: values.plan ? parseInt(values.plan, 10) : null,
-        ownerId: userId
-      };
+    const { period, startTime, ...otherValues } = values;
+    const { from: startDate, to: endDate } = period;
+    startDate.setHours(startTime.hour, startTime.minute, startTime.second, startTime.millisecond);
+    const formData = {
+      ...otherValues,
+      startDate,
+      endDate,
+      planId: values.plan ? parseInt(values.plan, 10) : null,
+      ownerId: userId,
+    };
 
-      // Handle image conversion to base64
-      if (values.image) {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(values.image);
-        fileReader.onload = () => {
-          formData.image = fileReader.result;
-          sendFormData(formData);
-        };
-        fileReader.onerror = (error) => {
-          console.error('Error converting image to Base64:', error);
-        };
-      } else {
+    // Handle image conversion to base64
+    if (values.image) {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(values.image);
+      fileReader.onload = () => {
+        formData.image = fileReader.result;
         sendFormData(formData);
-      }
+      };
+      fileReader.onerror = (error) => {
+        console.error('Error converting image to Base64:', error);
+      };
+    } else {
+      sendFormData(formData);
     }
+  }
 
     async function sendFormData(formData:any) {
       const response = await fetch('/api/events/', {

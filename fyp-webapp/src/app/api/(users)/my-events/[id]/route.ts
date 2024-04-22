@@ -15,7 +15,6 @@ export async function GET(request : NextRequest,{ params }: { params: { id: numb
             type: true,
             startDate: true,
             endDate: true,
-            startTime:true,
             owner:true,
             maxParti:true
         }

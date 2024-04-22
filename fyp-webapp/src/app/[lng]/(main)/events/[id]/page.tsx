@@ -32,6 +32,18 @@ function formatDate(dateString : string) {
         .format(date)
 }
 
+function formatTime(dateString:string) {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions | undefined  = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    };
+
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+}
+
+
 
 function EventIdPage({params} : {
     params: {
@@ -58,6 +70,7 @@ function EventIdPage({params} : {
                 }
 
                 const result = await response.json();
+                result
                 const xmlString = result.plan.gpxFile;
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(xmlString, 'text/xml');
@@ -187,6 +200,9 @@ function EventIdPage({params} : {
                     </div>
                     <div>
                         {`Period: ${data?.startDate?formatDate(data?.startDate as unknown as string):''} - ${data?.endDate?formatDate(data?.endDate as unknown as string):''}`}
+                    </div>
+                    <div>
+                        {`Start Time: ${data?.startDate ? formatTime(data?.startDate as unknown as string) : "Not specified"}`}
                     </div>
                     <div>
                         {`Description: ${data?.desc}`}

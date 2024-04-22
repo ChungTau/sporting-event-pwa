@@ -42,7 +42,6 @@ model Event {
   venue         String
   startDate     DateTime
   endDate       DateTime
-  startTime     Json?
   planId        Int?      
   ownerId       String      
   participants  User[]    @relation("EventParticipants")

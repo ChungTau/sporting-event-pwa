@@ -46,7 +46,7 @@ function LiveTrack({params} : {
 }){
     const {data, setData, setParticipants, participants} = useEventDataStore();
     const {liveTrackData, setLiveTrackData} = useLiveTrackStore();
-    const snapPoints:(string | number)[] = [0.03, 0.3, 1]; // Define snap points
+    const snapPoints:(string | number)[] = [0.03, 0.4, 1]; // Define snap points
     const [activeSnapPoint, setActiveSnapPoint] = useState<(string | number| null)>(snapPoints[1]);
     const {setXML, init, setInPage, reset} = useGpxDataStore();
     const {userData} = useUserDataStore();

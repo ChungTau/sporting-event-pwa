@@ -54,6 +54,7 @@ services:
       - CERTBOT_EMAIL=edwardonionc0209@gmail.com
     volumes:
       - ./user_conf.d:/etc/nginx/user_conf.d
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - ./letsencrypt:/etc/letsencrypt
       - ./proxy_params:/etc/nginx/proxy_params:ro
       - /etc/letsencrypt/live/auth.chungtau.com/fullchain.pem:/etc/letsencrypt/live/auth.chungtau.com/fullchain.pem

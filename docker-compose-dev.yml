@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  fyp-db:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: fyp-db
+    restart: always
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: demo,fyp
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - fyp-db-data:/var/lib/postgresql/data
+
+  fyp-keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile.keycloak-dev
+    container_name: fyp-keycloak
+    restart: always
+    volumes:
+      - ./config/:/opt/keycloak/data/import
+    ports:
+      - "8080:8080"
+    environment:
+      PROXY_ADDRESS_FORWARDING: true
+    depends_on:
+      - fyp-db
+
+
+volumes:
+  fyp-db-data:

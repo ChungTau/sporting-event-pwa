@@ -52,9 +52,7 @@ model Event {
 
 model LiveLocation {
   id        Int      @id @default(autoincrement())
-  latitude  Float
-  longitude Float
-  timestamp DateTime @default(now())
+  coordinates Json[]
   userId    String
   eventId   Int
 

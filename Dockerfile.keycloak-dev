@@ -1,0 +1,25 @@
+FROM quay.io/keycloak/keycloak:latest
+
+# Enable health and metrics support
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+
+# Configure a database vendor
+ENV KC_DB=postgres
+
+# Setup work directory
+WORKDIR /opt/keycloak
+
+# Define environment variables for Keycloak admin username and password
+ENV KEYCLOAK_ADMIN=admin
+ENV KEYCLOAK_ADMIN_PASSWORD=admin
+
+# Database connection settings
+ENV KC_DB_URL=jdbc:postgresql://fyp-db:5432/fyp
+ENV KC_DB_USERNAME=fyp
+ENV KC_DB_PASSWORD=fyp
+ENV KC_HOSTNAME=localhost
+
+
+# Set the default entry point and command
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]

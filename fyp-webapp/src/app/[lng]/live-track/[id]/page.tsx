@@ -5,22 +5,29 @@ import { useEventDataStore } from "@/store/useEventDataStore";
 import { useGpxDataStore } from "@/store/useGpxDataStore";
 import { extractMetadata, processGeoJSON } from "@/utils/map";
 import { gpx } from "@tmcw/togeojson";
-import { Badge, Dot, Loader2, Minus } from "lucide-react";
+import { Dot, Loader2, Minus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMarkerStore } from "@/store/useMarkerStore";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { User } from "@prisma/client";
+import { Event, Plan, User } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useLiveTrackStore } from "@/store/useLiveTrackStore";
 import { useUserDataStore } from "@/store/userUserDataStore";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { LocaleLink } from "@/components/localeLink";
+import {
+    distance,
+    point,
+
+    //@ts-ignore
+} from '@turf/turf';
+import { toast } from "@/components/ui/use-toast";
+import CountdownTimer from "@/components/countdownTimer";
+import { Badge } from "@/components/ui/badge";
 
 function getInitials(name:string) {
     return name
@@ -48,7 +55,7 @@ function LiveTrack({params} : {
     const {liveTrackData, setLiveTrackData} = useLiveTrackStore();
     const snapPoints:(string | number)[] = [0.03, 0.4, 1]; // Define snap points
     const [activeSnapPoint, setActiveSnapPoint] = useState<(string | number| null)>(snapPoints[1]);
-    const {setXML, init, setInPage, reset} = useGpxDataStore();
+    const {setXML, init, setInPage, reset, routes} = useGpxDataStore();
     const {userData} = useUserDataStore();
     const [loading, setLoading] = useState(false);
     const session = useSession();
@@ -58,25 +65,59 @@ function LiveTrack({params} : {
     const [gpsEnabled, setGpsEnabled] = useState(false);
     const watchId = useRef<number|null>(null);
 
-    // Function to start watching location
-    const startLocationTracking = () => {
-        if (navigator.geolocation) {
-            watchId.current = navigator.geolocation.watchPosition(
-                (position) => {
-                    // Update location in database
-                    updateLocation(position.coords.latitude, position.coords.longitude);
-                },
-                (error) => {
-                    console.error('Error obtaining location', error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        }
+    const isUserOnTrack = (startPoint: [number, number], userPosition: any): boolean => {
+        const from = point(startPoint);
+        const to = point([userPosition.coords.longitude, userPosition.coords.latitude]);
+        const distanceBetweenPoints = distance(from, to);
+        return distanceBetweenPoints <= 0.5; // 500 meters threshold
     };
+    
+    const isEventActive = (): boolean => {
+        const now = Date.now();
+        const start = new Date(data?.startDate as unknown as string).getTime();
+        const end = new Date(data?.endDate as unknown as string).getTime();
+        return now >= start && now <= end;
+    };
+
+    // Function to start watching location
+    const startLocationTracking = (): void => {
+    if (navigator.geolocation && routes && routes.geometry) {
+        watchId.current = navigator.geolocation.watchPosition(
+            (position) => {
+                let startPoint: [number, number] = [0, 0];
+
+                if (routes.geometry.type === "LineString") {
+                    startPoint = routes.geometry.coordinates[0] as [number, number];
+                } else if (routes.geometry.type === "MultiLineString") {
+                    startPoint = routes.geometry.coordinates[0][0] as [number, number];
+                }
+
+                if (isUserOnTrack(startPoint, position) && isEventActive()) {
+                    updateLocation(position.coords.latitude, position.coords.longitude);
+                } else {
+                    toast({
+                        title: "You are off track",
+                        description: "Please go to the start point"
+                    });
+                    setGpsEnabled(false);
+                }
+            },
+            (error: GeolocationPositionError) => {
+                console.error('Error obtaining location', error);
+                if (error.code === error.PERMISSION_DENIED) {
+                    console.log("Permission Denied");
+                    setGpsEnabled(false);
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+};
+
 
     const updateLocation = async (latitude:number, longitude:number) => {
         try {
@@ -138,8 +179,8 @@ function LiveTrack({params} : {
             stopLocationTracking();
         }
     };
+    
 
-    // Cleanup on component unmount
     useEffect(() => {
         return () => {
             if (gpsEnabled) {
@@ -147,6 +188,7 @@ function LiveTrack({params} : {
             }
         };
     }, [gpsEnabled, stopLocationTracking]);
+    
 
     const toggleAllCheckpointItems = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         event.stopPropagation(); // Prevents event bubbling
@@ -248,7 +290,7 @@ function LiveTrack({params} : {
     useEffect(() => {
         
         fetchLiveTrackData(); // Fetch immediately on mount
-        const intervalId = setInterval(fetchLiveTrackData, 30000); // Set up interval
+        const intervalId = setInterval(fetchLiveTrackData, 10000); // Set up interval
 
         // Clean up interval on component unmount
         return () => clearInterval(intervalId);
@@ -269,13 +311,23 @@ function LiveTrack({params} : {
     </div>);
     }else{
         const drawerHeight = typeof activeSnapPoint === 'number' ? `${activeSnapPoint * 100}%` : '0%';
-        console.log(drawerHeight);
-        console.log(activeSnapPoint);
         return(
             <div className="w-screen h-screen">
                 <div className="w-full h-full relative">
                     <PlanMapView/>
                 </div>
+                <div className="absolute left-1/2 top-4">
+                    <div className="relative -left-1/2 py-1 px-4 rounded-md bg-white dark:bg-zinc-700">
+                        <CountdownTimer startDateTimestamp={data?.startDate as unknown as string} endDateTimestamp={data?.endDate as unknown as string}/>
+                    </div>
+                </div>
+                {(session && participants.some(participant => participant.id === session?.data?.user.id)) && (
+                    <Button onClick={toggleGpsTracking} className="absolute right-4 top-4">
+                        {gpsEnabled ? 'Not ready' : 'Ready'}
+                    </Button>
+                )}
+
+
                  
                 <Drawer
                     snapPoints={snapPoints}
@@ -410,10 +462,7 @@ function LiveTrack({params} : {
                                                     </AccordionTrigger>
                                                     <AccordionContent className={`px-4 pb-4 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
                                                         <Separator className={`${index % 2 === 0 ? "bg-gray-400":"bg-zinc-100"} mb-4`}/>
-                                                        {/*(session && session.data?.user.id === participant.id) && <div className="flex items-center space-x-2">
-                                                            <Switch id={`gps-switch-${participant.id}`} checked={gpsEnabled} onCheckedChange={toggleGpsTracking} />
-                                                            <Label htmlFor={`gps-switch-${participant.id}`}>Share Live Location</Label>
-                                            </div>*/}
+                                         
                                                         <LocaleLink className={"w-full"} href={`/users/${participant.id}`}>
                                                             <Button className="w-full">
                                                                 View Profile
@@ -431,7 +480,36 @@ function LiveTrack({params} : {
                                 )}
                             </TabsContent>
                             <TabsContent value="ranking">
+                            {participants && participants.length > 0 ? (
+                                    
+                                (participants as User[]).map((participant, index) => {
 
+                                    return(
+                                        
+                                            <div className={`flex flex-row items-center px-4 py-2 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
+                                                <div className="flex flex-row px-4 py-0.5 w-ful justify-start items-center gap-4">
+                                                    <div>
+                                                        {index+1}
+                                                    </div>
+                                                    <div className="flex flex-row gap-4 items-center">
+                                                        <Avatar>
+                                                            <AvatarImage className="object-cover" src={participant?.image??"https://github.com/shadcn.png"} />
+                                                            <AvatarFallback>{getInitials(participant.name!)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="text-md truncate text-left">
+                                                            {participant.name}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    )
+                                })
+
+                                ) : (
+                                    <div className="flex justify-center items-center p-4">
+                                        There are no participants in this event.
+                                    </div>
+                                )}
                             </TabsContent>
                         </div>
                     </Tabs>

@@ -6,9 +6,9 @@
     "schema": "./prisma/schema.prisma"
   },
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS='--max-http-header-size=12800000' next dev",
-    "build": "next build",
-    "start": "cross-env NODE_OPTIONS='--max-http-header-size=12800000' next start",
+    "dev": "cross-env NODE_ENV=development NODE_OPTIONS='--max-http-header-size=12800000' next dev",
+    "build": "cross-env NODE_ENV=production next build",
+    "start": "cross-env NODE_ENV=development NODE_OPTIONS='--max-http-header-size=12800000' next start",
     "lint": "next lint"
   },
   "dependencies": {

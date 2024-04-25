@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { PlanCheckpointDialog } from "..";
 import { useLiveTrackStore } from "@/store/useLiveTrackStore";
+import { JsonObject } from "@prisma/client/runtime/library";
 
 function PlanMapView() {
     const {mapview} = useMap();
@@ -96,7 +97,7 @@ function PlanMapView() {
                 const existingMarker = getPartiMarkerById(liveData.userId);
                 if (existingMarker) {
                     // Marker exists, update its position
-                    updatePartiMarker(liveData.userId, {lng:liveData.longitude, lat:liveData.latitude});
+                    updatePartiMarker(liveData.userId, {lng:((liveData?.coordinates[liveData.coordinates.length -1] as JsonObject)?.longitude as number), lat:((liveData?.coordinates[liveData.coordinates.length -1] as JsonObject)?.latitude as number)});
                     //existingMarker.setLngLat([liveData.longitude, liveData.latitude]);
                 } else {
                     // Marker does not exist, create it
@@ -104,7 +105,7 @@ function PlanMapView() {
                         name: (liveData as any)?.user.name,
                         image: (liveData as any)?.user.image || 'https://github.com/shadcn.png'
                     });
-                    partiMarker.setLngLat({lng:liveData.longitude, lat:liveData.latitude}).addTo(map);
+                    partiMarker.setLngLat( {lng:((liveData?.coordinates[liveData.coordinates.length -1] as JsonObject)?.longitude as number), lat:((liveData?.coordinates[liveData.coordinates.length -1] as JsonObject)?.latitude as number)}).addTo(map);
                     partiMarker.data = {
                         id: liveData.userId
                     };

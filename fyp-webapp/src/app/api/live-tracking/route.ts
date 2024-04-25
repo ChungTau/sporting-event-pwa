@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function POST(request:NextRequest){
+export async function PATCH(request:NextRequest){
     const body = await request.json();
     const {userId,  // Assuming you have user's ID in session
     latitude,
@@ -11,6 +11,13 @@ export async function POST(request:NextRequest){
     if (!userId || !latitude || !longitude || !eventId) {
         return NextResponse.json({ message: "Missing required fields" },{status:500});
     }
+
+    const coordinate = {
+        latitude,
+        longitude,
+        timestamp: new Date().toISOString() // Storing ISO string for clarity
+    };
+
     try {
     const newLocation = await prisma.liveLocation.upsert({
         where: {
@@ -20,15 +27,18 @@ export async function POST(request:NextRequest){
             }
         },
         update: {
-            latitude,
-            longitude,
-            timestamp: new Date()  // Update timestamp to now on each update
+            coordinates: {
+                push: coordinate
+            }
         },
         create: {
             userId,
             eventId,
-            latitude,
-            longitude
+            coordinates: [coordinate],
+            lastCheckpoint: 0
+        },
+        include: {
+            event: true // Include the related event data
         }
     });
 

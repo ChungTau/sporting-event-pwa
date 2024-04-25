@@ -53,6 +53,7 @@ function LiveTrack({params} : {
 }){
     const {data, setData, setParticipants, participants} = useEventDataStore();
     const {liveTrackData, setLiveTrackData} = useLiveTrackStore();
+    const [ranking, setRanking] = useState<{user:User, distance:number}[]|[]>([]);
     const snapPoints:(string | number)[] = [0.03, 0.4, 1]; // Define snap points
     const [activeSnapPoint, setActiveSnapPoint] = useState<(string | number| null)>(snapPoints[1]);
     const {setXML, init, setInPage, reset, routes} = useGpxDataStore();
@@ -103,9 +104,9 @@ function LiveTrack({params} : {
                 }
             },
             (error: GeolocationPositionError) => {
-                console.error('Error obtaining location', error);
+                //console.error('Error obtaining location', error);
                 if (error.code === error.PERMISSION_DENIED) {
-                    console.log("Permission Denied");
+                    //console.log("Permission Denied");
                     setGpsEnabled(false);
                 }
             },
@@ -122,7 +123,7 @@ function LiveTrack({params} : {
     const updateLocation = async (latitude:number, longitude:number) => {
         try {
             const response = await fetch(`/api/live-tracking`, {
-                method: 'POST',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -134,9 +135,9 @@ function LiveTrack({params} : {
                 })
             });
             const data = await response.json();
-            console.log('Location update response:', data);
+            //console.log('Location update response:', data);
         } catch (error) {
-            console.error('Failed to update location', error);
+            //console.error('Failed to update location', error);
         }
     };
 
@@ -156,9 +157,9 @@ function LiveTrack({params} : {
                 throw new Error('Failed to delete live tracking data');
             }
             const liveTrackResult = await response.json();
-            console.log('Live track data:', liveTrackResult);
+            //console.log('Live track data:', liveTrackResult);
         } catch (error) {
-            console.error('Error deleting live track data:', error);
+            //console.error('Error deleting live track data:', error);
         }
     }, [userId, params.id]); // Assuming `userId` and `params.id` are stable and don't change often
     
@@ -238,7 +239,7 @@ function LiveTrack({params} : {
             });
             setParticipants(sortedParticipants);
         } catch (error) {
-            console.error("Error fetching event:", error);
+            //console.error("Error fetching event:", error);
         }
     }, [params.id, init, setInPage, setXML, setData, setParticipants, userId]);
 
@@ -259,9 +260,25 @@ function LiveTrack({params} : {
             });
             setParticipants(sortedParticipants);
         } catch (error) {
-            console.error("Error fetching event:", error);
+            //console.error("Error fetching event:", error);
         }
     }, [params.id, userId, setParticipants]); // Ensure all used values are listed in the dependencies array
+
+    const fetchRanking = useCallback(async () => {
+        try {
+            if (!params.id) {
+                throw new Error("User ID not found");
+            }
+            const response = await fetch(`/api/events/${params.id}/ranking`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch ranking");
+            }
+            const result = await response.json();
+            setRanking(result);
+        } catch (error) {
+            console.error("Error fetching ranking:", error);
+        }
+    }, [params.id, userId]); // Ensure all used values are listed in the dependencies array
     
 
     useEffect(() => {
@@ -275,6 +292,7 @@ function LiveTrack({params} : {
    const fetchLiveTrackData = useCallback(async () => {
         try {
             await fetchParticipants();
+            await fetchRanking();
             const response = await fetch(`/api/live-tracking/${params.id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch live tracking data');
@@ -302,8 +320,9 @@ function LiveTrack({params} : {
             setData(null);
             setParticipants([]);
             setLiveTrackData([]);
+            setRanking([]);
         };
-    }, [reset, setData, setParticipants, setLiveTrackData]);
+    }, [reset, setData, setParticipants, setLiveTrackData, setRanking]);
 
     if(loading){
         return(<div className="w-screen h-screen flex justify-center items-center">
@@ -480,26 +499,31 @@ function LiveTrack({params} : {
                                 )}
                             </TabsContent>
                             <TabsContent value="ranking">
-                            {participants && participants.length > 0 ? (
-                                    
-                                (participants as User[]).map((participant, index) => {
+                            {ranking && ranking.length > 0 ? (
+                                
+                                ranking.map((data, index) => {
 
                                     return(
                                         
                                             <div className={`flex flex-row items-center px-4 py-2 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
+                                                <div className="justify-between flex flex-row items-center w-full">
                                                 <div className="flex flex-row px-4 py-0.5 w-ful justify-start items-center gap-4">
                                                     <div>
                                                         {index+1}
                                                     </div>
                                                     <div className="flex flex-row gap-4 items-center">
                                                         <Avatar>
-                                                            <AvatarImage className="object-cover" src={participant?.image??"https://github.com/shadcn.png"} />
-                                                            <AvatarFallback>{getInitials(participant.name!)}</AvatarFallback>
+                                                            <AvatarImage className="object-cover" src={data.user?.image??"https://github.com/shadcn.png"} />
+                                                            <AvatarFallback>{getInitials(data.user.name!)}</AvatarFallback>
                                                         </Avatar>
                                                         <div className="text-md truncate text-left">
-                                                            {participant.name}
+                                                            {data.user.name}
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div>
+                                                    {data.distance.toFixed(2)} KM
+                                                </div>
                                                 </div>
                                             </div>
                                     )

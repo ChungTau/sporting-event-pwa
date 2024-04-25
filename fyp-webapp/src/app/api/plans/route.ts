@@ -37,7 +37,7 @@ export async function POST(request: NextRequest){
       }
 
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const filename = `${uniqueSuffix}.gpx}`;
+    const filename = `${uniqueSuffix}.gpx`;
     await writeFile(`${uploadDir}/${filename}`, file);
     const fileUrl = `${relativeUploadDir}/${filename}`;
     const newPlan = await prisma.plan.create({

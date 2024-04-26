@@ -278,7 +278,7 @@ function LiveTrack({params} : {
         } catch (error) {
             console.error("Error fetching ranking:", error);
         }
-    }, [params.id, userId]); // Ensure all used values are listed in the dependencies array
+    }, [params.id]); // Ensure all used values are listed in the dependencies array
     
 
     useEffect(() => {
@@ -303,7 +303,7 @@ function LiveTrack({params} : {
         } catch (error) {
             console.error('Error fetching live track data:', error);
         }
-    }, [params.id, fetchParticipants, setLiveTrackData]);
+    }, [params.id, fetchParticipants, setLiveTrackData, fetchRanking]);
 
     useEffect(() => {
         
@@ -505,7 +505,7 @@ function LiveTrack({params} : {
 
                                     return(
                                         
-                                            <div className={`flex flex-row items-center px-4 py-2 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
+                                            <div key={index} className={`flex flex-row items-center px-4 py-2 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-zinc-600' : 'bg-transparent'}`}>
                                                 <div className="justify-between flex flex-row items-center w-full">
                                                 <div className="flex flex-row px-4 py-0.5 w-ful justify-start items-center gap-4">
                                                     <div>

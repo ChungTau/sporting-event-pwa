@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMarkerStore } from "@/store/useMarkerStore";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Event, Plan, User } from "@prisma/client";
+import {  User } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import { useLiveTrackStore } from "@/store/useLiveTrackStore";
@@ -70,7 +70,7 @@ function LiveTrack({params} : {
         const from = point(startPoint);
         const to = point([userPosition.coords.longitude, userPosition.coords.latitude]);
         const distanceBetweenPoints = distance(from, to);
-        return distanceBetweenPoints <= 0.5; // 500 meters threshold
+        return distanceBetweenPoints <= 0.1; // 500 meters threshold
     };
     
     const isEventActive = (): boolean => {
@@ -93,15 +93,25 @@ function LiveTrack({params} : {
                     startPoint = routes.geometry.coordinates[0][0] as [number, number];
                 }
 
-                if (isUserOnTrack(startPoint, position) && isEventActive()) {
-                    updateLocation(position.coords.latitude, position.coords.longitude);
-                } else {
+                if(isEventActive()){
+                    if (isUserOnTrack(startPoint, position) ) {
+                        updateLocation(position.coords.latitude, position.coords.longitude);
+                    } else {
+                        toast({
+                            title: "You are off track",
+                            description: "Please go to the start point"
+                        });
+                        setGpsEnabled(false);
+                    }
+                }else{
                     toast({
-                        title: "You are off track",
-                        description: "Please go to the start point"
+                        title: "Event is inactive",
+                        description: "You can't track your location"
                     });
                     setGpsEnabled(false);
                 }
+
+                
             },
             (error: GeolocationPositionError) => {
                 //console.error('Error obtaining location', error);

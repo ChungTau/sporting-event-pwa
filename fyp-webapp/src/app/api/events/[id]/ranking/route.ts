@@ -31,7 +31,7 @@ function splitRouteIntoSegments(route:Feature) {
 
     while (currentDistance < totalLength) {
         const start = along(route, currentDistance, { units: 'kilometers' });
-        currentDistance += 1; // Increment by 1 km
+        currentDistance += 0.1;
         const end = along(route, Math.min(currentDistance, totalLength), { units: 'kilometers' });
         if (start && end) {
             const segment = lineSlice(start, end, route);
@@ -86,11 +86,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             const userPoint = point([lastCoord.longitude, lastCoord.latitude]);
             const nearest = nearestPointOnLine(segments[liveLocation.lastCheckpoint], userPoint);
     
-            if (distance(userPoint, point(segments[liveLocation.lastCheckpoint].geometry.coordinates.slice(-1)[0])) < 0.1) {
+            if (distance(userPoint, point(segments[liveLocation.lastCheckpoint].geometry.coordinates.slice(-1)[0])) < 0.02) {
                 await updateLastCheckpoint(liveLocation.userId, liveLocation.eventId, liveLocation.lastCheckpoint + 1);
             }
     
-            const traveledDistance = liveLocation.lastCheckpoint + length(lineSlice(point(segments[liveLocation.lastCheckpoint].geometry.coordinates[0]), nearest, segments[liveLocation.lastCheckpoint]));
+            const traveledDistance = liveLocation.lastCheckpoint*0.1 + length(lineSlice(point(segments[liveLocation.lastCheckpoint].geometry.coordinates[0]), nearest, segments[liveLocation.lastCheckpoint]));
             totalDistances.push({ user: liveLocation.user, distance: traveledDistance });
         }
     }

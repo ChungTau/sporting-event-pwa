@@ -20,7 +20,7 @@ jobs:
 
     - name: Git Pull on Server
       run: |
-        ssh -o ServerAliveInterval=60 StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
+        ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           cd ~/fyp/sporting-event-pwa
           # Ensure we're on the production branch
           git fetch --all

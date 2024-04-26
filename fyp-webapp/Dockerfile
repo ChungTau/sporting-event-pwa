@@ -6,12 +6,6 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
-
-# Set npm fetch configurations
-RUN npm config set fetch-retries 5 \
-    && npm config set fetch-retry-mintimeout 600000 \
-    && npm config set fetch-retry-maxtimeout 1200000 \
-    && npm config set fetch-timeout 1800000
     
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
